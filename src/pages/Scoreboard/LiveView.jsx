@@ -1,10 +1,14 @@
+import { useEffect } from "react";
+import ScoreBar from "./ScoreBar";
+
 export default function LiveView() {
+  useEffect(() => {
+    document.title = "Scoreboard - Live View";
+  }, []);
+
   return (
-    <>
-      <div className="flex flex-col justify-center items-center min-h-screen text-center">
-        <h2 className="text-2xl font-bold mb-4">Live View</h2>
-        <p>Welcome to the Live View management page.</p>
-      </div>
-    </>
+    <div className="flex flex-col justify-end items-center min-h-screen bg-transparent text-center pb-8">
+      <ScoreBar/>
+    </div>
   );
 }
