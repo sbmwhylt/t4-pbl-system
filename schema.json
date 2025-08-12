@@ -1,0 +1,166 @@
+{
+  "t4_bouldering": {
+    "teams": {
+      "team_1": {
+        "name": "Donx",
+        "abbreviation": "DNX",
+        "logo_url": "https://i.imgur.com/OSncB4l.png",
+        "players": ["player_101", "player_104"]
+      },
+      "team_2": {
+        "name": "Honey Badgers",
+        "abbreviation": "BGR",
+        "logo_url": "https://i.imgur.com/yplPbd1.png",
+        "players": ["player_102", "player_106"]
+      },
+      "team_3": {
+        "name": "Hornets",
+        "abbreviation": "HRN",
+        "logo_url": "https://i.imgur.com/IJ0eFQ2.png",
+        "players": ["player_103", "player_105"]
+      }
+    },
+    "players": {
+      "player_101": {
+        "name": "Murray",
+        "jersey_number": 17,
+        "team_id": "team_1"
+      },
+      "player_102": {
+        "name": "Axon",
+        "jersey_number": 17,
+        "team_id": "team_2"
+      },
+      "player_103": {
+        "name": "Jones",
+        "jersey_number": 8,
+        "team_id": "team_3"
+      },
+      "player_104": {
+        "name": "James",
+        "jersey_number": 10,
+        "team_id": "team_1"
+      },
+      "player_105": {
+        "name": "Kelly",
+        "jersey_number": 10,
+        "team_id": "team_3"
+      },
+      "player_106": {
+        "name": "Johan",
+        "jersey_number": 20,
+        "team_id": "team_2"
+      }
+    },
+    "boulders": {
+      "boulder_1": {
+        "name": "A",
+        "points_zone_1": 1,
+        "points_zone_2": 1,
+        "points_top": 2,
+        "flash_bonus": 2
+      },
+      "boulder_2": {
+        "name": "B",
+        "points_zone_1": 1,
+        "points_zone_2": 1,
+        "points_top": 2,
+        "flash_bonus": 2
+      },
+      "boulder_3": {
+        "name": "C",
+        "points_zone_1": 1,
+        "points_zone_2": 1,
+        "points_top": 2,
+        "flash_bonus": 2
+      },
+      "boulder_4": {
+        "name": "D",
+        "points_zone_1": 1,
+        "points_zone_2": 1,
+        "points_top": 2,
+        "flash_bonus": 2
+      }
+    },
+    "matches": {
+      "match_1": {
+        "teams": ["team_1", "team_2"],
+        "start_time": 1723459200000,
+        "end_time": null,
+        "status": "live"
+      }
+    },
+    "live_status": {
+      "match_1": {
+        "clock": "03:15",
+        "period": "Round 1",
+        "on_boulders": {
+          "team_1": {
+            "player_id": "player_101",
+            "boulder_id": "boulder_1",
+            "attempts": 2,
+            "points": 4
+          },
+          "team_2": {
+            "player_id": "player_102",
+            "boulder_id": "boulder_2",
+            "attempts": 1,
+            "points": 6
+          }
+        }
+      }
+    },
+    "scoreboard": {
+      "match_1": {
+        "team_1": {
+          "abbreviation": "DNX",
+          "current_player": "Murray",
+          "jersey": 17,
+          "possible": 8,
+          "score": 12,
+          "side": "left",
+          "team_logo": "https://i.imgur.com/OSncB4l.png"
+        },
+        "team_2": {
+          "abbreviation": "BGR",
+          "current_player": "Axon",
+          "jersey": 17,
+          "possible": 8,
+          "score": 14,
+          "side": "right",
+          "team_logo": "https://i.imgur.com/yplPbd1.png"
+        }
+      }
+    },
+    "history": {
+      "match_1": {
+        "scores": {
+          "team_1": {
+            "total": 12
+          },
+          "team_2": {
+            "total": 14
+          }
+        },
+        "events": [
+          {
+            "timestamp": 1723459205000,
+            "type": "attempt",
+            "team_id": "team_1",
+            "player_id": "player_101",
+            "boulder_id": "boulder_1",
+            "points_awarded": 4
+          },
+          {
+            "timestamp": 1723459212000,
+            "type": "attempt",
+            "team_id": "team_2",
+            "player_id": "player_102",
+            "boulder_id": "boulder_2",
+            "points_awarded": 6
+          }
+        ]
+      }
+    }
+  }
+}
