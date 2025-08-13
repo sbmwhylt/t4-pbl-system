@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase"; // Adjust the import path as necessary
+import { auth } from "../../firebase";
 import { useNavigate } from "react-router-dom";
+import { useAuthState } from "react-firebase-hooks/auth";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 
@@ -10,7 +11,16 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [user, authLoading] = useAuthState(auth);
   const navigate = useNavigate();
+
+  // Redirect logged-in users away from login page
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate("/admin/dashboard", { replace: true });
+    }
+  }, [user, authLoading, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -30,16 +40,18 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-white">
       <form onSubmit={handleLogin} className="bg-white px-8 pt-6 pb-8 w-84">
         <div className="flex flex-col items-center justify-center gap-4">
-          <img src="/T4-logo.png" alt="" className="w-18" />{" "}
+          <img src="/T4-logo.png" alt="" className="w-18" />
           <h2 className="text-xl font-bold tracking-tight">
             Sign in to T4 Admin
           </h2>
         </div>
+
         {error && (
           <p className="text-red-500 text-sm font-medium my-3 text-center py-2 px-4 bg-red-100 rounded">
-            Invalid Credentials! please try again.
+            Invalid Credentials! Please try again.
           </p>
         )}
+
         <div className="space-y-3 pb-4 mt-8">
           <Input
             label="Your Email"
@@ -68,7 +80,6 @@ export default function Login() {
         >
           {loading ? "Signing in..." : "Sign In"}
         </Button>
-
       </form>
     </div>
   );
