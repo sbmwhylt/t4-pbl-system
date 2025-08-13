@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { db } from "../../firebase";
 import { ref, onValue } from "firebase/database";
 import AdminLayout from "../../components/layout/AdminLayout";
-import Table from "../../components/ui/Table"; // assuming this is where your Table component is
+import Table from "../../components/ui/Table"; 
 
 export default function Players() {
   const [players, setPlayers] = useState([]);

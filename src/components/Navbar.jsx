@@ -4,22 +4,11 @@ import { Settings, LogOut } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth, db } from "../firebase"; // adjust path
 import { ref, get } from "firebase/database";
+import {useUser} from "../context/UserContext"; // adjust path
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const userRef = ref(db, `users/${currentUser.uid}`);
-      get(userRef).then((snapshot) => {
-        if (snapshot.exists()) {
-          setUser(snapshot.val());
-        }
-      });
-    }
-  }, []);
+  const user = useUser();
 
   const navItems = [
     { label: "Dashboard", path: "/admin/dashboard" },
