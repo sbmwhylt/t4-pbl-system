@@ -1,80 +1,80 @@
 {
   "t4_bouldering": {
     "teams": {
-      "team_1": {
+      "T1": {
         "name": "Donx",
         "abbreviation": "DNX",
         "logo_url": "https://i.imgur.com/OSncB4l.png",
-        "players": ["player_101", "player_104"]
+        "players": ["P1", "P4"]
       },
-      "team_2": {
+      "T2": {
         "name": "Honey Badgers",
         "abbreviation": "BGR",
         "logo_url": "https://i.imgur.com/yplPbd1.png",
-        "players": ["player_102", "player_106"]
+        "players": ["P2", "P6"]
       },
-      "team_3": {
+      "T3": {
         "name": "Hornets",
         "abbreviation": "HRN",
         "logo_url": "https://i.imgur.com/IJ0eFQ2.png",
-        "players": ["player_103", "player_105"]
+        "players": ["P3", "P5"]
       }
     },
     "players": {
-      "player_101": {
+      "P1": {
         "name": "Murray",
         "jersey_number": 17,
-        "team_id": "team_1"
+        "team_id": "T1"
       },
-      "player_102": {
+      "P2": {
         "name": "Axon",
         "jersey_number": 17,
-        "team_id": "team_2"
+        "team_id": "T2"
       },
-      "player_103": {
+      "P3": {
         "name": "Jones",
         "jersey_number": 8,
-        "team_id": "team_3"
+        "team_id": "T3"
       },
-      "player_104": {
+      "P4": {
         "name": "James",
         "jersey_number": 10,
-        "team_id": "team_1"
+        "team_id": "T1"
       },
-      "player_105": {
+      "P5": {
         "name": "Kelly",
         "jersey_number": 10,
-        "team_id": "team_3"
+        "team_id": "T3"
       },
-      "player_106": {
+      "P6": {
         "name": "Johan",
         "jersey_number": 20,
-        "team_id": "team_2"
+        "team_id": "T2"
       }
     },
     "boulders": {
-      "boulder_1": {
+      "B1": {
         "name": "A",
         "points_zone_1": 1,
         "points_zone_2": 1,
         "points_top": 2,
         "flash_bonus": 2
       },
-      "boulder_2": {
+      "B2": {
         "name": "B",
         "points_zone_1": 1,
         "points_zone_2": 1,
         "points_top": 2,
         "flash_bonus": 2
       },
-      "boulder_3": {
+      "B3": {
         "name": "C",
         "points_zone_1": 1,
         "points_zone_2": 1,
         "points_top": 2,
         "flash_bonus": 2
       },
-      "boulder_4": {
+      "B4": {
         "name": "D",
         "points_zone_1": 1,
         "points_zone_2": 1,
@@ -83,27 +83,27 @@
       }
     },
     "matches": {
-      "match_1": {
-        "teams": ["team_1", "team_2"],
+      "M1": {
+        "teams": ["T1", "T2"],
         "start_time": 1723459200000,
         "end_time": null,
         "status": "live"
       }
     },
     "live_status": {
-      "match_1": {
+      "M1": {
         "clock": "03:15",
         "period": "Round 1",
         "on_boulders": {
-          "team_1": {
-            "player_id": "player_101",
-            "boulder_id": "boulder_1",
+          "T1": {
+            "player_id": "P1",
+            "boulder_id": "B1",
             "attempts": 2,
             "points": 4
           },
-          "team_2": {
-            "player_id": "player_102",
-            "boulder_id": "boulder_2",
+          "T2": {
+            "player_id": "P2",
+            "boulder_id": "B2",
             "attempts": 1,
             "points": 6
           }
@@ -111,8 +111,8 @@
       }
     },
     "scoreboard": {
-      "match_1": {
-        "team_1": {
+      "M1": {
+        "T1": {
           "abbreviation": "DNX",
           "current_player": "Murray",
           "jersey": 17,
@@ -121,7 +121,7 @@
           "side": "left",
           "team_logo": "https://i.imgur.com/OSncB4l.png"
         },
-        "team_2": {
+        "T2": {
           "abbreviation": "BGR",
           "current_player": "Axon",
           "jersey": 17,
@@ -133,12 +133,12 @@
       }
     },
     "history": {
-      "match_1": {
+      "M1": {
         "scores": {
-          "team_1": {
+          "T1": {
             "total": 12
           },
-          "team_2": {
+          "T2": {
             "total": 14
           }
         },
@@ -146,17 +146,17 @@
           {
             "timestamp": 1723459205000,
             "type": "attempt",
-            "team_id": "team_1",
-            "player_id": "player_101",
-            "boulder_id": "boulder_1",
+            "team_id": "T1",
+            "player_id": "P1",
+            "boulder_id": "B1",
             "points_awarded": 4
           },
           {
             "timestamp": 1723459212000,
             "type": "attempt",
-            "team_id": "team_2",
-            "player_id": "player_102",
-            "boulder_id": "boulder_2",
+            "team_id": "T2",
+            "player_id": "P2",
+            "boulder_id": "B2",
             "points_awarded": 6
           }
         ]

@@ -11,7 +11,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="w-full h-16 bg-white text-black flex items-center justify-between px-4 shadow-md">
+    <nav className="w-full h-16 bg-white text-black flex items-center justify-between px-4 z-99 shadow-md">
       <div className="flex gap-2 items-center justify-center">
         <img src="/T4-logo.png" alt="T4 Logo" className="h-8" />
         <h1 className="text-lg font-medium">Admin Panel</h1>
