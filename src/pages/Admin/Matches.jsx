@@ -19,6 +19,8 @@ export default function Matches() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [scoreTeamModalOpen, setScoreTeamModalOpen] = useState(false);
+  const [selectedMatchId, setSelectedMatchId] = useState(null);
 
   // Load teams
   useEffect(() => {
@@ -186,7 +188,13 @@ export default function Matches() {
               }))
               .sort((a, b) => b.start_time - a.start_time)} // newest first
             actions={(row) => (
-              <button className="cursor-pointer">
+              <button
+                className="cursor-pointer"
+                onClick={() => {
+                  setSelectedMatchId(row.id);
+                  setScoreTeamModalOpen(true);
+                }}
+              >
                 <SlidersHorizontal
                   className="text-gray-600 hover:text-blue-600"
                   size={16}
@@ -252,6 +260,34 @@ export default function Matches() {
               {creating ? "Creating..." : "Create Match"}
             </Button>
           </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={scoreTeamModalOpen}
+        onClose={() => setScoreTeamModalOpen(false)}
+        title="Select Team to Score"
+      >
+        <div className="p-4 grid grid-cols-2 gap-4">
+          {matches[selectedMatchId]?.teams?.map((teamId) => {
+            const team = teams[teamId];
+            return (
+              <Button
+                key={teamId}
+                onClick={() => {
+                  window.location.href = `/match-panel/${selectedMatchId}?teamId=${teamId}`;
+                }}
+                className="flex flex-col items-center justify-center gap-2 p-6 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 cursor-pointer"
+              >
+                <img
+                  src={team.logo_url}
+                  alt={team.name}
+                  className="w-20 object-contain"
+                />
+                <span className="text-sm font-regular mt-2">{team.name}</span>
+              </Button>
+            );
+          })}
         </div>
       </Modal>
     </AdminLayout>

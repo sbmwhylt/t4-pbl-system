@@ -4,8 +4,8 @@ import Teams from "./pages/Admin/Teams";
 import Players from "./pages/Admin/Players";
 import Boulders from "./pages/Admin/Boulders";
 import Matches from "./pages/Admin/Matches";
-import LiveView from "./pages/Scoreboard/LiveView"; 
-
+import LiveView from "./pages/Scoreboard/LiveView";
+import MatchPanel from "./pages/Scoreboard/MatchPanel";
 
 function App() {
   return (
@@ -19,6 +19,7 @@ function App() {
           <Route path="/admin/boulders" element={<Boulders />} />
           <Route path="/admin/matches" element={<Matches />} />
           <Route path="/scoreboard/liveview" element={<LiveView />} />
+          <Route path="/match-panel/:matchId" element={<MatchPanel />} />
 
           {/* Placeholder for other pages */}
           <Route path="/" element={<h1>Public Homepage</h1>} />

@@ -1,5 +1,5 @@
-import TeamBlock from "../Scoreboard/TeamBlock";
-import MatchStatus from "../Scoreboard/MatchStatus"; // also fixed typo
+import TeamBlock from "../../components/ui//TeamBlock";
+import MatchStatus from "../../components/ui//MatchStatus"; // also fixed typo
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60).toString();

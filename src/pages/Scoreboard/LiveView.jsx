@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import ScoreBar from "./ScoreBar";
+import ScoreBar from "../../components/ui/ScoreBar";
 
 export default function LiveView() {
   useEffect(() => {
