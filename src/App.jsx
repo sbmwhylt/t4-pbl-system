@@ -6,27 +6,71 @@ import Boulders from "./pages/Admin/Boulders";
 import Matches from "./pages/Admin/Matches";
 import LiveView from "./pages/Scoreboard/LiveView";
 import MatchPanel from "./pages/Scoreboard/MatchPanel";
+import Login from "./pages/Admin/Login";
+import PrivateRoute from "./PrivateRoute"; 
+import NotFound from "./pages/404";
 
 function App() {
   return (
-    <>
-      <Router>
-        <Routes>
-          {/* Admin Routes */}
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/teams" element={<Teams />} />
-          <Route path="/admin/players" element={<Players />} />
-          <Route path="/admin/boulders" element={<Boulders />} />
-          <Route path="/admin/matches" element={<Matches />} />
-          <Route path="/scoreboard/liveview" element={<LiveView />} />
-          <Route path="/match-panel/:matchId" element={<MatchPanel />} />
+    <Router>
+      <Routes>
+        {/* Protected Admin Routes */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/teams"
+          element={
+            <PrivateRoute>
+              <Teams />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/players"
+          element={
+            <PrivateRoute>
+              <Players />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/boulders"
+          element={
+            <PrivateRoute>
+              <Boulders />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/matches"
+          element={
+            <PrivateRoute>
+              <Matches />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/match-panel/:matchId"
+          element={
+            <PrivateRoute>
+              <MatchPanel />
+            </PrivateRoute>
+          }
+        />
 
-          {/* Placeholder for other pages */}
-          <Route path="/" element={<h1>Public Homepage</h1>} />
-          <Route path="*" element={<h1>404 - Page Not Found</h1>} />
-        </Routes>
-      </Router>
-    </>
+        {/* Public Routes */}
+        <Route path="/scoreboard/liveview" element={<LiveView />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 }
 
