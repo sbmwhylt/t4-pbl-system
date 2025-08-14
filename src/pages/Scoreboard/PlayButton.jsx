@@ -2,10 +2,11 @@ import { CirclePlay } from "lucide-react";
 import { ref, update, get } from "firebase/database";
 import { db } from "../../firebase";
 
-export default function PlayButton({ row }) {
+export default function PlayButton({ row, disabled }) {
   async function startMatch() {
+    if (disabled) return; // stop if disabled
+
     try {
-      // Extract team IDs from array
       const teamAId = row.teams?.[0];
       const teamBId = row.teams?.[1];
 
@@ -14,7 +15,6 @@ export default function PlayButton({ row }) {
         return;
       }
 
-      // 1. Get team data
       const [teamASnap, teamBSnap] = await Promise.all([
         get(ref(db, `t4_bouldering/teams/${teamAId}`)),
         get(ref(db, `t4_bouldering/teams/${teamBId}`)),
@@ -28,12 +28,10 @@ export default function PlayButton({ row }) {
       const teamA = teamASnap.val();
       const teamB = teamBSnap.val();
 
-      // 2. Update match status
       await update(ref(db, `t4_bouldering/matches/${row.id}`), {
         status: "Live",
       });
 
-      // 3. Setup scoreboard
       await update(ref(db, `scoreboard/${row.id}`), {
         left: {
           team_logo: teamA.logo_url || "",
@@ -62,8 +60,21 @@ export default function PlayButton({ row }) {
   }
 
   return (
-    <button className="cursor-pointer" onClick={startMatch}>
-      <CirclePlay className="text-green-600 hover:text-green-800" size={16} />
+    <button
+      className={`cursor-pointer ${
+        disabled ? "opacity-50 cursor-not-allowed" : ""
+      }`}
+      onClick={startMatch}
+      disabled={disabled}
+    >
+      <CirclePlay
+        className={`${
+          disabled
+            ? "text-gray-400"
+            : "text-green-600 hover:text-green-800"
+        }`}
+        size={16}
+      />
     </button>
   );
 }
