@@ -10,6 +10,7 @@ import PlayerSelection from "../../components/matchpanel/PlayerSelection";
 import AttemptsSelection from "../../components/matchpanel/AttemptsSelection";
 import ProgressSelection from "../../components/matchpanel/ProgressSelection";
 import TimerControl from "../../components/matchpanel/TimerControl";
+import { CircleArrowLeft } from "lucide-react";
 
 export default function MatchPanel() {
   const { matchId } = useParams();
@@ -125,65 +126,66 @@ export default function MatchPanel() {
   };
 
   return (
-    <AdminLayout>
-      <div className="p-4 grid grid-cols-2 gap-6">
-        {/* Left Column */}
-        <div className="space-y-6">
-          <MatchInfo team={team} matchId={matchId} />
-          <BoulderSelection
-            currentBoulder={currentBoulder}
-            onSelectBoulder={(boulder) => {
-              setCurrentBoulder(boulder);
-              updateLiveStatus({ boulder_id: boulder });
-            }}
-          />
-          <PlayerSelection
-            players={players}
-            selectedPlayer={selectedPlayer}
-            onSelectPlayer={(playerId) => {
-              setSelectedPlayer(playerId); // single selection
-              updateLiveStatus({ player_id: playerId });
-            }}
-          />
-        </div>
-
-        {/* Right Column */}
-        <div className="space-y-6">
-          <AttemptsSelection
-            attempts={attempts}
-            onSelectAttempt={(value) => {
-              setAttempts(value);
-              updateLiveStatus({ attempts: value });
-            }}
-          />
-
-          <ProgressSelection
-            progress={progress}
-            onSelectProgress={(value) => {
-              setProgress(value);
-              updateLiveStatus({ points: value });
-            }}
-          />
-
-          <TimerControl
-            timeRemaining={timeRemaining}
-            isTimerRunning={isTimerRunning}
-            onStart={() => {
-              setIsTimerRunning(true);
-              update(ref(db, `t4_bouldering/live_status/${matchId}`), {
-                clock_running: true,
-              });
-            }}
-            onPause={() => {
-              setIsTimerRunning(false);
-              update(ref(db, `t4_bouldering/live_status/${matchId}`), {
-                clock_running: false,
-              });
-            }}
-            onReset={resetTimer}
-          />
-        </div>
+    <div className="p-10 grid md:grid-cols-1 lg:grid-cols-2 lg:gap-6 bg-gray-100 h-screen">
+      {/* Left Column */}
+      <div className="space-y-6">
+        <button aria-label="go back" onClick={() => window.history.back()}>
+          <CircleArrowLeft className="w-10 h-10 text-gray-300 mb-6 hover:text-gray-400 cursor-pointer transition" />
+        </button>
+        <MatchInfo team={team} matchId={matchId} />
+        <BoulderSelection
+          currentBoulder={currentBoulder}
+          onSelectBoulder={(boulder) => {
+            setCurrentBoulder(boulder);
+            updateLiveStatus({ boulder_id: boulder });
+          }}
+        />
+        <PlayerSelection
+          players={players}
+          selectedPlayer={selectedPlayer}
+          onSelectPlayer={(playerId) => {
+            setSelectedPlayer(playerId); // single selection
+            updateLiveStatus({ player_id: playerId });
+          }}
+        />
       </div>
-    </AdminLayout>
+
+      {/* Right Column */}
+      <div className="space-y-6">
+        <AttemptsSelection
+          attempts={attempts}
+          onSelectAttempt={(value) => {
+            setAttempts(value);
+            updateLiveStatus({ attempts: value });
+          }}
+        />
+
+        <ProgressSelection
+          progress={progress}
+          onSelectProgress={(value) => {
+            setProgress(value);
+            updateLiveStatus({ points: value });
+          }}
+        />
+
+        <TimerControl
+          timeRemaining={timeRemaining}
+          isTimerRunning={isTimerRunning}
+          onStart={() => {
+            setIsTimerRunning(true);
+            update(ref(db, `t4_bouldering/live_status/${matchId}`), {
+              clock_running: true,
+            });
+          }}
+          onPause={() => {
+            setIsTimerRunning(false);
+            update(ref(db, `t4_bouldering/live_status/${matchId}`), {
+              clock_running: false,
+            });
+          }}
+          onReset={resetTimer}
+        />
+      </div>
+    </div>
   );
 }

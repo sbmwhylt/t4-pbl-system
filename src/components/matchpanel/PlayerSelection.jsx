@@ -6,7 +6,7 @@ export default function PlayerSelection({ players, selectedPlayer, onSelectPlaye
   return (
     <Card>
       <h2 className="font-semibold mb-2">Players</h2>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-5 gap-2">
         {players.map((player) => (
           <Button
             key={player.id}
