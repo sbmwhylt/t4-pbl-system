@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { db } from "../../firebase";
 import { ref, onValue } from "firebase/database";
-import TeamBlock from "../../components/ui/TeamBlock";
-import MatchStatus from "../../components/ui/MatchStatus";
+import TeamBlock from "./TeamBlock";
+import MatchStatus from "./MatchStatus";
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60).toString();
