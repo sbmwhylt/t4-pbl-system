@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Settings, LogOut } from "lucide-react";
 import { signOut } from "firebase/auth";
-import { auth, db } from "../firebase"; // adjust path
-import { ref, get } from "firebase/database";
-import {useUser} from "../context/UserContext"; // adjust path
+import { auth } from "../firebase";
+import { useUser } from "../context/UserContext"; 
+import Spinner from "./ui/Spinner";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const user = useUser();
+  const [loading, setLoading] = useState(false); // Loading state for logout
 
   const navItems = [
     { label: "Dashboard", path: "/admin/dashboard" },
@@ -19,8 +20,13 @@ export default function Navbar() {
   ];
 
   const handleLogout = async () => {
-    await signOut(auth);
-    navigate("/login", { replace: true });
+    setLoading(true);
+    try {
+      await signOut(auth);
+      navigate("/login", { replace: true });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,8 +69,12 @@ export default function Navbar() {
         <button className="hover:text-gray-300">
           <Settings className="cursor-pointer" size={20} />
         </button>
-        <button onClick={handleLogout} className="hover:text-gray-300">
-          <LogOut className="cursor-pointer" size={20} />
+        <button
+          onClick={handleLogout}
+          disabled={loading} // Optional: disable button while loading
+          className={`hover:text-gray-300 flex items-center justify-center ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+        >
+          {loading ? <Spinner size={5} color="gray-500" /> : <LogOut size={20} />}
         </button>
       </div>
     </nav>

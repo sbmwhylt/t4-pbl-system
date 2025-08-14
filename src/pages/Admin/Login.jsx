@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
+import { toast } from "react-hot-toast";
+import Spinner from "../../components/ui/Spinner";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -30,6 +32,7 @@ export default function Login() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/admin/dashboard");
+      toast.success("Logged in successfully!");
     } catch (err) {
       setError(err.message);
     }
@@ -76,9 +79,9 @@ export default function Login() {
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors py-2"
+          className="w-full bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors py-2 flex justify-center items-center"
         >
-          {loading ? "Signing in..." : "Sign In"}
+          {loading ? <Spinner /> : "Sign In"}
         </Button>
       </form>
     </div>
