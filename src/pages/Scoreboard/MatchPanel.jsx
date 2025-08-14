@@ -21,43 +21,80 @@ export default function MatchPanel() {
   // Load team info
   useEffect(() => {
     const teamRef = ref(db, `t4_bouldering/teams/${teamId}`);
-    const unsub = onValue(teamRef, (snap) => {
+    return onValue(teamRef, (snap) => {
       setTeam(snap.val());
     });
-    return () => unsub();
   }, [teamId]);
 
-  // Load players of this team
+  // Load players
   useEffect(() => {
     const playersRef = ref(db, `t4_bouldering/players`);
-    const unsub = onValue(playersRef, (snap) => {
+    return onValue(playersRef, (snap) => {
       const allPlayers = snap.val() || {};
       const teamPlayers = Object.values(allPlayers).filter(
         (p) => p.team_id === teamId
       );
       setPlayers(teamPlayers);
     });
-    return () => unsub();
   }, [teamId]);
 
   // Load live status
   useEffect(() => {
     const liveRef = ref(db, `t4_bouldering/live_status/${matchId}`);
-    const unsub = onValue(liveRef, (snap) => {
+    return onValue(liveRef, (snap) => {
       setLiveStatus(snap.val() || {});
     });
-    return () => unsub();
   }, [matchId]);
 
-  // Update Firebase when changes happen
+  // Helper: update live_status AND scoreboard
   const updateLiveStatus = (updates) => {
-    update(ref(db, `t4_bouldering/live_status/${matchId}/on_boulders/${teamId}`), updates);
+    // Update live status for this team
+    update(
+      ref(db, `t4_bouldering/live_status/${matchId}/on_boulders/${teamId}`),
+      updates
+    );
+
+    // ALSO update scoreboard
+    if (team?.side) {
+      const scoreboardUpdates = {};
+
+      // Pass through known values
+      if (updates.player_id) {
+        const player = players.find((p) => p.id === updates.player_id);
+        scoreboardUpdates.jersey = player?.jersey || "";
+        scoreboardUpdates.current_player = player?.name || "";
+      }
+      if (updates.points !== undefined) {
+        scoreboardUpdates.possible = calculatePossiblePoints(updates.points);
+        scoreboardUpdates.score = calculateScore(updates.points);
+      }
+
+      update(ref(db, `scoreboard/${matchId}/${team.side}`), {
+        team_logo: team?.team_logo || "",
+        abbreviation: team?.abbreviation || "",
+        ...scoreboardUpdates,
+      });
+    }
+  };
+
+  // Simple scoring rules (adjust if needed)
+  const calculatePossiblePoints = (stage) => {
+    if (stage === "Z1") return 1;
+    if (stage === "Z2") return 2;
+    if (stage === "Top") return 5;
+    return 0;
+  };
+
+  const calculateScore = (stage) => {
+    if (stage === "Top") return 5;
+    if (stage === "Z2") return 2;
+    if (stage === "Z1") return 1;
+    return 0;
   };
 
   return (
     <AdminLayout>
       <div className="p-4">
-        {/* Header */}
         <h1 className="text-2xl font-bold mb-4">
           Match Panel – {team?.name || "Loading..."}
         </h1>
@@ -73,7 +110,9 @@ export default function MatchPanel() {
                   setCurrentBoulder(boulder);
                   updateLiveStatus({ boulder_id: boulder });
                 }}
-                className={currentBoulder === boulder ? "bg-blue-600 text-white" : ""}
+                className={
+                  currentBoulder === boulder ? "bg-blue-600 text-white" : ""
+                }
               >
                 {boulder}
               </Button>
@@ -92,7 +131,11 @@ export default function MatchPanel() {
                   setSelectedPlayer(player.id);
                   updateLiveStatus({ player_id: player.id });
                 }}
-                className={selectedPlayer === player.id ? "bg-green-600 text-white" : ""}
+                className={
+                  selectedPlayer === player.id
+                    ? "bg-green-600 text-white"
+                    : ""
+                }
               >
                 #{player.jersey} {player.name}
               </Button>
@@ -100,7 +143,7 @@ export default function MatchPanel() {
           </div>
         </div>
 
-        {/* Attempt Number */}
+        {/* Attempts */}
         <div className="mb-6">
           <h2 className="font-semibold mb-2">Attempts</h2>
           <div className="flex gap-2 flex-wrap">
@@ -113,7 +156,11 @@ export default function MatchPanel() {
                     setAttempts(attemptNum);
                     updateLiveStatus({ attempts: attemptNum });
                   }}
-                  className={attempts === attemptNum ? "bg-yellow-500 text-white" : ""}
+                  className={
+                    attempts === attemptNum
+                      ? "bg-yellow-500 text-white"
+                      : ""
+                  }
                 >
                   {attemptNum}
                 </Button>
@@ -122,7 +169,7 @@ export default function MatchPanel() {
           </div>
         </div>
 
-        {/* Boulder Progress */}
+        {/* Progress */}
         <div className="mb-6">
           <h2 className="font-semibold mb-2">Progress</h2>
           <div className="flex gap-2">
@@ -133,7 +180,9 @@ export default function MatchPanel() {
                   setProgress(stage);
                   updateLiveStatus({ points: stage });
                 }}
-                className={progress === stage ? "bg-purple-600 text-white" : ""}
+                className={
+                  progress === stage ? "bg-purple-600 text-white" : ""
+                }
               >
                 {stage}
               </Button>
@@ -141,20 +190,24 @@ export default function MatchPanel() {
           </div>
         </div>
 
-        {/* Timer Controls */}
+        {/* Timer */}
         <div>
           <h2 className="font-semibold mb-2">Timer</h2>
           <div className="flex gap-2">
             <Button
               onClick={() =>
-                update(ref(db, `t4_bouldering/live_status/${matchId}`), { clock_running: true })
+                update(ref(db, `t4_bouldering/live_status/${matchId}`), {
+                  clock_running: true,
+                })
               }
             >
               Start
             </Button>
             <Button
               onClick={() =>
-                update(ref(db, `t4_bouldering/live_status/${matchId}`), { clock_running: false })
+                update(ref(db, `t4_bouldering/live_status/${matchId}`), {
+                  clock_running: false,
+                })
               }
             >
               Stop

@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "./../../components/layout/AdminLayout";
 import { db } from "../../firebase"; // adjust path as needed
-import { ref, onValue, set } from "firebase/database";
-import { SlidersHorizontal } from "lucide-react";
+import { ref, onValue, set, update } from "firebase/database";
+import { SlidersHorizontal, CirclePlay, Gamepad2 } from "lucide-react";
 import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Table from "../../components/ui/Table";
+import PlayButton from "../Scoreboard/PlayButton";
 
 export default function Matches() {
   const [teams, setTeams] = useState({});
@@ -188,18 +189,24 @@ export default function Matches() {
               }))
               .sort((a, b) => b.start_time - a.start_time)} // newest first
             actions={(row) => (
-              <button
-                className="cursor-pointer"
-                onClick={() => {
-                  setSelectedMatchId(row.id);
-                  setScoreTeamModalOpen(true);
-                }}
-              >
-                <SlidersHorizontal
-                  className="text-gray-600 hover:text-blue-600"
-                  size={16}
-                />
-              </button>
+              <div className="flex gap-2 justify-end items-center">
+                {/* Play Button */}
+                {row.status === "Scheduled" && <PlayButton row={row} />}
+
+                {/* Team Selection */}
+                <button
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSelectedMatchId(row.id);
+                    setScoreTeamModalOpen(true);
+                  }}
+                >
+                  <Gamepad2
+                    className="text-gray-600 hover:text-blue-600"
+                    size={16}
+                  />
+                </button>
+              </div>
             )}
           />
         )}
