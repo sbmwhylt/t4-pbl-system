@@ -166,62 +166,63 @@ export default function Matches() {
 
       {/* Existing Matches */}
       <div className="space-y-4">
-  {Object.entries(matches).length === 0 && <p>No matches found.</p>}
+        {Object.entries(matches).length === 0 && <p>No matches found.</p>}
 
-  {Object.entries(matches).length > 0 && (() => {
-    // Check if there is a live match ongoing
-    const hasLiveMatch = Object.values(matches).some(
-      (m) => m.status?.toLowerCase() === "live"
-    );
+        {Object.entries(matches).length > 0 &&
+          (() => {
+            // Check if there is a live match ongoing
+            const hasLiveMatch = Object.values(matches).some(
+              (m) => m.status?.toLowerCase() === "live"
+            );
 
-    return (
-      <Table
-        columns={[
-          { header: "Match ID", accessor: "id" },
-          {
-            header: "Teams",
-            accessor: (row) =>
-              row.teams.map((id) => teams[id]?.name || id).join(" vs "),
-          },
-          { header: "Status", accessor: "status" },
-          {
-            header: "Scheduled",
-            accessor: (row) => new Date(row.start_time).toLocaleString(),
-          },
-        ]}
-        data={Object.entries(matches)
-          .map(([matchId, match]) => ({
-            id: matchId,
-            ...match,
-          }))
-          .sort((a, b) => b.start_time - a.start_time)}
-        actions={(row) => (
-          <div className="flex gap-2 justify-end items-center">
-            {/* Play Button */}
-            {row.status?.toLowerCase() === "scheduled" && (
-              <PlayButton row={row} disabled={hasLiveMatch} />
-            )}
+            return (
+              <Table
+                columns={[
+                  { header: "Match ID", accessor: "id" },
+                  {
+                    header: "Teams",
+                    accessor: (row) =>
+                      row.teams.map((id) => teams[id]?.name || id).join(" vs "),
+                  },
+                  { header: "Status", accessor: "status" },
+                  {
+                    header: "Scheduled",
+                    accessor: (row) =>
+                      new Date(row.start_time).toLocaleString(),
+                  },
+                ]}
+                data={Object.entries(matches)
+                  .map(([matchId, match]) => ({
+                    id: matchId,
+                    ...match,
+                  }))
+                  .sort((a, b) => b.start_time - a.start_time)}
+                actions={(row) => (
+                  <div className="flex gap-2 justify-end items-center">
+                    {/* Play Button */}
+                    {row.status?.toLowerCase() === "scheduled" && (
+                      <PlayButton row={row} disabled={hasLiveMatch} />
+                    )}
 
-            {/* Team Selection */}
-            <button
-              className="cursor-pointer"
-              onClick={() => {
-                setSelectedMatchId(row.id);
-                setScoreTeamModalOpen(true);
-              }}
-            >
-              <Gamepad2
-                className="text-gray-600 hover:text-blue-600"
-                size={16}
+                    {/* Team Selection */}
+                    <button
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setSelectedMatchId(row.id);
+                        setScoreTeamModalOpen(true);
+                      }}
+                    >
+                      <Gamepad2
+                        className="text-gray-600 hover:text-blue-600"
+                        size={16}
+                      />
+                    </button>
+                  </div>
+                )}
               />
-            </button>
-          </div>
-        )}
-      />
-    );
-  })()}
-</div>
-
+            );
+          })()}
+      </div>
 
       <Modal
         isOpen={modalOpen}
