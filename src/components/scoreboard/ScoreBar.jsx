@@ -14,6 +14,7 @@ function formatTime(seconds) {
 
 export default function ScoreBar() {
   const [scoreData, setScoreData] = useState(null);
+  const [timeRemaining, setTimeRemaining] = useState(0);
   const [matchId, setMatchId] = useState(null);
 
   // Find the live match
@@ -29,6 +30,7 @@ export default function ScoreBar() {
       } else {
         setMatchId(null);
         setScoreData(null);
+        setTimeRemaining(0);
       }
     });
   }, []);
@@ -42,6 +44,15 @@ export default function ScoreBar() {
     });
   }, [matchId]);
 
+  // Listen to global timer from live_status
+  useEffect(() => {
+    if (!matchId) return;
+    const timeRef = ref(db, `t4_bouldering/live_status/${matchId}/time_remaining`);
+    return onValue(timeRef, (snapshot) => {
+      setTimeRemaining(snapshot.exists() ? snapshot.val() : 0);
+    });
+  }, [matchId]);
+
   if (!scoreData) {
     return (
       <div className="flex items-center justify-center w-[900px] h-[80px] bg-gray-700 rounded text-white">
@@ -50,7 +61,7 @@ export default function ScoreBar() {
     );
   }
 
-  const { left, right, period, timeLeft } = scoreData;
+  const { left, right, period } = scoreData;
 
   return (
     <div className="flex items-center justify-center w-[900px] h-[80px] bg-[#5f8bbb] rounded overflow-hidden text-white">
@@ -62,7 +73,7 @@ export default function ScoreBar() {
         possible={Number(left.possible) || 0}
         player={`${left.jersey ?? ""} ${left.current_player ?? ""}`}
       />
-      <MatchStatus period={period} clock={formatTime(Number(timeLeft) || 0)} />
+      <MatchStatus period={period} clock={formatTime(Number(timeRemaining) || 0)} />
       <TeamBlock
         side="right"
         logo={right.team_logo}
