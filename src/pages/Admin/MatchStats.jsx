@@ -1,8 +1,10 @@
+import AdminLayout from "../../components/layout/AdminLayout";
+
 export default function MatchStats() {
   return (
-    <div>
+    <AdminLayout>
       <h2>Match Statistics</h2>
       {/* Match statistics content goes here */}
-    </div>
+    </AdminLayout>
   );
 }

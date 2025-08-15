@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../components/layout/AdminLayout";
 import {
   SlidersHorizontal,
@@ -26,6 +27,7 @@ export default function Matches() {
   const [modalOpen, setModalOpen] = useState(false);
   const [scoreTeamModalOpen, setScoreTeamModalOpen] = useState(false);
   const [selectedMatchId, setSelectedMatchId] = useState(null);
+  const navigate = useNavigate();
 
   // Load teams
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function Matches() {
       setCreating(true);
       await matchesService.createMatch({
         leftTeam,
-        rightTeam,
+        rightTeam, 
         matchDate,
         matchTime,
         teams,
@@ -151,7 +153,7 @@ export default function Matches() {
                         <button
                           className="cursor-pointer text-white bg-purple-600 hover:bg-purple-700 rounded p-2 flex gap-1 items-center"
                           onClick={() =>
-                            navigate(`/Admin/pages/match-stats/${row.id}`)
+                            navigate(`/match-stats/${row.id}`)
                           }
                         >
                           <ChartBar size={16} />

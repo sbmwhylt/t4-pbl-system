@@ -9,6 +9,7 @@ import MatchPanel from "./pages/Scoreboard/MatchPanel";
 import Login from "./pages/Admin/Login";
 import PrivateRoute from "./PrivateRoute"; 
 import NotFound from "./pages/404";
+import MatchStats from "./pages/Admin/MatchStats";
 
 function App() {
   return (
@@ -60,6 +61,15 @@ function App() {
           element={
             <PrivateRoute>
               <MatchPanel />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/match-stats/:matchId"
+          element={
+            <PrivateRoute>
+              <MatchStats />
             </PrivateRoute>
           }
         />
