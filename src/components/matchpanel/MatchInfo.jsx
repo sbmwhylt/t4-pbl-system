@@ -26,7 +26,7 @@ export default function MatchInfo({ team, matchId }) {
     <div className="flex items-center justify-between">
       {/* Team Info */}
       <div className="flex items-center space-x-4">
-        <img src={team?.logo_url || ""} alt="" className="w-13" />
+        {team?.team_logo ? <img src={team.team_logo} alt="Team Logo" /> : null}
         <div>
           <h1 className="text-3xl font-bold">{team?.name || "Loading..."}</h1>
           <p className="text-gray-500">Match ID: {matchId}</p>

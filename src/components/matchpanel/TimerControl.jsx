@@ -1,6 +1,6 @@
 import React from "react";
 import Button from "../ui/Button";
-import { Play, Pause, Square } from "lucide-react";
+import { Play, Pause, Square, Ban } from "lucide-react";
 import Card from "../ui/Card";
 
 export default function TimerControl({
@@ -9,7 +9,7 @@ export default function TimerControl({
   period,
   onStart,
   onPause,
-  onReset,
+  onFinish,
   onPeriodChange,
 }) {
   const formatTime = (seconds) => {
@@ -38,36 +38,44 @@ export default function TimerControl({
             <option value="1ST">1ST</option>
             <option value="2ND">2ND</option>
           </select>
-          <Button className="bg-gray-200 hover:bg-gray-300" onClick={onReset}>
-            <Square size={18} />
-          </Button>
         </div>
       </div>
 
       {/* Start/Pause */}
-      <div className="flex gap-2">
-        <Button
-          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-            isTimerRunning
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-green-600 hover:bg-green-700 text-white"
-          }`}
-          onClick={onStart}
-          disabled={isTimerRunning}
-        >
-          <Play size={18} /> Start
-        </Button>
-        <Button
-          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-            !isTimerRunning
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-red-500 hover:bg-red-700 text-white"
-          }`}
-          onClick={onPause}
-          disabled={!isTimerRunning}
-        >
-          <Pause size={18} /> Pause
-        </Button>
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2">
+          <Button
+            className={`px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer ${
+              isTimerRunning
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700 text-white"
+            }`}
+            onClick={onStart}
+            disabled={isTimerRunning}
+          >
+            <Play size={18} /> Start
+          </Button>
+          <Button
+            className={`px-4 py-2 rounded-lg flex items-center gap-2  ${
+              !isTimerRunning
+                ? "bg-gray-300 cursor-not-allowed text-black/30"
+                : "bg-gray-500 hover:bg-gray-700 text-white cursor-pointer"
+            }`}
+            onClick={onPause}
+            disabled={!isTimerRunning}
+          >
+            <Pause size={18} /> Pause
+          </Button>
+        </div>
+
+        <div>
+          <Button
+            className="cursor-pointer bg-red-500 hover:bg-red-700 text-white px-3 py-2 rounded-lg flex items-center gap-1"
+            onClick={onFinish}
+          >
+            <Ban size={18} />
+          </Button>
+        </div>
       </div>
     </Card>
   );

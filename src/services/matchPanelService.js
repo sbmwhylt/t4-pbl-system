@@ -104,3 +104,8 @@ function calculatePossiblePoints(stage) {
 function calculateScore(stage) {
   return stage === "Top" ? 5 : stage === "Z2" ? 2 : stage === "Z1" ? 1 : 0;
 }
+
+export function updateMatchStatus(matchId, data) {
+  const matchRef = ref(db, `t4_bouldering/matches/${matchId}`);
+  return update(matchRef, data); // return so caller can await
+}

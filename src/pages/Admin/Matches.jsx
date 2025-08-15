@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../components/layout/AdminLayout";
-import {
-  SlidersHorizontal,
-  CirclePlay,
-  Gamepad2,
-  ChartBar,
-} from "lucide-react";
+import { ChartNoAxesColumn, Play, Gamepad2 } from "lucide-react";
 import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
@@ -46,7 +41,7 @@ export default function Matches() {
       setCreating(true);
       await matchesService.createMatch({
         leftTeam,
-        rightTeam, 
+        rightTeam,
         matchDate,
         matchTime,
         teams,
@@ -119,20 +114,26 @@ export default function Matches() {
                     <div className="flex gap-2 justify-end items-center">
                       {status === "scheduled" && (
                         <button
-                          onClick={() => {
-                            setSelectedMatchId(row.id);
-                            setScoreTeamModalOpen(true);
+                          onClick={async () => {
+                            if (hasLiveMatch) return;
+
+                            const match = matches[row.id];
+                            await matchesService.startMatch({
+                              matchId: row.id,
+                              leftTeam: match.teams[0],
+                              rightTeam: match.teams[1],
+                              teams,
+                            });
                           }}
                           disabled={hasLiveMatch}
                           className={`p-2 flex gap-1 items-center rounded 
       ${
         hasLiveMatch
           ? "cursor-not-allowed bg-gray-200 text-black/30"
-          : "cursor-pointer bg-green-500 hover:bg-green-600"
+          : "cursor-pointer bg-green-500 hover:bg-green-600 text-white"
       }`}
                         >
-                          <CirclePlay size={16} />
-                          {/* Start Match */}
+                          <Play size={16} />
                         </button>
                       )}
 
@@ -152,11 +153,9 @@ export default function Matches() {
                       {status === "finished" && (
                         <button
                           className="cursor-pointer text-white bg-purple-600 hover:bg-purple-700 rounded p-2 flex gap-1 items-center"
-                          onClick={() =>
-                            navigate(`/match-stats/${row.id}`)
-                          }
+                          onClick={() => navigate(`/match-stats/${row.id}`)}
                         >
-                          <ChartBar size={16} />
+                          <ChartNoAxesColumn size={16} />
                         </button>
                       )}
                     </div>

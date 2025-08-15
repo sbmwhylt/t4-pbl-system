@@ -10,6 +10,7 @@ import {
   resetTimer,
   tickTimer,
   updatePeriod,
+  updateMatchStatus,
 } from "../../services/matchPanelService";
 
 import MatchInfo from "../../components/matchpanel/MatchInfo";
@@ -68,6 +69,30 @@ export default function MatchPanel() {
     }
     return () => clearInterval(interval);
   }, [isTimerRunning, timeRemaining, matchId, period]);
+
+  //End Match
+  const handleFinishMatch = async () => {
+    try {
+      // Stop timer in UI and DB
+      setIsTimerRunning(false);
+      pauseTimer(matchId);
+
+      // Save final game state
+      await updateMatchStatus(matchId, {
+        status: "finished",
+        final_period: period,
+        final_time_remaining: timeRemaining,
+        // Add whatever else you want to snapshot
+        // scores, players, etc.
+        finished_at: Date.now(),
+      });
+
+      // Redirect to matches list
+      navigate("/admin/matches");
+    } catch (err) {
+      console.error("Error finishing match:", err);
+    }
+  };
 
   return (
     <div className="p-10 grid md:grid-cols-1 lg:grid-cols-2 lg:gap-6 bg-gray-100 h-screen">
@@ -156,11 +181,7 @@ export default function MatchPanel() {
             setIsTimerRunning(false);
             pauseTimer(matchId);
           }}
-          onReset={() => {
-            setIsTimerRunning(false);
-            resetTimer(matchId, period);
-            setTimeRemaining(450);
-          }}
+          onFinish={handleFinishMatch} // <-- new
           onPeriodChange={(newPeriod) => {
             setPeriod(newPeriod);
             setTimeRemaining(450);
