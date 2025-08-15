@@ -61,20 +61,10 @@ export default function PlayButton({ row, disabled }) {
 
   return (
     <button
-      className={`cursor-pointer ${
-        disabled ? "opacity-50 cursor-not-allowed" : ""
-      }`}
       onClick={startMatch}
       disabled={disabled}
     >
-      <CirclePlay
-        className={`${
-          disabled
-            ? "text-gray-400"
-            : "text-green-600 hover:text-green-800"
-        }`}
-        size={16}
-      />
+      <CirclePlay size={16} />
     </button>
   );
 }

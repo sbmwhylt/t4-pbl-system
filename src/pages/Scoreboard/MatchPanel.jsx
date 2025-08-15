@@ -1,5 +1,6 @@
 // pages/admin/MatchPanel.jsx
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useParams, useSearchParams } from "react-router-dom";
 import { db } from "../../firebase";
 import { ref, onValue, update } from "firebase/database";
@@ -26,6 +27,7 @@ export default function MatchPanel() {
   const [progress, setProgress] = useState("");
   const [timeRemaining, setTimeRemaining] = useState(450);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const navigate = useNavigate();
 
   // Load team info
   useEffect(() => {
@@ -129,7 +131,11 @@ export default function MatchPanel() {
     <div className="p-10 grid md:grid-cols-1 lg:grid-cols-2 lg:gap-6 bg-gray-100 h-screen">
       {/* Left Column */}
       <div className="space-y-6">
-        <button aria-label="go back" onClick={() => window.history.back()}>
+        <button
+          aria-label="Go back to matches"
+          onClick={() => navigate("/admin/matches")}
+          strokeWidth={0.5}
+        >
           <CircleArrowLeft className="w-10 h-10 text-gray-300 mb-6 hover:text-gray-400 cursor-pointer transition" />
         </button>
         <MatchInfo team={team} matchId={matchId} />

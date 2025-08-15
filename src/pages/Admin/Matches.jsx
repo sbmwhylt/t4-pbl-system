@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "./../../components/layout/AdminLayout";
-import { db } from "../../firebase"; // adjust path as needed
-import { ref, onValue, set, update } from "firebase/database";
-import { SlidersHorizontal, CirclePlay, Gamepad2 } from "lucide-react";
+import AdminLayout from "../../components/layout/AdminLayout";
+import {
+  SlidersHorizontal,
+  CirclePlay,
+  Gamepad2,
+  ChartBar,
+} from "lucide-react";
 import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Table from "../../components/ui/Table";
 import PlayButton from "../Scoreboard/PlayButton";
+import matchesService from "../../services/matchesService";
 
 export default function Matches() {
   const [teams, setTeams] = useState({});
@@ -25,127 +29,39 @@ export default function Matches() {
 
   // Load teams
   useEffect(() => {
-    const teamsRef = ref(db, "t4_bouldering/teams");
-    const unsubscribe = onValue(teamsRef, (snapshot) => {
-      setTeams(snapshot.val() || {});
-    });
+    const unsubscribe = matchesService.getTeams(setTeams);
     return () => unsubscribe();
   }, []);
 
   // Load matches
   useEffect(() => {
-    const matchesRef = ref(db, "t4_bouldering/matches");
-    const unsubscribe = onValue(matchesRef, (snapshot) => {
-      setMatches(snapshot.val() || {});
-      setLoading(false);
-    });
+    const unsubscribe = matchesService.getMatches(setMatches, setLoading);
     return () => unsubscribe();
   }, []);
 
-  function generateMatchId(matchCode, dateObj) {
-    const dateStr = dateObj
-      .toLocaleDateString("en-US", {
-        month: "2-digit",
-        day: "2-digit",
-        year: "2-digit",
-      })
-      .replace(/\//g, ""); // e.g. 081325
-    return `M${matchCode}${dateStr}`;
+  async function handleCreateMatch() {
+    try {
+      setCreating(true);
+      await matchesService.createMatch({
+        leftTeam,
+        rightTeam,
+        matchDate,
+        matchTime,
+        teams,
+      });
+      resetForm();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setCreating(false);
+    }
   }
 
-  function getNextMatchCode() {
-    const codes = Object.keys(matches)
-      .map((id) => {
-        const match = id.match(/^M(\d{3})/);
-        return match ? parseInt(match[1], 10) : 0;
-      })
-      .filter((n) => n > 0);
-    const maxCode = codes.length > 0 ? Math.max(...codes) : 0;
-    return String(maxCode + 1).padStart(3, "0");
-  }
-
-  async function createMatch() {
-    if (!leftTeam || !rightTeam || leftTeam === rightTeam) {
-      alert("Select two different teams");
-      return;
-    }
-    if (!matchDate || !matchTime) {
-      alert("Select date and time");
-      return;
-    }
-
-    setCreating(true);
-
-    const scheduledTime = new Date(`${matchDate}T${matchTime}`);
-    const now = new Date();
-    const status = "scheduled";
-
-    const matchCode = getNextMatchCode();
-    const matchId = generateMatchId(matchCode, scheduledTime);
-
-    // Create match
-    await set(ref(db, `t4_bouldering/matches/${matchId}`), {
-      teams: [leftTeam, rightTeam],
-      start_time: scheduledTime.getTime(),
-      end_time: null,
-      status,
-      quarters: 2,
-      quarter_duration: 450, // 7:30
-    });
-
-    if (status === "Live") {
-      // Initialize live_status
-      await set(ref(db, `t4_bouldering/live_status/${matchId}`), {
-        clock: "07:30",
-        period: "1ST",
-        on_boulders: {
-          [leftTeam]: {
-            player_id: "",
-            boulder_id: "",
-            attempts: 0,
-            points: 0,
-          },
-          [rightTeam]: {
-            player_id: "",
-            boulder_id: "",
-            attempts: 0,
-            points: 0,
-          },
-        },
-      });
-
-      // Initialize scoreboard
-      const leftTeamData = teams[leftTeam];
-      const rightTeamData = teams[rightTeam];
-
-      await set(ref(db, `t4_bouldering/scoreboard/${matchId}`), {
-        [leftTeam]: {
-          abbreviation: leftTeamData.abbreviation,
-          current_player: "",
-          jersey: 0,
-          possible: 0,
-          score: 0,
-          side: "left",
-          team_logo: leftTeamData.logo_url,
-        },
-        [rightTeam]: {
-          abbreviation: rightTeamData.abbreviation,
-          current_player: "",
-          jersey: 0,
-          possible: 0,
-          score: 0,
-          side: "right",
-          team_logo: rightTeamData.logo_url,
-        },
-      });
-    }
-
-    // Reset form and close modal
+  function resetForm() {
     setLeftTeam("");
     setRightTeam("");
     setMatchDate("");
     setMatchTime("");
-    setCreating(false);
     setModalOpen(false);
   }
 
@@ -164,13 +80,11 @@ export default function Matches() {
         <Button onClick={() => setModalOpen(true)}>Set a Match</Button>
       </div>
 
-      {/* Existing Matches */}
       <div className="space-y-4">
         {Object.entries(matches).length === 0 && <p>No matches found.</p>}
 
         {Object.entries(matches).length > 0 &&
           (() => {
-            // Check if there is a live match ongoing
             const hasLiveMatch = Object.values(matches).some(
               (m) => m.status?.toLowerCase() === "live"
             );
@@ -197,28 +111,55 @@ export default function Matches() {
                     ...match,
                   }))
                   .sort((a, b) => b.start_time - a.start_time)}
-                actions={(row) => (
-                  <div className="flex gap-2 justify-end items-center">
-                    {/* Play Button */}
-                    {row.status?.toLowerCase() === "scheduled" && (
-                      <PlayButton row={row} disabled={hasLiveMatch} />
-                    )}
+                actions={(row) => {
+                  const status = row.status?.toLowerCase();
+                  return (
+                    <div className="flex gap-2 justify-end items-center">
+                      {status === "scheduled" && (
+                        <button
+                          onClick={() => {
+                            setSelectedMatchId(row.id);
+                            setScoreTeamModalOpen(true);
+                          }}
+                          disabled={hasLiveMatch}
+                          className={`p-2 flex gap-1 items-center rounded 
+      ${
+        hasLiveMatch
+          ? "cursor-not-allowed bg-gray-200 text-black/30"
+          : "cursor-pointer bg-green-500 hover:bg-green-600"
+      }`}
+                        >
+                          <CirclePlay size={16} />
+                          {/* Start Match */}
+                        </button>
+                      )}
 
-                    {/* Team Selection */}
-                    <button
-                      className="cursor-pointer"
-                      onClick={() => {
-                        setSelectedMatchId(row.id);
-                        setScoreTeamModalOpen(true);
-                      }}
-                    >
-                      <Gamepad2
-                        className="text-gray-600 hover:text-blue-600"
-                        size={16}
-                      />
-                    </button>
-                  </div>
-                )}
+                      {status === "live" && (
+                        <button
+                          className="cursor-pointer text-white bg-orange-500 hover:bg-orange-600 rounded p-2 flex gap-1 items-center"
+                          onClick={() => {
+                            setSelectedMatchId(row.id);
+                            setScoreTeamModalOpen(true);
+                          }}
+                        >
+                          <Gamepad2 size={16} />
+                          {/* Start Game */}
+                        </button>
+                      )}
+
+                      {status === "finished" && (
+                        <button
+                          className="cursor-pointer text-white bg-purple-600 hover:bg-purple-700 rounded p-2 flex gap-1 items-center"
+                          onClick={() =>
+                            navigate(`/Admin/pages/match-stats/${row.id}`)
+                          }
+                        >
+                          <ChartBar size={16} />
+                        </button>
+                      )}
+                    </div>
+                  );
+                }}
               />
             );
           })()}
@@ -244,7 +185,6 @@ export default function Matches() {
                 })),
               ]}
             />
-
             <Select
               label="Right Team"
               name="rightTeam"
@@ -258,7 +198,6 @@ export default function Matches() {
                 })),
               ]}
             />
-
             <Input
               label="Match Date"
               type="date"
@@ -266,7 +205,6 @@ export default function Matches() {
               value={matchDate}
               onChange={(e) => setMatchDate(e.target.value)}
             />
-
             <Input
               label="Match Time"
               type="time"
@@ -274,8 +212,7 @@ export default function Matches() {
               value={matchTime}
               onChange={(e) => setMatchTime(e.target.value)}
             />
-
-            <Button onClick={createMatch} disabled={creating}>
+            <Button onClick={handleCreateMatch} disabled={creating}>
               {creating ? "Creating..." : "Create Match"}
             </Button>
           </div>
