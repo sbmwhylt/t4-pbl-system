@@ -2,7 +2,7 @@ import React from "react";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
 
-const PROGRESS_STAGES = ["No Points", "Z1", "Z2", "Top"];
+const PROGRESS_STAGES = [ "Z1", "Z2", "Top"];
 
 export default function ProgressSelection({ progress, onSelectProgress }) {
   return (
