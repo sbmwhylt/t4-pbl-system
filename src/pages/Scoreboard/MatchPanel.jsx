@@ -11,6 +11,7 @@ import {
   tickTimer,
   updatePeriod,
   updateMatchStatus,
+  subscribeScoreboard,
 } from "../../services/matchPanelService";
 
 import MatchInfo from "../../components/matchpanel/MatchInfo";
@@ -35,6 +36,7 @@ export default function MatchPanel() {
   const [timeRemaining, setTimeRemaining] = useState(450);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [period, setPeriod] = useState("1ST");
+  const [teams, setTeams] = useState({ left: null, right: null });
 
   const navigate = useNavigate();
 
@@ -54,6 +56,18 @@ export default function MatchPanel() {
       if (data.period !== undefined) setPeriod(data.period);
     });
   }, [matchId, isTimerRunning]);
+
+  useEffect(() => {
+    const unsub = subscribeScoreboard(matchId, (data) => {
+      // Each side already has abbreviation, team_logo, etc.
+      const leftTeam = data.left ? { ...data.left, side: "left" } : null;
+      const rightTeam = data.right ? { ...data.right, side: "right" } : null;
+
+      setTeams({ left: leftTeam, right: rightTeam });
+    });
+
+    return () => unsub();
+  }, [matchId]);
 
   // Timer effect
   useEffect(() => {
@@ -121,13 +135,15 @@ export default function MatchPanel() {
           players={players}
           selectedPlayer={selectedPlayer}
           onSelectPlayer={(playerId) => {
+            const player = players.find((p) => p.id === playerId); // <-- confirm exists
+            console.log("Selected player:", playerId, player);
             setSelectedPlayer(playerId);
             updateLiveStatus(
               matchId,
               teamId,
               team,
               players,
-              { player_id: playerId },
+              { player_id: playerId }, // must be the Firebase key `id`
               period,
               timeRemaining
             );

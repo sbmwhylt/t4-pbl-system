@@ -108,6 +108,7 @@ async function initializeLiveData({ matchId, leftTeam, rightTeam, teams }) {
 
   await set(ref(db, `t4_bouldering/scoreboard/${matchId}`), {
     left: {
+      team_id: leftTeam, // <-- add this
       abbreviation: leftTeamData.abbreviation || "",
       current_player: "",
       jersey: 0,
@@ -117,6 +118,7 @@ async function initializeLiveData({ matchId, leftTeam, rightTeam, teams }) {
       team_logo: leftTeamData.logo_url || null,
     },
     right: {
+      team_id: rightTeam, // <-- and this
       abbreviation: rightTeamData.abbreviation || "",
       current_player: "",
       jersey: 0,

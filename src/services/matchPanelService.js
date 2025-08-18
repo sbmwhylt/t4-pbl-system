@@ -33,11 +33,36 @@ export function updateLiveStatus(
   period,
   timeRemaining
 ) {
-  update(
-    ref(db, `t4_bouldering/live_status/${matchId}/on_boulders/${teamId}`),
-    updates
-  );
+  console.log("updateLiveStatus called with:", {
+    updates,
+    players,
+    team,
+  });
+  // Extract playerId if present
+  const playerId = updates.player_id || null;
 
+  if (playerId) {
+    // Write under specific player path
+    update(
+      ref(
+        db,
+        `t4_bouldering/live_status/${matchId}/on_boulders/${teamId}/${playerId}`
+      ),
+      {
+        ...updates,
+        period,
+        time_remaining: timeRemaining,
+      }
+    );
+  } else {
+    // Fallback for team-level updates
+    update(
+      ref(db, `t4_bouldering/live_status/${matchId}/on_boulders/${teamId}`),
+      updates
+    );
+  }
+
+  // Keep scoreboard synced (unchanged logic)
   if (team?.side) {
     const scoreboardUpdates = {
       team_logo: team?.team_logo || "",
@@ -46,6 +71,12 @@ export function updateLiveStatus(
 
     if (updates.player_id) {
       const player = players.find((p) => p.id === updates.player_id);
+      console.log("updateLiveStatus lookup:", {
+        playerId: updates.player_id,
+        players,
+        found: player,
+      });
+
       scoreboardUpdates.jersey = player?.jersey_number || "";
       scoreboardUpdates.current_player = player?.name || "";
     }
@@ -108,4 +139,9 @@ function calculateScore(stage) {
 export function updateMatchStatus(matchId, data) {
   const matchRef = ref(db, `t4_bouldering/matches/${matchId}`);
   return update(matchRef, data); // return so caller can await
+}
+
+export function subscribeScoreboard(matchId, callback) {
+  const boardRef = ref(db, `scoreboard/${matchId}`);
+  return onValue(boardRef, (snap) => callback(snap.val() || {}));
 }
