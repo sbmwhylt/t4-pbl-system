@@ -4,14 +4,13 @@ import {
   subscribeTeam,
   subscribePlayers,
   subscribeLiveStatus,
+  subscribeScoreboard,
   updateLiveStatus,
   startTimer,
   pauseTimer,
-  resetTimer,
   tickTimer,
-  updatePeriod,
+  resetTimer,
   updateMatchStatus,
-  subscribeScoreboard,
 } from "../../services/matchPanelService";
 
 import MatchInfo from "../../components/matchpanel/MatchInfo";
@@ -37,11 +36,24 @@ export default function MatchPanel() {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [period, setPeriod] = useState("1ST");
   const [teams, setTeams] = useState({ left: null, right: null });
+  const [leftTeamId, setLeftTeamId] = useState(null);
+  const [rightTeamId, setRightTeamId] = useState(null);
 
   const navigate = useNavigate();
 
   // Subscriptions
-  useEffect(() => subscribeTeam(teamId, setTeam), [teamId]);
+  // Subscriptions
+  useEffect(() => {
+    const unsub = subscribeTeam(teamId, (teamData) => {
+      if (teamData) {
+        // Decide side based on match setup
+        const side = teamId === leftTeamId ? "left" : "right";
+        setTeam({ ...teamData, side });
+      }
+    });
+    return () => unsub();
+  }, [teamId]);
+
   useEffect(() => subscribePlayers(teamId, setPlayers), [teamId]);
   useEffect(() => {
     return subscribeLiveStatus(matchId, (data) => {
@@ -118,14 +130,14 @@ export default function MatchPanel() {
         <MatchInfo team={team} matchId={matchId} />
         <BoulderSelection
           currentBoulder={currentBoulder}
-          onSelectBoulder={(boulder) => {
-            setCurrentBoulder(boulder);
+          onSelectBoulder={(boulderId) => {
+            setCurrentBoulder(boulderId);
             updateLiveStatus(
               matchId,
               teamId,
               team,
               players,
-              { boulder_id: boulder },
+              { boulder_id: boulderId },
               period,
               timeRemaining
             );
@@ -135,15 +147,13 @@ export default function MatchPanel() {
           players={players}
           selectedPlayer={selectedPlayer}
           onSelectPlayer={(playerId) => {
-            const player = players.find((p) => p.id === playerId); // <-- confirm exists
-            console.log("Selected player:", playerId, player);
             setSelectedPlayer(playerId);
             updateLiveStatus(
               matchId,
               teamId,
               team,
               players,
-              { player_id: playerId }, // must be the Firebase key `id`
+              { player_id: playerId },
               period,
               timeRemaining
             );

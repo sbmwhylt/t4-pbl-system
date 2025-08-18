@@ -13,7 +13,7 @@ export default function TeamBlock({
     <div className={`${baseClass} ${isLeft ? "flex-row" : "flex-row-reverse"}`}>
       {/* Player name on the far side */}
       <div className="w-24 text-md font-medium text-white text-center truncate">
-        {player}
+        {player || ""}
       </div>
 
       {/* Spacer */}
@@ -21,7 +21,7 @@ export default function TeamBlock({
 
       {/* Possible Score */}
       <div className="w-fit p-3 h-full flex justify-center items-center bg-blue-100 text-black font-bold text-2xl">
-        +{possible}
+        +{possible || 0}
       </div>
 
       {/* Team Info */}
@@ -30,16 +30,14 @@ export default function TeamBlock({
           side === "right" ? "flex-row-reverse" : ""
         }`}
       >
-        <img
-          src={logo}
-          alt={abbreviation}
-          className="w-18 h-18 "
-        />
-        <span className="text-2xl font-semibold">{abbreviation}</span>
+        {logo && (
+          <img src={logo} alt={abbreviation || ""} className="w-18 h-18" />
+        )}
+        <span className="text-2xl font-semibold">{abbreviation || ""}</span>
       </div>
 
       {/* Score */}
-      <div className="text-4xl font-semibold pl-2 pr-4">{score}</div>
+      <div className="text-4xl font-semibold pl-2 pr-4">{score || 0}</div>
     </div>
   );
 }

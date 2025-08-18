@@ -24,7 +24,7 @@ export function subscribeLiveStatus(matchId, callback) {
 }
 
 // Live Status Updates
-export function updateLiveStatus(
+export async function updateLiveStatus(
   matchId,
   teamId,
   team,
@@ -33,59 +33,48 @@ export function updateLiveStatus(
   period,
   timeRemaining
 ) {
-  console.log("updateLiveStatus called with:", {
-    updates,
-    players,
-    team,
-  });
-  // Extract playerId if present
+  console.log("updateLiveStatus called with:", { updates, players, team });
+
   const playerId = updates.player_id || null;
 
+  // If player selected, fetch player info
+  let playerInfo = {};
   if (playerId) {
-    // Write under specific player path
-    update(
-      ref(
-        db,
-        `t4_bouldering/live_status/${matchId}/on_boulders/${teamId}/${playerId}`
-      ),
-      {
-        ...updates,
-        period,
-        time_remaining: timeRemaining,
-      }
-    );
-  } else {
-    // Fallback for team-level updates
-    update(
-      ref(db, `t4_bouldering/live_status/${matchId}/on_boulders/${teamId}`),
-      updates
-    );
+    const player = players.find((p) => p.id === playerId);
+    if (player) {
+      playerInfo = {
+        current_player: player.name,
+        jersey: player.jersey_number || player.jersey || "",
+      };
+    }
   }
 
-  // Keep scoreboard synced (unchanged logic)
+  // Update live_status under on_boulders (per player or team)
+  const liveStatusPath = playerId
+    ? `t4_bouldering/live_status/${matchId}/on_boulders/${teamId}/${playerId}`
+    : `t4_bouldering/live_status/${matchId}/on_boulders/${teamId}`;
+
+  await update(ref(db, liveStatusPath), {
+    ...updates,
+    ...playerInfo,
+    period,
+    time_remaining: timeRemaining,
+  });
+
+  // Update scoreboard for broadcast
   if (team?.side) {
     const scoreboardUpdates = {
-      team_logo: team?.team_logo || "",
-      abbreviation: team?.abbreviation || "",
+      team_logo: team.team_logo || "",
+      abbreviation: team.abbreviation || "",
+      ...playerInfo,
     };
 
-    if (updates.player_id) {
-      const player = players.find((p) => p.id === updates.player_id);
-      console.log("updateLiveStatus lookup:", {
-        playerId: updates.player_id,
-        players,
-        found: player,
-      });
-
-      scoreboardUpdates.jersey = player?.jersey_number || "";
-      scoreboardUpdates.current_player = player?.name || "";
-    }
     if (updates.points !== undefined) {
       scoreboardUpdates.possible = calculatePossiblePoints(updates.points);
       scoreboardUpdates.score = calculateScore(updates.points);
     }
 
-    update(ref(db, `scoreboard/${matchId}/${team.side}`), {
+    await update(ref(db, `scoreboard/${matchId}/${team.side}`), {
       ...scoreboardUpdates,
       period,
       time_remaining: timeRemaining,
