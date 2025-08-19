@@ -59,9 +59,25 @@ export async function initMatch(matchId) {
 // Team & Score Updates
 // ======================
 export async function setTeam(matchId, side, team) {
-  await update(scoreboardRef(matchId), {
-    [`teams/${side}`]: { id: team?.id || "", name: team?.name || team || "", score: 0 },
-  });
+  // If it's a player selection (has current_player property)
+  if (team && typeof team === "object" && "current_player" in team) {
+    await update(scoreboardRef(matchId), {
+      [`teams/${side}/current_player`]: team.current_player || null,
+      [`teams/${side}/jersey`]: team.jersey || null,
+    });
+  }
+  // If it's a team selection (normal behavior)
+  else {
+    await update(scoreboardRef(matchId), {
+      [`teams/${side}`]: {
+        id: team?.id || "",
+        name: team?.name || team || "",
+        score: 0,
+        current_player: null, // Reset player when team changes
+        jersey: null,
+      },
+    });
+  }
 }
 
 export async function clearScore(matchId, side) {
@@ -98,7 +114,9 @@ export async function resetTimer(matchId, duration = DEFAULT_DURATION) {
 // Use transaction to decrement Firebase timer
 export async function tickTimer(matchId) {
   const r = ref(db, `scoreboard/${matchId}/timer/remaining`);
-  await runTransaction(r, (current) => Math.max(0, (current || DEFAULT_DURATION) - 1));
+  await runTransaction(r, (current) =>
+    Math.max(0, (current || DEFAULT_DURATION) - 1)
+  );
 }
 
 // ======================
@@ -106,4 +124,23 @@ export async function tickTimer(matchId) {
 // ======================
 export function updatePeriod(matchId, period) {
   return update(scoreboardRef(matchId), { period });
+}
+
+// ======================
+// Players subscription
+// ======================
+
+export function subscribePlayers(callback) {
+  const playersRef = ref(db, "t4_bouldering/players");
+
+  return onValue(playersRef, (snap) => {
+    const val = snap.val() || {};
+    const list = Object.entries(val).map(([id, p]) => ({
+      id,
+      name: p.name || "",
+      jersey_number: p.jersey_number || "",
+      team_id: p.team_id || "",
+    }));
+    callback(list);
+  });
 }

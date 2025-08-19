@@ -1,8 +1,10 @@
+// PanelPage.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   subscribeScoreboard,
   subscribeTeams,
+  subscribePlayers,
   initMatch,
   setTeam,
   adjustScore,
@@ -12,36 +14,37 @@ import {
   resetTimer,
   tickTimer,
   updatePeriod,
-  DEFAULT_DURATION,
 } from "./PlanBService";
 import { onValue, ref } from "firebase/database";
 import { db } from "../../firebase";
 
+// Components
 import Header from "../PlanB/components/Header";
 import TeamSelector from "../PlanB/components/TeamSelector";
 import ScoreButtons from "../PlanB/components/ScoreButtons";
 import TimerControls from "../PlanB/components/TimerControls";
+import PlayerButtons from "../PlanB/components/PlayersButtons";
 
 export default function PanelPage() {
   const { matchId = "demo" } = useParams();
-  
-  // Default state to render immediately
-  const [state, setState] = useState({
-    teams: { left: { name: "Left", score: 0 }, right: { name: "Right", score: 0 } },
-    timer: { duration: DEFAULT_DURATION, remaining: DEFAULT_DURATION, running: false },
-    period: "1ST",
-  });
 
+  // --- Refs for interval and running state ---
+  const timerIntervalRef = useRef(null);
+  const isRunningRef = useRef(false);
+
+  // State
+  const [state, setState] = useState(null);
   const [teams, setTeams] = useState([]);
-  const tickingRef = useRef(null);
+  const [allPlayers, setAllPlayers] = useState([]);
+  const [selectedLeftPlayer, setSelectedLeftPlayer] = useState(null);
+  const [selectedRightPlayer, setSelectedRightPlayer] = useState(null);
 
-  // Subscribe to scoreboard
-  useEffect(() => {
-    const unsub = subscribeScoreboard(matchId, (data) => setState(data));
-    return () => unsub();
-  }, [matchId]);
+  // --- Subscriptions ---
+  useEffect(() => subscribeScoreboard(matchId, setState), [matchId]);
+  useEffect(() => subscribeTeams(setTeams), []);
+  useEffect(() => subscribePlayers(setAllPlayers), []);
 
-  // Initialize match if not existing
+  // --- Initialize match if missing ---
   useEffect(() => {
     const unsub = onValue(ref(db, `scoreboard/${matchId}`), (snap) => {
       if (!snap.exists()) initMatch(matchId);
@@ -49,41 +52,50 @@ export default function PanelPage() {
     return () => unsub();
   }, [matchId]);
 
-  // Subscribe to teams
+  // --- Keep running state in sync ---
   useEffect(() => {
-    const unsubTeams = subscribeTeams(setTeams);
-    return () => unsubTeams();
-  }, []);
+    isRunningRef.current = state?.timer?.running || false;
+  }, [state?.timer?.running]);
 
-  // Timer: local decrement + Firebase sync
+  // --- Single interval for ticking ---
   useEffect(() => {
-    if (tickingRef.current) return;
+    if (!state?.timer) return;
 
-    tickingRef.current = setInterval(() => {
-      setState((prev) => {
-        if (!prev?.timer?.running) return prev;
+    if (!timerIntervalRef.current) {
+      timerIntervalRef.current = setInterval(() => {
+        if (isRunningRef.current) tickTimer(matchId);
+      }, 1000);
+    }
 
-        const remaining = Math.max(0, (prev.timer.remaining || 0) - 1);
+    return () => {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    };
+  }, [matchId, state?.timer]);
 
-        // Sync to Firebase every second
-        tickTimer(matchId);
+  if (!state) return <div className="p-6">Loading…</div>;
 
-        return { ...prev, timer: { ...prev.timer, remaining } };
-      });
-    }, 1000);
-
-    return () => clearInterval(tickingRef.current);
-  }, [matchId]);
-
-  const left = state.teams.left;
-  const right = state.teams.right;
+  // --- Left/Right team shortcuts ---
+  const left = state.teams?.left || { id: "", name: "Left", score: 0 };
+  const right = state.teams?.right || { id: "", name: "Right", score: 0 };
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <Header matchId={matchId} />
 
+      <div className="mt-6">
+        <TimerControls
+          timer={state.timer}
+          period={state.period}
+          onStart={() => startTimer(matchId)}
+          onPause={() => pauseTimer(matchId)}
+          onReset={() => resetTimer(matchId)}
+          onPeriodChange={(p) => updatePeriod(matchId, p)}
+        />
+      </div>
+
       <div className="mt-6 grid md:grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left team */}
+        {/* Left team panel */}
         <div className="rounded-xl bg-gray-100 p-6 border border-gray-300 flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <TeamSelector
@@ -101,7 +113,7 @@ export default function PanelPage() {
           />
         </div>
 
-        {/* Right team */}
+        {/* Right team panel */}
         <div className="rounded-xl bg-gray-100 p-6 border border-gray-300 flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <TeamSelector
@@ -120,16 +132,40 @@ export default function PanelPage() {
         </div>
       </div>
 
-      {/* Timer */}
-      <div className="mt-6">
-        <TimerControls
-          timer={state.timer}
-          period={state.period}
-          onStart={() => startTimer(matchId)}
-          onPause={() => pauseTimer(matchId)}
-          onReset={() => resetTimer(matchId)}
-          onPeriodChange={(p) => updatePeriod(matchId, p)}
-        />
+      <div className="mt-6 grid grid-cols-2 gap-6">
+        {/* Left team players */}
+        <div className="rounded-xl bg-gray-100 p-6 border border-gray-300 flex flex-col justify-between">
+          <h3 className="text-lg font-semibold mb-2 text-center">Team 1 Players</h3>
+          <PlayerButtons
+            players={allPlayers.filter((p) => p.team_id === left.id)}
+            activePlayerId={selectedLeftPlayer?.id}
+            onSelect={(player) => {
+              setSelectedLeftPlayer(player);
+              setTeam(matchId, "left", {
+                current_player: player?.name,
+                jersey: player?.jersey_number,
+              });
+            }}
+            teamColor="blue"
+          />
+        </div>
+
+        {/* Right team players */}
+        <div className="rounded-xl bg-gray-100 p-6 border border-gray-300 flex flex-col justify-between">
+          <h3 className="text-lg font-semibold mb-2 text-center">Team 2 Players</h3>
+          <PlayerButtons
+            players={allPlayers.filter((p) => p.team_id === right.id)}
+            activePlayerId={selectedRightPlayer?.id}
+            onSelect={(player) => {
+              setSelectedRightPlayer(player);
+              setTeam(matchId, "right", {
+                current_player: player?.name,
+                jersey: player?.jersey_number,
+              });
+            }}
+            teamColor="red"
+          />
+        </div>
       </div>
     </div>
   );
