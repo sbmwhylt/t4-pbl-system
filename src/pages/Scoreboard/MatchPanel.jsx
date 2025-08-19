@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
-  subscribeTeam,
-  subscribePlayers,
+  subscribePlayersBySide,
   subscribeLiveStatus,
   subscribeScoreboard,
   updateLiveStatus,
@@ -11,6 +10,7 @@ import {
   tickTimer,
   resetTimer,
   updateMatchStatus,
+  updatePeriod,
 } from "../../services/matchPanelService";
 
 import MatchInfo from "../../components/matchpanel/MatchInfo";
@@ -23,11 +23,15 @@ import { CircleArrowLeft } from "lucide-react";
 
 export default function MatchPanel() {
   const { matchId } = useParams();
-  const [searchParams] = useSearchParams();
-  const teamId = searchParams.get("teamId");
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const [team, setTeam] = useState(null);
-  const [players, setPlayers] = useState([]);
+  // This is passed from the "pick a team" step
+  const selectedSide = location.state?.side || "left"; // "left" or "right"
+
+  const [players, setPlayers] = useState({ left: [], right: [] });
+  const [teams, setTeams] = useState({ left: null, right: null });
+
   const [currentBoulder, setCurrentBoulder] = useState("");
   const [selectedPlayer, setSelectedPlayer] = useState("");
   const [attempts, setAttempts] = useState(0);
@@ -35,34 +39,20 @@ export default function MatchPanel() {
   const [timeRemaining, setTimeRemaining] = useState(450);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [period, setPeriod] = useState("1ST");
-  const [teams, setTeams] = useState({ left: null, right: null });
-  const [leftTeamId, setLeftTeamId] = useState(null);
-  const [rightTeamId, setRightTeamId] = useState(null);
 
-  const navigate = useNavigate();
-
-  // Subscriptions
   // Subscriptions
   useEffect(() => {
-    const unsub = subscribeTeam(teamId, (teamData) => {
-      if (teamData) {
-        // Decide side based on match setup
-        const side = teamId === leftTeamId ? "left" : "right";
-        setTeam({ ...teamData, side });
-      }
+    if (!matchId) return;
+    const unsub = subscribePlayersBySide(matchId, ({ leftPlayers, rightPlayers }) => {
+      setPlayers({ left: leftPlayers, right: rightPlayers });
     });
     return () => unsub();
-  }, [teamId]);
+  }, [matchId]);
 
-  useEffect(() => subscribePlayers(teamId, setPlayers), [teamId]);
   useEffect(() => {
     return subscribeLiveStatus(matchId, (data) => {
-      if (data.time_remaining !== undefined)
-        setTimeRemaining(data.time_remaining);
-      if (
-        data.clock_running !== undefined &&
-        data.clock_running !== isTimerRunning
-      ) {
+      if (data.time_remaining !== undefined) setTimeRemaining(data.time_remaining);
+      if (data.clock_running !== undefined && data.clock_running !== isTimerRunning) {
         setIsTimerRunning(data.clock_running);
       }
       if (data.period !== undefined) setPeriod(data.period);
@@ -71,17 +61,14 @@ export default function MatchPanel() {
 
   useEffect(() => {
     const unsub = subscribeScoreboard(matchId, (data) => {
-      // Each side already has abbreviation, team_logo, etc.
       const leftTeam = data.left ? { ...data.left, side: "left" } : null;
       const rightTeam = data.right ? { ...data.right, side: "right" } : null;
-
       setTeams({ left: leftTeam, right: rightTeam });
     });
-
     return () => unsub();
   }, [matchId]);
 
-  // Timer effect
+  // Timer ticking
   useEffect(() => {
     let interval;
     if (isTimerRunning && timeRemaining > 0) {
@@ -96,82 +83,80 @@ export default function MatchPanel() {
     return () => clearInterval(interval);
   }, [isTimerRunning, timeRemaining, matchId, period]);
 
-  //End Match
+  // End Match
   const handleFinishMatch = async () => {
     try {
-      // Stop timer in UI and DB
       setIsTimerRunning(false);
       pauseTimer(matchId);
 
-      // Save final game state
       await updateMatchStatus(matchId, {
         status: "finished",
         final_period: period,
         final_time_remaining: timeRemaining,
-        // Add whatever else you want to snapshot
-        // scores, players, etc.
         finished_at: Date.now(),
       });
 
-      // Redirect to matches list
       navigate("/admin/matches");
     } catch (err) {
       console.error("Error finishing match:", err);
     }
   };
 
+  // Pick the correct team/players based on side chosen
+  const activeTeam = teams[selectedSide];
+  const activePlayers = players[selectedSide] || [];
+
   return (
-    <div className="p-10 grid md:grid-cols-1 lg:grid-cols-2 lg:gap-6 bg-gray-100 h-screen">
-      {/* Left Column */}
+    <div className="p-10 bg-gray-100 h-screen">
+      <button onClick={() => navigate("/admin/matches")}>
+        <CircleArrowLeft className="w-10 h-10 text-gray-300 mb-6 hover:text-gray-400" />
+      </button>
+
       <div className="space-y-6">
-        <button onClick={() => navigate("/admin/matches")}>
-          <CircleArrowLeft className="w-10 h-10 text-gray-300 mb-6 hover:text-gray-400" />
-        </button>
-        <MatchInfo team={team} matchId={matchId} />
+        <MatchInfo team={activeTeam} matchId={matchId} />
+
         <BoulderSelection
           currentBoulder={currentBoulder}
           onSelectBoulder={(boulderId) => {
             setCurrentBoulder(boulderId);
             updateLiveStatus(
               matchId,
-              teamId,
-              team,
-              players,
+              activeTeam?.team_id,
+              activeTeam,
+              activePlayers,
               { boulder_id: boulderId },
               period,
               timeRemaining
             );
           }}
         />
+
         <PlayerSelection
-          players={players}
+          players={activePlayers}
           selectedPlayer={selectedPlayer}
           onSelectPlayer={(playerId) => {
             setSelectedPlayer(playerId);
             updateLiveStatus(
               matchId,
-              teamId,
-              team,
-              players,
+              activeTeam?.team_id,
+              activeTeam,
+              activePlayers,
               { player_id: playerId },
               period,
               timeRemaining
             );
           }}
         />
-      </div>
 
-      {/* Right Column */}
-      <div className="space-y-6">
         <AttemptsSelection
           attempts={attempts}
           onSelectAttempt={(value) => {
             setAttempts(value);
             updateLiveStatus(
               matchId,
-              teamId,
-              team,
-              players,
+              activeTeam?.team_id,
+              activeTeam,
+              activePlayers,
               { attempts: value },
               period,
               timeRemaining
@@ -185,9 +170,9 @@ export default function MatchPanel() {
             setProgress(value);
             updateLiveStatus(
               matchId,
-              teamId,
-              team,
-              players,
+              activeTeam?.team_id,
+              activeTeam,
+              activePlayers,
               { points: value },
               period,
               timeRemaining
@@ -207,7 +192,7 @@ export default function MatchPanel() {
             setIsTimerRunning(false);
             pauseTimer(matchId);
           }}
-          onFinish={handleFinishMatch} // <-- new
+          onFinish={handleFinishMatch}
           onPeriodChange={(newPeriod) => {
             setPeriod(newPeriod);
             setTimeRemaining(450);

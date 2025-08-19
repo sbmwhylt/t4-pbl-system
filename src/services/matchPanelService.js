@@ -134,3 +134,35 @@ export function subscribeScoreboard(matchId, callback) {
   const boardRef = ref(db, `scoreboard/${matchId}`);
   return onValue(boardRef, (snap) => callback(snap.val() || {}));
 }
+
+// Subscribe to players split by left/right sides for a match
+export function subscribePlayersBySide(matchId, callback) {
+  const boardRef = ref(db, `t4_bouldering/scoreboard/${matchId}`);
+  const playersRef = ref(db, "t4_bouldering/players");
+
+  // Listen to both scoreboard and players
+  return onValue(boardRef, (boardSnap) => {
+    const scoreboard = boardSnap.val();
+    if (!scoreboard) {
+      callback({ leftPlayers: [], rightPlayers: [] });
+      return;
+    }
+
+    onValue(playersRef, (playersSnap) => {
+      const allPlayers = playersSnap.val() || {};
+
+      const leftTeamId = scoreboard.left?.team_id;
+      const rightTeamId = scoreboard.right?.team_id;
+
+      const leftPlayers = Object.entries(allPlayers)
+        .filter(([_, p]) => p.team_id === leftTeamId)
+        .map(([id, p]) => ({ ...p, id, side: "left" }));
+
+      const rightPlayers = Object.entries(allPlayers)
+        .filter(([_, p]) => p.team_id === rightTeamId)
+        .map(([id, p]) => ({ ...p, id, side: "right" }));
+
+      callback({ leftPlayers, rightPlayers });
+    });
+  });
+}
