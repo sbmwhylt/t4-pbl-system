@@ -17,6 +17,7 @@ export default function Navbar() {
     { label: "Players", path: "/admin/players" },
     { label: "Boulders", path: "/admin/boulders" },
     { label: "Matches", path: "/admin/matches" },
+ 
   ];
 
   const handleLogout = async () => {
@@ -51,6 +52,14 @@ export default function Navbar() {
           rel="noopener noreferrer"
         >
           Live Scoreboard
+        </a>
+        <a
+          href="/planb/panel"
+          className="hover:text-purple-800"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Plan B
         </a>
       </div>
 

@@ -7,9 +7,11 @@ import Matches from "./pages/Admin/Matches";
 import LiveView from "./pages/Scoreboard/LiveView";
 import MatchPanel from "./pages/Scoreboard/MatchPanel";
 import Login from "./pages/Admin/Login";
-import PrivateRoute from "./PrivateRoute"; 
+import PrivateRoute from "./PrivateRoute";
 import NotFound from "./pages/404";
 import MatchStats from "./pages/Admin/MatchStats";
+import Panel from "./pages/PlanB/Panel";
+import Live from "./pages/PlanB/Live";
 
 function App() {
   return (
@@ -74,8 +76,18 @@ function App() {
           }
         />
 
+        <Route
+          path="/planb/panel"
+          element={
+            <PrivateRoute>
+              <Panel />
+            </PrivateRoute>
+          }
+        />
+
         {/* Public Routes */}
         <Route path="/scoreboard/liveview" element={<LiveView />} />
+        <Route path="/planb/live" element={<Live />} />
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<NotFound />} />
