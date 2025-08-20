@@ -31,6 +31,7 @@ export default function PanelPage() {
   // --- Refs for interval and running state ---
   const timerIntervalRef = useRef(null);
   const isRunningRef = useRef(false);
+  const controllerRef = useRef(null); 
 
   // State
   const [state, setState] = useState(null);
@@ -55,15 +56,19 @@ export default function PanelPage() {
   // --- Keep running state in sync ---
   useEffect(() => {
     isRunningRef.current = state?.timer?.running || false;
-  }, [state?.timer?.running]);
+    controllerRef.current = state?.timer?.controller || null;
+  }, [state?.timer?.running, state?.timer?.controller]);
 
-  // --- Single interval for ticking ---
+  // --- Single stable interval ---
   useEffect(() => {
-    if (!state?.timer) return;
+    if (!matchId) return;
 
     if (!timerIntervalRef.current) {
       timerIntervalRef.current = setInterval(() => {
-        if (isRunningRef.current) tickTimer(matchId);
+        // Only the controller decrements
+        if (isRunningRef.current && controllerRef.current === "panel") {
+          tickTimer(matchId);
+        }
       }, 1000);
     }
 
@@ -71,7 +76,7 @@ export default function PanelPage() {
       clearInterval(timerIntervalRef.current);
       timerIntervalRef.current = null;
     };
-  }, [matchId, state?.timer]);
+  }, [matchId]);
 
   if (!state) return <div className="p-6">Loading…</div>;
 
@@ -103,7 +108,9 @@ export default function PanelPage() {
               teams={teams}
               onChange={(t) => setTeam(matchId, "left", t)}
             />
-            <div className="text-6xl font-semibold tabular-nums">{left.score}</div>
+            <div className="text-6xl font-semibold tabular-nums">
+              {left.score}
+            </div>
           </div>
           <ScoreButtons
             onPlus1={() => adjustScore(matchId, "left", 1)}
@@ -121,7 +128,9 @@ export default function PanelPage() {
               teams={teams}
               onChange={(t) => setTeam(matchId, "right", t)}
             />
-            <div className="text-6xl font-semibold tabular-nums">{right.score}</div>
+            <div className="text-6xl font-semibold tabular-nums">
+              {right.score}
+            </div>
           </div>
           <ScoreButtons
             onPlus1={() => adjustScore(matchId, "right", 1)}
@@ -135,9 +144,13 @@ export default function PanelPage() {
       <div className="mt-6 grid grid-cols-2 gap-6">
         {/* Left team players */}
         <div className="rounded-xl bg-gray-100 p-6 border border-gray-300 flex flex-col justify-between">
-          <h3 className="text-lg font-semibold mb-2 text-center">Team 1 Players</h3>
+          <h3 className="text-lg font-semibold mb-2 text-center">
+            Team 1 Players
+          </h3>
           <PlayerButtons
-            players={allPlayers.filter((p) => p.team_id === left.id)}
+            players={
+              left?.id ? allPlayers.filter((p) => p.team_id === left.id) : []
+            }
             activePlayerId={selectedLeftPlayer?.id}
             onSelect={(player) => {
               setSelectedLeftPlayer(player);
@@ -152,7 +165,9 @@ export default function PanelPage() {
 
         {/* Right team players */}
         <div className="rounded-xl bg-gray-100 p-6 border border-gray-300 flex flex-col justify-between">
-          <h3 className="text-lg font-semibold mb-2 text-center">Team 2 Players</h3>
+          <h3 className="text-lg font-semibold mb-2 text-center">
+            Team 2 Players
+          </h3>
           <PlayerButtons
             players={allPlayers.filter((p) => p.team_id === right.id)}
             activePlayerId={selectedRightPlayer?.id}

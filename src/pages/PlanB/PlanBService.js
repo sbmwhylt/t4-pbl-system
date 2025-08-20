@@ -99,8 +99,8 @@ export async function setTimer(matchId, patch) {
   );
 }
 
-export async function startTimer(matchId) {
-  await setTimer(matchId, { running: true });
+export async function startTimer(matchId, controller = "panel") {
+  await setTimer(matchId, { running: true, controller });
 }
 
 export async function pauseTimer(matchId) {
@@ -113,10 +113,32 @@ export async function resetTimer(matchId, duration = DEFAULT_DURATION) {
 
 // Use transaction to decrement Firebase timer
 export async function tickTimer(matchId) {
-  const r = ref(db, `scoreboard/${matchId}/timer/remaining`);
-  await runTransaction(r, (current) =>
-    Math.max(0, (current || DEFAULT_DURATION) - 1)
-  );
+  const r = ref(db, `scoreboard/${matchId}/timer`);
+
+  await runTransaction(r, (current) => {
+    if (!current) return null;
+
+    // If timer already stopped, do nothing
+    if (!current.running) {
+      return current;
+    }
+
+    const nextRemaining = (current.remaining ?? DEFAULT_DURATION) - 1;
+
+    if (nextRemaining <= 0) {
+      // Stop timer at 0
+      return {
+        ...current,
+        remaining: 0,
+        running: false,
+      };
+    }
+
+    return {
+      ...current,
+      remaining: nextRemaining,
+    };
+  });
 }
 
 // ======================

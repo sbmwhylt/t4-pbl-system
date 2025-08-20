@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   subscribeScoreboard,
-  tickTimer,
   DEFAULT_DURATION_SECONDS,
   subscribeTeams,
 } from "./PlanBService";
@@ -52,25 +51,6 @@ export default function Live() {
     return () => unsub();
   }, []);
 
-  // Timer interval
-  useEffect(() => {
-    if (!state.timer.running) {
-      if (tickingRef.current) {
-        clearInterval(tickingRef.current);
-        tickingRef.current = null;
-      }
-      return;
-    }
-    if (!tickingRef.current) {
-      tickingRef.current = setInterval(() => tickTimer(matchId), 1000);
-    }
-    return () => {
-      if (tickingRef.current) {
-        clearInterval(tickingRef.current);
-        tickingRef.current = null;
-      }
-    };
-  }, [state.timer.running, matchId]);
 
   // Determine left/right teams for display
   const leftScoreboard = {
