@@ -12,8 +12,11 @@ import NotFound from "./pages/404";
 import MatchStats from "./pages/Admin/MatchStats";
 import Panel from "./pages/PlanB/Panel";
 import Live from "./pages/PlanB/Live";
+import useAutoLogout from "./hooks/useAutoLogout";
 
 function App() {
+  useAutoLogout();
+
   return (
     <Router>
       <Routes>

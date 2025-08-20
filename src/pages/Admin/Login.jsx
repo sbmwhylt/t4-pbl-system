@@ -34,7 +34,7 @@ export default function Login() {
       navigate("/admin/dashboard");
       toast.success("Logged in successfully!");
     } catch (err) {
-      setError(err.message);
+      toast.error("Invalid Credentials, please try again.");
     }
     setLoading(false);
   };
@@ -48,12 +48,6 @@ export default function Login() {
             Sign in to T4 Admin
           </h2>
         </div>
-
-        {error && (
-          <p className="text-red-500 text-sm font-medium my-3 text-center py-2 px-4 bg-red-100 rounded">
-            Invalid Credentials! Please try again.
-          </p>
-        )}
 
         <div className="space-y-3 pb-4 mt-8">
           <Input
