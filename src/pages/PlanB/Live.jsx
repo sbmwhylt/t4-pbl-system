@@ -96,16 +96,19 @@ export default function Live() {
             {/* Left Team */}
             <div className="flex items-center gap-2">
               <div
-                className={`text-center font-medium text-sm h-full w-32 p-2 rounded-sm mr-2 ${
+                className={`text-center font-medium text-xl h-full w-32 p-2 rounded-sm mr-2 ${
                   leftScoreboard.current_player
                     ? "bg-blue-100 text-gray-900"
                     : "bg-gray-200 text-gray-600"
                 }`}
               >
-                {leftScoreboard.current_player
+                {/* {leftScoreboard.current_player
                   ? `${leftScoreboard.current_player} #${
                       leftScoreboard.jersey || "-"
                     }`
+                  : "-"} */}
+                {leftScoreboard.current_player
+                  ? leftScoreboard.current_player
                   : "-"}
               </div>
               {left.logo_url && (
@@ -146,16 +149,19 @@ export default function Live() {
                 />
               )}
               <div
-                className={`text-center font-medium text-sm h-full w-32 p-2 rounded-sm ml-2 ${
+                className={`text-center font-medium text-xl h-full w-32 p-2 rounded-sm ml-2 ${
                   rightScoreboard.current_player
                     ? "bg-blue-100 text-gray-900"
                     : "bg-gray-200 text-gray-600"
                 }`}
               >
-                {rightScoreboard.current_player
+                {/* {rightScoreboard.current_player
                   ? `${rightScoreboard.current_player} #${
                       rightScoreboard.jersey || "-"
                     }`
+                  : "-"} */}
+                {rightScoreboard.current_player
+                  ? rightScoreboard.current_player
                   : "-"}
               </div>
             </div>
