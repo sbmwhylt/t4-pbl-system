@@ -1,5 +1,5 @@
 // PanelPage.jsx
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   subscribeScoreboard,
@@ -14,9 +14,12 @@ import {
   resetTimer,
   tickTimer,
   updatePeriod,
+  finishMatch,
 } from "./PlanBService";
 import { onValue, ref } from "firebase/database";
 import { db } from "../../firebase";
+import { toast } from "react-hot-toast";
+import { Save } from "lucide-react";
 
 // Components
 import Header from "../PlanB/components/Header";
@@ -31,7 +34,7 @@ export default function PanelPage() {
   // --- Refs for interval and running state ---
   const timerIntervalRef = useRef(null);
   const isRunningRef = useRef(false);
-  const controllerRef = useRef(null); 
+  const controllerRef = useRef(null);
 
   // State
   const [state, setState] = useState(null);
@@ -181,6 +184,47 @@ export default function PanelPage() {
             teamColor="red"
           />
         </div>
+      </div>
+      <div className="flex gap-2 justify-end mt-8">
+        <button
+          onClick={async () => {
+            try {
+              // Save the demo match as finished
+              const savedMatchId = await finishMatch();
+
+              // Reset selected players in state
+              setSelectedLeftPlayer(null);
+              setSelectedRightPlayer(null);
+
+              // Reset both teams at once
+              await Promise.all([
+                setTeam("demo", "left", {
+                  id: "",
+                  name: "Left",
+                  score: 0,
+                  current_player: null,
+                  jersey: null,
+                }),
+                setTeam("demo", "right", {
+                  id: "",
+                  name: "Right",
+                  score: 0,
+                  current_player: null,
+                  jersey: null,
+                }),
+              ]);
+
+              toast.success(`Match ${savedMatchId} saved successfully!`);
+            } catch (err) {
+              console.error(err);
+              toast.error(`Error: ${err.message}`);
+            }
+          }}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 flex gap-2 items-center cursor-pointer transition-colors"
+        >
+          <Save size={18}/>
+          Finish Match
+        </button>
       </div>
     </div>
   );

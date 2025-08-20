@@ -64,6 +64,7 @@ export default function Login() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             required
+            className="border rounded-full px-3 py-3 border-gray-300 focus:border-purple-500 focus:ring-purple-500 outline-none"
           />
           <Input
             label="Password"
@@ -73,13 +74,21 @@ export default function Login() {
             placeholder="Enter your password"
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="border rounded-full px-3 py-3 border-gray-300 focus:border-purple-500 focus:ring-purple-500 outline-none"
           />
+
+          <div>
+
+          </div>
+          <a href="" className="flex justify-end border-gray-300 text-sm text-gray-600 hover:text-gray-800">forgot password?</a>
         </div>
+
+      
 
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors py-2 flex justify-center items-center"
+          className="w-full rounded-full bg-purple-600 text-white font-medium hover:bg-purple-800 transition-colors py-3 flex justify-center items-center cursor-pointer"
         >
           {loading ? <Spinner /> : "Sign In"}
         </Button>

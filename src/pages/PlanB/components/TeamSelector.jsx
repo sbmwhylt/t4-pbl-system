@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function TeamSelector({ label, teams, onChange }) {
-  const [selectedTeamId, setSelectedTeamId] = useState("");
+export default function TeamSelector({ label, teams, value, onChange }) {
+  const [selectedTeamId, setSelectedTeamId] = useState(value?.id || "");
+
+  useEffect(() => {
+    setSelectedTeamId(value?.id || "");
+  }, [value]); // Update internal state when parent changes `value`
 
   const handleChange = (e) => {
     const team = teams.find((t) => t.id === e.target.value) || null;
@@ -20,7 +24,7 @@ export default function TeamSelector({ label, teams, onChange }) {
           value={selectedTeamId}
           onChange={handleChange}
         >
-          <option value="">Select Team</option>
+          <option value="">-</option>
           {teams.map((team) => (
             <option key={team.id} value={team.id}>
               {team.name}

@@ -9,7 +9,7 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <UserProvider>
       <App />
-      <Toaster position="bottom-right" reverseOrder={true} />{" "}
+      <Toaster position="top-center" reverseOrder={true} />{" "}
     </UserProvider>
   </StrictMode>
 );

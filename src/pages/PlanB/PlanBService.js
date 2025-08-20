@@ -1,5 +1,12 @@
 import { db } from "../../firebase";
-import { ref, onValue, set, update, runTransaction } from "firebase/database";
+import {
+  ref,
+  onValue,
+  set,
+  update,
+  runTransaction,
+  get,
+} from "firebase/database";
 
 // ======================
 // References
@@ -10,6 +17,10 @@ function scoreboardRef(matchId) {
 
 function teamsRef() {
   return ref(db, `t4_bouldering/teams`);
+}
+
+function matchesRef() {
+  return ref(db, "t4_bouldering/matches");
 }
 
 // ======================
@@ -37,8 +48,8 @@ export function subscribeTeams(callback) {
 // ======================
 // Match Initialization
 // ======================
-export const DEFAULT_DURATION = 450; // 7:30 in seconds
-export const DEFAULT_DURATION_SECONDS = 450; // or whatever constant you want
+export const DEFAULT_DURATION = 450;
+export const DEFAULT_DURATION_SECONDS = 450;
 
 export async function initMatch(matchId) {
   await set(scoreboardRef(matchId), {
@@ -59,21 +70,18 @@ export async function initMatch(matchId) {
 // Team & Score Updates
 // ======================
 export async function setTeam(matchId, side, team) {
-  // If it's a player selection (has current_player property)
   if (team && typeof team === "object" && "current_player" in team) {
     await update(scoreboardRef(matchId), {
       [`teams/${side}/current_player`]: team.current_player || null,
       [`teams/${side}/jersey`]: team.jersey || null,
     });
-  }
-  // If it's a team selection (normal behavior)
-  else {
+  } else {
     await update(scoreboardRef(matchId), {
       [`teams/${side}`]: {
         id: team?.id || "",
         name: team?.name || team || "",
         score: 0,
-        current_player: null, // Reset player when team changes
+        current_player: null,
         jersey: null,
       },
     });
@@ -111,33 +119,19 @@ export async function resetTimer(matchId, duration = DEFAULT_DURATION) {
   await setTimer(matchId, { duration, remaining: duration, running: false });
 }
 
-// Use transaction to decrement Firebase timer
 export async function tickTimer(matchId) {
   const r = ref(db, `scoreboard/${matchId}/timer`);
-
   await runTransaction(r, (current) => {
     if (!current) return null;
-
-    // If timer already stopped, do nothing
-    if (!current.running) {
-      return current;
-    }
+    if (!current.running) return current;
 
     const nextRemaining = (current.remaining ?? DEFAULT_DURATION) - 1;
 
     if (nextRemaining <= 0) {
-      // Stop timer at 0
-      return {
-        ...current,
-        remaining: 0,
-        running: false,
-      };
+      return { ...current, remaining: 0, running: false };
     }
 
-    return {
-      ...current,
-      remaining: nextRemaining,
-    };
+    return { ...current, remaining: nextRemaining };
   });
 }
 
@@ -151,7 +145,6 @@ export function updatePeriod(matchId, period) {
 // ======================
 // Players subscription
 // ======================
-
 export function subscribePlayers(callback) {
   const playersRef = ref(db, "t4_bouldering/players");
 
@@ -165,4 +158,66 @@ export function subscribePlayers(callback) {
     }));
     callback(list);
   });
+}
+
+// ======================
+// Finish Match (record demo as finished match)
+// ======================
+async function getNextSequence() {
+  const matchesSnap = await get(matchesRef());
+  const matches = matchesSnap.val() || {};
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  const year = today.getFullYear().toString().slice(-2);
+
+  const seqs = Object.keys(matches)
+    .filter((id) => id.endsWith(`${month}${day}${year}`))
+    .map((id) => parseInt(id.slice(1, 3)))
+    .filter(Number.isFinite);
+
+  const nextSeq = seqs.length ? Math.max(...seqs) + 1 : 1;
+  return String(nextSeq).padStart(2, "0");
+}
+
+export async function finishMatch() {
+  const demoRef = ref(db, "scoreboard/demo");
+  const demoSnap = await get(demoRef);
+  if (!demoSnap.exists()) throw new Error("No demo data found");
+
+  const demoData = demoSnap.val();
+
+  // Validation: ensure both teams are selected and have a score > 0
+  const leftTeam = demoData?.teams?.left;
+  const rightTeam = demoData?.teams?.right;
+
+  if (!leftTeam?.id || !rightTeam?.id) {
+    throw new Error("Both teams must be selected");
+  }
+
+  if ((leftTeam?.score || 0) <= 0 && (rightTeam?.score || 0) <= 0) {
+    throw new Error("Both teams must have at least 1 point");
+  }
+
+  const sequence = await getNextSequence();
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  const year = today.getFullYear().toString().slice(-2);
+
+  const matchId = `M${sequence}${month}${day}${year}`;
+
+  // Save demo data into matches as finished
+  await set(ref(db, `t4_bouldering/matches/${matchId}`), {
+    id: matchId,
+    ...demoData,
+    status: "finished",
+    saved_at: Date.now().toString().trim().slice(0, 13),
+    start_time: Date.now(),
+  });
+
+  // Reset demo scoreboard
+  await initMatch("demo");
+
+  return matchId;
 }

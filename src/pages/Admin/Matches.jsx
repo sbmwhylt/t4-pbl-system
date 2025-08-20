@@ -92,12 +92,22 @@ export default function Matches() {
                   { header: "Match ID", accessor: "id" },
                   {
                     header: "Teams",
-                    accessor: (row) =>
-                      row.teams.map((id) => teams[id]?.name || id).join(" vs "),
+                    accessor: (row) => {
+                      const teamIds =
+                        row.teams?.left && row.teams?.right
+                          ? [row.teams.left.id, row.teams.right.id]
+                          : Array.isArray(row.teams)
+                          ? row.teams
+                          : [];
+
+                      return teamIds
+                        .map((id) => teams[id]?.name || id || "N/A")
+                        .join(" vs ");
+                    },
                   },
                   { header: "Status", accessor: "status" },
                   {
-                    header: "Scheduled",
+                    header: "Date",
                     accessor: (row) =>
                       new Date(row.start_time).toLocaleString(),
                   },
