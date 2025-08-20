@@ -39,7 +39,7 @@ export default function Sidebar() {
       icon: Tv,
     },
     {
-      label: "Plan B",
+      label: "Match Panel",
       path: "/planb/panel",
       external: true,
       icon: Layers,

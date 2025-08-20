@@ -24,6 +24,11 @@ const BLANK_TEAM = {
 const BLANK_TIMER = { remaining: DEFAULT_DURATION_SECONDS, running: false };
 
 export default function Live() {
+  // --- Set page title ---
+  useEffect(() => {
+    document.title = "Live ScoreView";
+  }, []);
+
   const { matchId = "demo" } = useParams();
   const [state, setState] = useState({
     teams: { left: BLANK_TEAM, right: BLANK_TEAM },
@@ -50,7 +55,6 @@ export default function Live() {
     });
     return () => unsub();
   }, []);
-
 
   // Determine left/right teams for display
   const leftScoreboard = {
