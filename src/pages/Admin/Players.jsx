@@ -160,7 +160,7 @@ export default function Players() {
         />
       )}
 
-      {/* Modal with Select */}
+      {/* Modal with Create and Add player */}
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
@@ -197,10 +197,13 @@ export default function Players() {
             onChange={(e) =>
               setFormData({ ...formData, team_id: e.target.value })
             }
-            options={Object.entries(teams).map(([id, team]) => ({
-              value: id,
-              label: team.name,
-            }))}
+            options={[
+              { value: "", label: "-", disabled: true },
+              ...Object.entries(teams).map(([id, team]) => ({
+                value: id,
+                label: team.name,
+              })),
+            ]}
           />
         </div>
       </Modal>
