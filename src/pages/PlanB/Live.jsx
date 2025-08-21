@@ -96,7 +96,7 @@ export default function Live() {
             {/* Left Team */}
             <div className="flex items-center gap-2">
               <div
-                className={`text-center font-medium text-xl h-full w-32 p-2 rounded-sm mr-2 ${
+                className={`text-center font-medium text-xl h-full w-32 p-2 rounded-sm mr-4 ${
                   leftScoreboard.current_player
                     ? "bg-blue-100 text-gray-900"
                     : "bg-gray-200 text-gray-600"
@@ -115,12 +115,14 @@ export default function Live() {
                 <img
                   src={left.logo_url}
                   alt={left.abbreviation}
-                  className="w-18 h-18"
+                  className="w-18 h-18 mr-3"
                 />
               )}
-              <div className="text-2xl font-semibold">{left.abbreviation}</div>
-              <div className="text-5xl font-bold pl-5">
-                {leftScoreboard.score || 0}
+              {/* <div className="text-2xl font-semibold">{left.abbreviation}</div> */}
+              <div className="flex justify-center items-center w-16 ">
+                <span className="text-5xl font-bold">
+                  {leftScoreboard.score || 0}
+                </span>
               </div>
             </div>
 
@@ -137,19 +139,21 @@ export default function Live() {
 
             {/* Right Team */}
             <div className="flex items-center gap-2">
-              <div className="text-5xl font-bold pr-5">
-                {rightScoreboard.score || 0}
+              <div className="flex justify-center items-center w-16 ">
+                <span className="text-5xl font-bold">
+                  {rightScoreboard.score || 0}
+                </span>
               </div>
-              <div className="text-2xl font-semibold">{right.abbreviation}</div>
+              {/* <div className="text-2xl font-semibold">{right.abbreviation}</div> */}
               {right.logo_url && (
                 <img
                   src={right.logo_url}
                   alt={right.abbreviation}
-                  className="w-18 h-18"
+                  className="w-18 h-18 ml-3"
                 />
               )}
               <div
-                className={`text-center font-medium text-xl h-full w-32 p-2 rounded-sm ml-2 ${
+                className={`text-center font-medium text-xl h-full w-32 p-2 rounded-sm ml-4 ${
                   rightScoreboard.current_player
                     ? "bg-blue-100 text-gray-900"
                     : "bg-gray-200 text-gray-600"
