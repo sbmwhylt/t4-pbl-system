@@ -12,7 +12,9 @@ export async function addPlayer(playerData) {
     parseInt(id.replace("P", ""), 10)
   );
   const nextId = ids.length ? Math.max(...ids) + 1 : 1;
-  const newId = `P${nextId}`;
+
+  // Pad number to 3 digits
+  const newId = `P${nextId.toString().padStart(3, "0")}`;
 
   // Write under the correct path
   await set(ref(db, `t4_bouldering/players/${newId}`), playerData);

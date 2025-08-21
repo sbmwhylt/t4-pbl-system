@@ -30,6 +30,14 @@ export default function Players() {
     team_id: "",
   });
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [teamFilter, setTeamFilter] = useState("");
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const playersPerPage = 10;
+
+  // Load data from Firebase
   useEffect(() => {
     const teamsRef = ref(db, "t4_bouldering/teams");
     const playersRef = ref(db, "t4_bouldering/players");
@@ -60,6 +68,27 @@ export default function Players() {
     };
   }, []);
 
+  // Filtered & sorted players
+  const filteredPlayers = players
+    .filter((player) =>
+      player.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter((player) => (teamFilter ? player.team_id === teamFilter : true))
+    .sort((a, b) => b.id.localeCompare(a.id)); // latest first
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredPlayers.length / playersPerPage);
+  const paginatedPlayers = filteredPlayers.slice(
+    (currentPage - 1) * playersPerPage,
+    currentPage * playersPerPage
+  );
+
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
+  // Modal handlers
   const openCreateModal = () => {
     setEditingPlayer(null);
     setFormData({ name: "", jersey_number: "", team_id: "" });
@@ -117,50 +146,135 @@ export default function Players() {
 
   return (
     <AdminLayout>
-      <div className="flex justify-between items-center mb-4">
+      {/* Header with search/filter/add */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4 w-full">
         <h2 className="text-2xl font-bold">Players</h2>
-        <Button onClick={openCreateModal}>Add Player</Button>
+
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Input
+            placeholder="Search players..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1); // reset page on search
+            }}
+            className="border border-gray-300 bg-white rounded p-2 outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64"
+          />
+          <Select
+            value={teamFilter}
+            onChange={(e) => {
+              setTeamFilter(e.target.value);
+              setCurrentPage(1); // reset page on filter
+            }}
+            options={[
+              { value: "", label: "All Teams" },
+              ...Object.entries(teams).map(([id, team]) => ({
+                value: id,
+                label: team.name,
+              })),
+            ]}
+            className="border border-gray-300 rounded p-2 text-lg outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-48"
+          />
+          <Button onClick={openCreateModal}>Add Player</Button>
+        </div>
       </div>
 
+      {/* Table */}
       {loading ? (
         <p>Loading...</p>
-      ) : players.length === 0 ? (
+      ) : filteredPlayers.length === 0 ? (
         <p>No players found.</p>
       ) : (
-        <Table
-          columns={[
-            { header: "ID", accessor: "id" },
-            { header: "Name", accessor: "name" },
-            { header: "Jersey", accessor: "jersey_number" },
-            {
-              header: "Team",
-              accessor: (row) => teams[row.team_id]?.name || "Unknown Team",
-            },
-            {
-              header: "Actions",
-              accessor: (row) => (
-                <div className="flex gap-3">
-                  <button
-                    className="border border-gray-300 rounded p-2 hover:bg-gray-400 hover:text-white cursor-pointer transition-all"
-                    onClick={() => openEditModal(row)}
-                  >
-                    <Settings size={16} />
-                  </button>
-                  <button
-                    className="border border-gray-300 rounded p-2 hover:bg-gray-400 hover:text-white cursor-pointer transition-all"
-                    onClick={() => openDeleteModal(row.id)}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              ),
-            },
-          ]}
-          data={players}
-        />
+        <>
+          <Table
+            columns={[
+              { header: "ID", accessor: "id", sortable: true },
+              { header: "Name", accessor: "name", sortable: true },
+              { header: "Jersey", accessor: "jersey_number", sortable: true },
+              {
+                header: "Team",
+                accessor: (row) => {
+                  const team = teams[row.team_id];
+                  if (team && team.logo_url) {
+                    return (
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={team.logo_url}
+                          alt={team.name}
+                          className="w-6 h-6"
+                        />
+                        <span>{team.name}</span>
+                      </div>
+                    );
+                  }
+                  return "Unknown Team";
+                },
+                sortable: true,
+              },
+              {
+                header: "Actions",
+                accessor: (row) => (
+                  <div className="flex gap-3">
+                    <button
+                      className="border border-gray-300 rounded p-2 hover:bg-gray-400 hover:text-white cursor-pointer transition-all"
+                      onClick={() => openEditModal(row)}
+                    >
+                      <Settings size={16} />
+                    </button>
+                    <button
+                      className="border border-gray-300 rounded p-2 hover:bg-gray-400 hover:text-white cursor-pointer transition-all"
+                      onClick={() => openDeleteModal(row.id)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ),
+              },
+            ]}
+            data={paginatedPlayers}
+          />
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-4">
+              {/* Prev button */}
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded border border-gray-300 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Prev
+              </button>
+
+              {/* Page numbers */}
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => goToPage(i + 1)}
+                  className={`px-3 py-1 rounded border border-gray-300 hover:bg-gray-200 ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "bg-white text-gray-700"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              {/* Next button */}
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded border border-gray-300 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Modal with Create and Add player */}
+      {/* Add/Edit Modal */}
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
@@ -208,6 +322,7 @@ export default function Players() {
         </div>
       </Modal>
 
+      {/* Delete Modal */}
       <Modal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

@@ -1,6 +1,6 @@
 // PanelPage.jsx
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   subscribeScoreboard,
   subscribeTeams,
@@ -27,6 +27,7 @@ import TeamSelector from "../PlanB/components/TeamSelector";
 import ScoreButtons from "../PlanB/components/ScoreButtons";
 import TimerControls from "../PlanB/components/TimerControls";
 import PlayerButtons from "../PlanB/components/PlayersButtons";
+import { CircleArrowLeft } from "lucide-react";
 
 export default function PanelPage() {
   const { matchId = "demo" } = useParams();
@@ -42,6 +43,7 @@ export default function PanelPage() {
   const [allPlayers, setAllPlayers] = useState([]);
   const [selectedLeftPlayer, setSelectedLeftPlayer] = useState(null);
   const [selectedRightPlayer, setSelectedRightPlayer] = useState(null);
+  const navigate = useNavigate();
 
   // --- Subscriptions ---
   useEffect(() => subscribeScoreboard(matchId, setState), [matchId]);
@@ -89,6 +91,12 @@ export default function PanelPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
+      <button onClick={() => navigate("/admin/matches")}>
+        <CircleArrowLeft
+          className=" text-gray-500 mb-6 hover:text-gray-700 cursor-pointer transition-all"
+          size={32}
+        />
+      </button>
       <Header matchId={matchId} />
 
       <div className="mt-6">
@@ -222,7 +230,7 @@ export default function PanelPage() {
           }}
           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 flex gap-2 items-center cursor-pointer transition-colors"
         >
-          <Save size={18}/>
+          <Save size={18} />
           Finish Match
         </button>
       </div>

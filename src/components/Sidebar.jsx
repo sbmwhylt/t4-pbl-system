@@ -34,7 +34,8 @@ export default function Sidebar() {
     { label: "Matches", path: "/admin/matches", icon: CalendarDays },
     {
       label: "Live Scoreboard",
-      path: "/scoreboard/liveview",
+      // path: "/scoreboard/liveview",
+      path: "/planb/live",
       external: true,
       icon: Tv,
     },
