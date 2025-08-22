@@ -36,3 +36,25 @@ export async function updatePlayer(playerId, updatedData) {
 export async function deletePlayer(playerId) {
   await remove(ref(db, `t4_bouldering/players/${playerId}`));
 }
+
+// TOGGLE — set player status
+export async function togglePlayerStatus(playerId, newStatus) {
+  // First, get the player to know their team
+  const players = await getPlayers();
+  const player = players[playerId];
+  if (!player) throw new Error("Player not found");
+
+  if (newStatus === "active") {
+    // Count current active players for this team
+    const activeCount = Object.values(players).filter(
+      p => p.team === player.team && p.status === "active"
+    ).length;
+
+    if (activeCount >= 5) {
+      throw new Error("Max 5 active players per team");
+    }
+  }
+
+  // Update status
+  await updatePlayer(playerId, { status: newStatus });
+}

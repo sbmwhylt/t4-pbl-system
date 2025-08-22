@@ -24,6 +24,7 @@ export default function Players() {
   const [editingPlayer, setEditingPlayer] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [playerToDelete, setPlayerToDelete] = useState(null);
+
   const [formData, setFormData] = useState({
     name: "",
     jersey_number: "",
@@ -210,6 +211,45 @@ export default function Players() {
                   return "Unknown Team";
                 },
                 sortable: true,
+              },
+              {
+                header: "Status",
+                accessor: (row) => (
+                  <label className="inline-flex relative items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={row.status === "active"}
+                      onChange={async () => {
+                        try {
+                          const newStatus =
+                            row.status === "active" ? "inactive" : "active";
+
+                          // Count active players in the same team
+                          const activeCount = players.filter(
+                            (p) =>
+                              p.team_id === row.team_id && p.status === "active"
+                          ).length;
+
+                          if (newStatus === "active" && activeCount >= 5) {
+                            toast.error("Max 5 active players per team");
+                            return;
+                          }
+
+                          await updatePlayer(row.id, { status: newStatus });
+                        } catch (err) {
+                          console.error(err);
+                          toast.error("Failed to update status");
+                        }
+                      }}
+                    />
+                    <div
+                      className={`w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-green-500
+      after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:border-gray-300 
+      after:h-5 after:w-5 after:rounded-full after:transition-all peer-checked:after:translate-x-full`}
+                    ></div>
+                  </label>
+                ),
               },
               {
                 header: "Actions",

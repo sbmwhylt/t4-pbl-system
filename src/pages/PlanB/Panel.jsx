@@ -160,7 +160,13 @@ export default function PanelPage() {
           </h3>
           <PlayerButtons
             players={
-              left?.id ? allPlayers.filter((p) => p.team_id === left.id) : []
+              left?.id
+                ? allPlayers
+                    .filter(
+                      (p) => p.team_id === left.id && p.status === "active"
+                    )
+                    .slice(0, 5) // optional: enforce 5 players max
+                : []
             }
             activePlayerId={selectedLeftPlayer?.id}
             onSelect={(player) => {
@@ -179,10 +185,20 @@ export default function PanelPage() {
           <h3 className="text-lg font-semibold mb-2 text-center">
             Team 2 Players
           </h3>
+          
           <PlayerButtons
-            players={allPlayers.filter((p) => p.team_id === right.id)}
+            players={
+              right?.id
+                ? allPlayers
+                    .filter(
+                      (p) => p.team_id === right.id && p.status === "active"
+                    )
+                    .slice(0, 5)
+                : []
+            }
             activePlayerId={selectedRightPlayer?.id}
             onSelect={(player) => {
+            
               setSelectedRightPlayer(player);
               setTeam(matchId, "right", {
                 current_player: player?.name,

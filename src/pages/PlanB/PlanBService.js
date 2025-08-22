@@ -154,11 +154,13 @@ export function subscribePlayers(callback) {
       id,
       name: p.name || "",
       jersey_number: p.jersey_number || "",
-      team_id: p.team_id || "",
+      team_id: p.team_id || p.team || "", // fallback to team
+      status: p.status || "inactive",
     }));
     callback(list);
   });
 }
+
 
 // ======================
 // Finish Match (record demo as finished match)
