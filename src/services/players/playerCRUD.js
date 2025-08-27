@@ -1,4 +1,4 @@
-import { db } from "../../firebase";
+import { db } from "@/firebase";
 import { ref, set, get, update, remove } from "firebase/database";
 
 function playersRef() {

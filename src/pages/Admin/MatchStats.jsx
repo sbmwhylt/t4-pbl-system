@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import AdminLayout from "../../components/layout/AdminLayout";
+import AdminLayout from "@/components/layout/AdminLayout";
 import { ref, get } from "firebase/database";
-import { db } from "../../firebase";
+import { db } from "@/firebase";
 
 export default function MatchStats() {
   const { matchId } = useParams();

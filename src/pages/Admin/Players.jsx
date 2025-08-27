@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import AdminLayout from "../../components/layout/AdminLayout";
-import Table from "../../components/ui/Table";
-import Button from "../../components/ui/Button";
-import Modal from "../../components/ui/Modal";
-import Input from "../../components/ui/Input";
-import Select from "../../components/ui/Select";
+import AdminLayout from "@/components/layout/AdminLayout";
+import Table from "@/components/ui/Table";
+import Button from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
 import {
   addPlayer,
   updatePlayer,
   deletePlayer,
-} from "../../services/players/playerService";
-import { db } from "../../firebase";
+} from "@/services";
+import { db } from "@/firebase";
 import { ref, onValue } from "firebase/database";
 import { Settings, Trash2 } from "lucide-react";
 import { toast } from "react-hot-toast";

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { db } from "../../firebase";
+import { db } from "@/firebase";
 import { ref, onValue } from "firebase/database";
-import AdminLayout from "../../components/layout/AdminLayout";
-import Table from "../../components/ui/Table"; // adjust path if needed
+import AdminLayout from "@/components/layout/AdminLayout";
+import Table from "@/components/ui/Table"; 
 
 export default function Boulders() {
   const [boulders, setBoulders] = useState([]);

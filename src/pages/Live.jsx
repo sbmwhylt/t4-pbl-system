@@ -4,7 +4,7 @@ import {
   subscribeScoreboard,
   DEFAULT_DURATION,
   subscribeTeams,
-} from "../services/index";
+} from "@/services";
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);

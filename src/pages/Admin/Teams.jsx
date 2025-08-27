@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { db } from "../../firebase";
+import { db } from "@/firebase";
 import { ref, onValue } from "firebase/database";
-import AdminLayout from "../../components/layout/AdminLayout";
+import AdminLayout from "@/components/layout/AdminLayout";
 import { Users, Trophy, Swords, Star, Medal } from "lucide-react";
 
 export default function Teams() {

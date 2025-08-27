@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../components/layout/AdminLayout";
 import { ChartNoAxesColumn, Play, Gamepad2 } from "lucide-react";
-import Modal from "../../components/ui/Modal";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
-import Select from "../../components/ui/Select";
-import Table from "../../components/ui/Table";
-import { matchesService, teamService } from "../../services";
+import Modal from "@/components/ui/Modal";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Select from "@/components/ui/Select";
+import Table from "@/components/ui/Table";
+import { matchesService, teamService } from "@/services";
   
 export default function Matches() {
   const [teams, setTeams] = useState({});
