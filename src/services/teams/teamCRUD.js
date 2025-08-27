@@ -1,16 +1,20 @@
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import { ref, push, set, get, update, remove } from "firebase/database";
+
+function teamsRef() {
+  return ref(db, "t4_bouldering/teams");
+}
 
 // CREATE — add a team
 export async function addTeam(teamData) {
-  const newRef = push(ref(db, "teams"));
+  const newRef = push(teamsRef());
   await set(newRef, teamData);
   return newRef.key;
 }
 
 // READ — get all teams
 export async function getTeams() {
-  const snapshot = await get(ref(db, "teams"));
+  const snapshot = await get(teamsRef());
   if (snapshot.exists()) {
     return snapshot.val();
   }
@@ -19,10 +23,10 @@ export async function getTeams() {
 
 // UPDATE — update an existing team
 export async function updateTeam(teamId, updatedData) {
-  await update(ref(db, `teams/${teamId}`), updatedData);
+  await update(ref(db, `t4_bouldering/teams/${teamId}`), updatedData);
 }
 
 // DELETE — remove a team
 export async function deleteTeam(teamId) {
-  await remove(ref(db, `teams/${teamId}`));
+  await remove(ref(db, `t4_bouldering/teams/${teamId}`));
 }

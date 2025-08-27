@@ -9,7 +9,7 @@ import {
   addPlayer,
   updatePlayer,
   deletePlayer,
-} from "../../services/playerService";
+} from "../../services/players/playerService";
 import { db } from "../../firebase";
 import { ref, onValue } from "firebase/database";
 import { Settings, Trash2 } from "lucide-react";

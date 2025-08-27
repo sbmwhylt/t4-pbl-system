@@ -7,9 +7,8 @@ import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Table from "../../components/ui/Table";
-import PlayButton from "../Scoreboard/PlayButton";
-import matchesService from "../../services/matchesService";
-
+import { matchesService, teamService } from "../../services";
+  
 export default function Matches() {
   const [teams, setTeams] = useState({});
   const [matches, setMatches] = useState({});
@@ -20,14 +19,12 @@ export default function Matches() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [scoreTeamModalOpen, setScoreTeamModalOpen] = useState(false);
-  const [selectedMatchId, setSelectedMatchId] = useState(null);
   const navigate = useNavigate();
 
   // Load teams
   useEffect(() => {
-    const unsubscribe = matchesService.getTeams(setTeams);
-    return () => unsubscribe();
+    const unsubTeams = teamService.subscribeTeams(setTeams);
+    return () => unsubTeams();
   }, []);
 
   // Load matches
@@ -74,7 +71,7 @@ export default function Matches() {
     <AdminLayout>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold mb-4">Matches</h2>
-        <Button onClick={() => setModalOpen(true)}>Set a Match</Button>
+        {/* <Button onClick={() => setModalOpen(true)}>Set a Match</Button> */}
       </div>
 
       <div className="space-y-4">
@@ -95,7 +92,7 @@ export default function Matches() {
                     accessor: (row) => {
                       const teamIds =
                         row.teams?.left && row.teams?.right
-                          ? [row.teams.left.id, row.teams.right.id]
+                          ? [row.teams.left.name, row.teams.right.name]
                           : Array.isArray(row.teams)
                           ? row.teams
                           : [];
@@ -122,44 +119,6 @@ export default function Matches() {
                   const status = row.status?.toLowerCase();
                   return (
                     <div className="flex gap-2 justify-end items-center">
-                      {status === "scheduled" && (
-                        <button
-                          onClick={async () => {
-                            if (hasLiveMatch) return;
-
-                            const match = matches[row.id];
-                            await matchesService.startMatch({
-                              matchId: row.id,
-                              leftTeam: match.teams[0],
-                              rightTeam: match.teams[1],
-                              teams,
-                            });
-                          }}
-                          disabled={hasLiveMatch}
-                          className={`p-2 flex gap-1 items-center rounded 
-      ${
-        hasLiveMatch
-          ? "cursor-not-allowed bg-gray-200 text-black/30"
-          : "cursor-pointer bg-green-500 hover:bg-green-600 text-white"
-      }`}
-                        >
-                          <Play size={16} />
-                        </button>
-                      )}
-
-                      {status === "live" && (
-                        <button
-                          className="cursor-pointer text-white bg-orange-500 hover:bg-orange-600 rounded p-2 flex gap-1 items-center"
-                          onClick={() => {
-                            setSelectedMatchId(row.id);
-                            setScoreTeamModalOpen(true);
-                          }}
-                        >
-                          <Gamepad2 size={16} />
-                          {/* Start Game */}
-                        </button>
-                      )}
-
                       {status === "finished" && (
                         <button
                           className="cursor-pointer text-white bg-purple-600 hover:bg-purple-700 rounded p-2 flex gap-1 items-center"
@@ -227,34 +186,6 @@ export default function Matches() {
               {creating ? "Creating..." : "Create Match"}
             </Button>
           </div>
-        </div>
-      </Modal>
-
-      <Modal
-        isOpen={scoreTeamModalOpen}
-        onClose={() => setScoreTeamModalOpen(false)}
-        title="Select Team to Score"
-      >
-        <div className="p-4 grid grid-cols-2 gap-4">
-          {matches[selectedMatchId]?.teams?.map((teamId) => {
-            const team = teams[teamId];
-            return (
-              <Button
-                key={teamId}
-                onClick={() => {
-                  window.location.href = `/match-panel/${selectedMatchId}?teamId=${teamId}`;
-                }}
-                className="flex flex-col items-center justify-center gap-2 p-6 rounded-lg border border-gray-300 bg-white hover:bg-gray-100 cursor-pointer"
-              >
-                <img
-                  src={team.logo_url}
-                  alt={team.name}
-                  className="w-20 object-contain"
-                />
-                <span className="text-sm font-regular mt-2">{team.name}</span>
-              </Button>
-            );
-          })}
         </div>
       </Modal>
     </AdminLayout>

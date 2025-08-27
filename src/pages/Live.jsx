@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   subscribeScoreboard,
-  DEFAULT_DURATION_SECONDS,
+  DEFAULT_DURATION,
   subscribeTeams,
-} from "./PlanBService";
+} from "../services/index";
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -21,7 +21,7 @@ const BLANK_TEAM = {
   logo_url: "",
   score: 0,
 };
-const BLANK_TIMER = { remaining: DEFAULT_DURATION_SECONDS, running: false };
+const BLANK_TIMER = { remaining: DEFAULT_DURATION, running: false };
 
 export default function Live() {
   // --- Set page title ---

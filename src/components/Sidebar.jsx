@@ -35,7 +35,7 @@ export default function Sidebar() {
     {
       label: "Live Scoreboard",
       // path: "/scoreboard/liveview",
-      path: "/planb/live",
+      path: "/pages/live",
       external: true,
       icon: Tv,
     },

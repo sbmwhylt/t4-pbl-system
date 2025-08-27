@@ -1,5 +1,5 @@
-import { db } from "../firebase";
-import { ref, set, get, update, remove } from "firebase/database";
+import { db } from "../../firebase";
+import { ref, onValue } from "firebase/database";
 
 // CREATE — add a player with sequential ID
 export async function addPlayer(playerData) {
@@ -47,7 +47,7 @@ export async function togglePlayerStatus(playerId, newStatus) {
   if (newStatus === "active") {
     // Count current active players for this team
     const activeCount = Object.values(players).filter(
-      p => p.team === player.team && p.status === "active"
+      (p) => p.team === player.team && p.status === "active"
     ).length;
 
     if (activeCount >= 5) {
@@ -57,4 +57,21 @@ export async function togglePlayerStatus(playerId, newStatus) {
 
   // Update status
   await updatePlayer(playerId, { status: newStatus });
+}
+
+// Subscribe to player changes
+
+export function subscribePlayers(callback) {
+  const playersRef = ref(db, "t4_bouldering/players");
+  return onValue(playersRef, (snap) => {
+    const val = snap.val() || {};
+    const list = Object.entries(val).map(([id, p]) => ({
+      id,
+      name: p.name || "",
+      jersey_number: p.jersey_number || "",
+      team_id: p.team_id || p.team || "",
+      status: p.status || "inactive",
+    }));
+    callback(list);
+  });
 }

@@ -1,5 +1,5 @@
 // services/pointsService.js
-import { db } from "../firebase";
+import { db } from "../../firebase";
 import { ref, get } from "firebase/database";
 
 export async function calculatePoints(matchId, boulderId, attempt, progress) {

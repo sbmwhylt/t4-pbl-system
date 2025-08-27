@@ -15,18 +15,18 @@ import {
   tickTimer,
   updatePeriod,
   finishMatch,
-} from "./PlanBService";
+} from "../../services/PlanBService";
 import { onValue, ref } from "firebase/database";
 import { db } from "../../firebase";
 import { toast } from "react-hot-toast";
 import { Save } from "lucide-react";
 
 // Components
-import Header from "../PlanB/components/Header";
-import TeamSelector from "../PlanB/components/TeamSelector";
-import ScoreButtons from "../PlanB/components/ScoreButtons";
-import TimerControls from "../PlanB/components/TimerControls";
-import PlayerButtons from "../PlanB/components/PlayersButtons";
+import Header from "../../components/ui/panel/Header";
+import TeamSelector from "../../components/ui/panel/TeamSelector";
+import ScoreButtons from "../../components/ui/panel/ScoreButtons";
+import TimerControls from "../../components/ui/panel/TimerControls";
+import PlayerButtons from "../../components/ui/panel/PlayersButtons";
 import { CircleArrowLeft } from "lucide-react";
 
 export default function PanelPage() {

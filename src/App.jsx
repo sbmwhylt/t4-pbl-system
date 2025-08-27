@@ -4,14 +4,12 @@ import Teams from "./pages/Admin/Teams";
 import Players from "./pages/Admin/Players";
 import Boulders from "./pages/Admin/Boulders";
 import Matches from "./pages/Admin/Matches";
-import LiveView from "./pages/Scoreboard/LiveView";
-import MatchPanel from "./pages/Scoreboard/MatchPanel";
 import Login from "./pages/Admin/Login";
 import PrivateRoute from "./PrivateRoute";
 import NotFound from "./pages/404";
 import MatchStats from "./pages/Admin/MatchStats";
-import Panel from "./pages/PlanB/Panel";
-import Live from "./pages/PlanB/Live";
+import Panel from "./pages/Admin/Panel";
+import Live from "./pages/Live";
 import useAutoLogout from "./hooks/useAutoLogout";
 
 function App() {
@@ -61,14 +59,7 @@ function App() {
             </PrivateRoute>
           }
         />
-        <Route
-          path="/match-panel/:matchId"
-          element={
-            <PrivateRoute>
-              <MatchPanel />
-            </PrivateRoute>
-          }
-        />
+      
 
         <Route
           path="/match-stats/:matchId"
@@ -89,8 +80,7 @@ function App() {
         />
 
         {/* Public Routes */}
-        <Route path="/scoreboard/liveview" element={<LiveView />} />
-        <Route path="/planb/live" element={<Live />} />
+        <Route path="/pages/live" element={<Live />} />
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<NotFound />} />
