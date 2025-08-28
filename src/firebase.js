@@ -4,7 +4,7 @@ import { getDatabase } from "firebase/database";
 import { getAnalytics } from "firebase/analytics";
 
 // Your web app's Firebase configuration
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyClk297fXBwIqOBmUYqkb_9n6K_i_yvtWw",
   authDomain: "t4-pbl-db.firebaseapp.com",
   databaseURL: "https://t4-pbl-db-default-rtdb.asia-southeast1.firebasedatabase.app",

@@ -1,16 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Dashboard from "./pages/Admin/Dashboard";
-import Teams from "./pages/Admin/Teams";
-import Players from "./pages/Admin/Players";
-import Boulders from "./pages/Admin/Boulders";
-import Matches from "./pages/Admin/Matches";
-import Login from "./pages/Admin/Login";
-import PrivateRoute from "./PrivateRoute";
-import NotFound from "./pages/404";
-import MatchStats from "./pages/Admin/MatchStats";
-import Panel from "./pages/Admin/Panel";
-import Live from "./pages/Live";
-import useAutoLogout from "./hooks/useAutoLogout";
+import Dashboard from "@/pages/Admin/Dashboard";
+import Teams from "@/pages/Admin/Teams";
+import Players from "@/pages/Admin/Players";
+import Boulders from "@/pages/Admin/Boulders";
+import Matches from "@/pages/Admin/Matches";
+import Login from "@/pages/Admin/Login";
+import PrivateRoute from "@/PrivateRoute";
+import NotFound from "@/pages/404";
+import MatchStats from "@/pages/Admin/MatchStats";
+import Panel from "@/pages/Admin/Panel";
+import Live from "@/pages/Live";
+import User from "@/pages/Admin/Users";
+import useAutoLogout from "@/hooks/useAutoLogout";
 
 function App() {
   useAutoLogout();
@@ -59,7 +60,6 @@ function App() {
             </PrivateRoute>
           }
         />
-      
 
         <Route
           path="/match-stats/:matchId"
@@ -75,6 +75,15 @@ function App() {
           element={
             <PrivateRoute>
               <Panel />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/users"
+          element={
+            <PrivateRoute>
+              <User />
             </PrivateRoute>
           }
         />

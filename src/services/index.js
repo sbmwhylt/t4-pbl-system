@@ -13,3 +13,8 @@ export * from "./players/playerCRUD";
 
 // Scoreboard
 export * from "./scoreboard/scoreboardService";
+
+// Users
+export * from "./users/userCRUD";
+
+export * from "./users/authService";

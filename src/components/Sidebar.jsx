@@ -13,9 +13,9 @@ import {
   Mountain,
   CalendarDays,
   Tv,
-  Layers,
-  Settings,
+  Gamepad2,
   LogOut,
+  User2,
 } from "lucide-react";
 import Spinner from "./ui/Spinner";
 
@@ -33,17 +33,22 @@ export default function Sidebar() {
     { label: "Boulders", path: "/admin/boulders", icon: Mountain },
     { label: "Matches", path: "/admin/matches", icon: CalendarDays },
     {
-      label: "Live Scoreboard",
-      // path: "/scoreboard/liveview",
-      path: "/pages/live",
-      external: true,
-      icon: Tv,
+      label: "Users",
+      path: "/admin/users",
+      icon: User2,
     },
     {
       label: "Match Panel",
       path: "/planb/panel",
       external: true,
-      icon: Layers,
+      icon: Gamepad2,
+    },
+    {
+      label: "Live Scoreboard",
+      // path: "/scoreboard/liveview",
+      path: "/pages/live",
+      external: true,
+      icon: Tv,
     },
   ];
 
