@@ -24,6 +24,10 @@ function formatTime(seconds) {
 }
 
 export default function ScorePage() {
+  useEffect(() => {
+    document.title = "Score Page";
+  }, []);
+
   const { matchId = "demo" } = useParams();
 
   const [state, setState] = useState({
@@ -88,15 +92,14 @@ export default function ScorePage() {
   }
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center bg-gray-900 text-white">
+    <div className="w-full h-screen flex flex-col items-center justify-center bg-white text-white">
       {noTeamsSelected ? (
         <div className="flex flex-col items-center justify-center h-full">
           <img
             src="/T4-logo.png"
             alt="Loading"
-            className="w-32 h-32 animate-pulse"
+            className="w-24 h-24 animate-pulse"
           />
-          <p className="mt-4 text-lg">Waiting for match data...</p>
         </div>
       ) : (
         <div className="w-full h-full grid grid-cols-3">
@@ -127,7 +130,7 @@ export default function ScorePage() {
           </div>
 
           {/* Timer / Period with divider */}
-          <div className="flex flex-col items-center justify-center gap-3 relative bg-gray-800">
+          <div className="flex flex-col items-center justify-center gap-3 relative bg-gray-700">
             {/* Divider line */}
             <div className="absolute left-0 top-0 h-full w-1 bg-white/30"></div>
             <div className="absolute right-0 top-0 h-full w-1 bg-white/30"></div>

@@ -30,6 +30,10 @@ import PlayerButtons from "../../components/ui/panel/PlayersButtons";
 import { CircleArrowLeft } from "lucide-react";
 
 export default function PanelPage() {
+  useEffect(() => {
+    document.title = "Match Panel";
+  }, []);
+
   const { matchId = "demo" } = useParams();
 
   // --- Refs for interval and running state ---
@@ -91,7 +95,12 @@ export default function PanelPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <button onClick={() => navigate("/admin/matches")}>
+      <button
+        onClick={() => {
+          navigate("/admin/matches");
+          window.location.reload();
+        }}
+      >
         <CircleArrowLeft
           className=" text-gray-500 mb-6 hover:text-gray-700 cursor-pointer transition-all"
           size={32}
@@ -185,7 +194,7 @@ export default function PanelPage() {
           <h3 className="text-lg font-semibold mb-2 text-center">
             Team 2 Players
           </h3>
-          
+
           <PlayerButtons
             players={
               right?.id
@@ -198,7 +207,6 @@ export default function PanelPage() {
             }
             activePlayerId={selectedRightPlayer?.id}
             onSelect={(player) => {
-            
               setSelectedRightPlayer(player);
               setTeam(matchId, "right", {
                 current_player: player?.name,
