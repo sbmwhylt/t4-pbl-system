@@ -39,7 +39,7 @@ export default function Sidebar() {
     },
     {
       label: "Match Panel",
-      path: "/planb/panel",
+      path: "/admin/panel",
       external: true,
       icon: Gamepad2,
     },

@@ -13,7 +13,7 @@ export async function addTeam(teamData) {
 }
 
 // READ — get all teams
-export async function getTeams() {
+export async function getTeams() {kw
   const snapshot = await get(teamsRef());
   if (snapshot.exists()) {
     return snapshot.val();

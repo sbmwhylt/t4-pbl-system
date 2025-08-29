@@ -1,4 +1,4 @@
-import {Radio} from "lucide-react"
+import { Radio, ScreenShare } from "lucide-react";
 
 export default function Header({ matchId }) {
   return (
@@ -9,9 +9,15 @@ export default function Header({ matchId }) {
           onClick={() => window.open("/pages/live", "_blank")}
           className="border border-gray-300 text-sm text-red-500 px-4 py-2 rounded-full hover:bg-gray-100 transition cursor-pointer flex items-center gap-1.5"
         >
-          <Radio size={18}/> Live Match
+          <Radio size={18} /> Live Match
         </button>
-        <span className="text-sm text-gray-500 font-">Match ID: {matchId}</span>
+        <button
+          onClick={() => window.open(`/pages/score`, "_blank")}
+          className="border border-gray-300 text-sm text-purple-500 px-4 py-2 rounded-full hover:bg-gray-100 transition cursor-pointer flex items-center gap-1.5"
+        >
+          {" "}
+          <ScreenShare size={18} /> Score Page
+        </button>
       </div>
     </div>
   );

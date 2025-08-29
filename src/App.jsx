@@ -10,6 +10,7 @@ import NotFound from "@/pages/404";
 import MatchStats from "@/pages/Admin/MatchStats";
 import Panel from "@/pages/Admin/Panel";
 import Live from "@/pages/Live";
+import Score from "@/pages/ScorePage";
 import User from "@/pages/Admin/Users";
 import useAutoLogout from "@/hooks/useAutoLogout";
 
@@ -71,7 +72,7 @@ function App() {
         />
 
         <Route
-          path="/planb/panel"
+          path="/admin/panel"
           element={
             <PrivateRoute>
               <Panel />
@@ -90,6 +91,7 @@ function App() {
 
         {/* Public Routes */}
         <Route path="/pages/live" element={<Live />} />
+        <Route path="/pages/score" element={<Score />} />
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<NotFound />} />
