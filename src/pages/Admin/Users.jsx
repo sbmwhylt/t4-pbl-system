@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/components/layout/AdminLayout";
-import UserFormModal from "@/components/modals/UserFormModal";
+import UserFormModal from "@/components/modals/userFormModal";
 import { getUsers, createUser, updateUser, deleteUser } from "@/services";
 import Table from "@/components/ui/Table";
 import Button from "@/components/ui/Button";
