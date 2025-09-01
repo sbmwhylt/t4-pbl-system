@@ -1,7 +1,6 @@
 import { db } from "../../firebase";
 import { ref, update, runTransaction } from "firebase/database";
-import { DEFAULT_DURATION } from "../constant";  // ✅ now comes from constants.js
-
+import { DEFAULT_DURATION } from "../constant"; // constants.js
 
 function scoreboardRef(matchId) {
   return ref(db, `scoreboard/${matchId}`);
@@ -32,23 +31,24 @@ export async function resetTimer(matchId, duration = DEFAULT_DURATION, controlle
   });
 }
 
+// Safely handle multiple panels calling tickTimer
 export async function tickTimer(matchId) {
   const r = ref(db, `scoreboard/${matchId}/timer`);
   await runTransaction(r, (current) => {
-    if (!current) return null;
-    if (!current.running) return current;
+    if (!current || !current.running) return current;
 
-    const nextRemaining = (current.remaining ?? DEFAULT_DURATION) - 1;
+    const now = Date.now();
+    const elapsed = Math.floor((now - (current.lastAction || now)) / 1000);
+    if (elapsed <= 0) return current;
 
-    if (nextRemaining <= 0) {
-      return {
-        ...current,
-        remaining: 0,
-        running: false,
-        lastAction: Date.now(),
-      };
-    }
-    return { ...current, remaining: nextRemaining };
+    const nextRemaining = Math.max(0, (current.remaining ?? DEFAULT_DURATION) - elapsed);
+
+    return {
+      ...current,
+      remaining: nextRemaining,
+      running: nextRemaining > 0,
+      lastAction: now,
+    };
   });
 }
 

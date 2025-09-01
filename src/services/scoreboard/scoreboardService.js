@@ -22,11 +22,9 @@ export function subscribeScoreboard(matchId, callback) {
   });
 }
 
-
 // ======================
 // Match Initialization
 // ======================
-
 export async function initMatch(matchId) {
   await set(scoreboardRef(matchId), {
     teams: {
@@ -52,6 +50,10 @@ export function updatePeriod(matchId, period) {
 // ======================
 // Match Finalization
 // ======================
+function generateMatchId(code) {
+  return `M${code}`.padStart(3, "0"); // e.g., M001
+}
+
 async function getNextSequence() {
   const matchesSnap = await get(matchesRef());
   const matches = matchesSnap.val() || {};
@@ -67,10 +69,10 @@ async function getNextSequence() {
   return String(nextCode).padStart(3, "0");
 }
 
-export async function finishMatch() {
-  const demoRef = ref(db, "scoreboard/demo");
+export async function finishMatch(matchId = "demo") {
+  const demoRef = ref(db, `scoreboard/${matchId}`);
   const demoSnap = await get(demoRef);
-  if (!demoSnap.exists()) throw new Error("No demo data found");
+  if (!demoSnap.exists()) throw new Error("No match data found");
 
   const demoData = demoSnap.val();
   const leftTeam = demoData?.teams?.left;
@@ -85,18 +87,19 @@ export async function finishMatch() {
   }
 
   const nextCode = await getNextSequence();
-  const matchId = generateMatchId(nextCode); // M001, M002, ...
+  const newMatchId = generateMatchId(nextCode); // M001, M002, ...
 
-  await set(ref(db, `t4_bouldering/matches/${matchId}`), {
-    id: matchId,
+  // Save finished match
+  await set(ref(db, `t4_bouldering/matches/${newMatchId}`), {
+    id: newMatchId,
     ...demoData,
     status: "finished",
     saved_at: Date.now().toString().slice(0, 13),
     start_time: Date.now(),
   });
 
-  await initMatch("demo");
+  // Reset the demo scoreboard for next match
+  await initMatch(matchId);
 
-  return matchId;
+  return newMatchId;
 }
-

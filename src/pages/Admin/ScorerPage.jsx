@@ -12,7 +12,8 @@ import {
   pauseTimer,
   resetTimer,
   tickTimer,
-  updatePeriod
+  updatePeriod,
+  finishMatch
 } from "../../services";
 import { onValue, ref } from "firebase/database";
 import { db } from "../../firebase";
@@ -21,7 +22,8 @@ import TeamSelector from "../../components/ui/panel/TeamSelector";
 import ScoreButtons from "../../components/ui/panel/ScoreButtons";
 import TimerControls from "../../components/ui/panel/TimerControls";
 import PlayerButtons from "../../components/ui/panel/PlayersButtons";
-import { CircleArrowLeft } from "lucide-react";
+import { CircleArrowLeft, Save } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 export default function ScorerPage() {
   const { matchId = "demo", side = "left" } = useParams(); // side = "left" or "right"
@@ -50,7 +52,7 @@ export default function ScorerPage() {
     });
     return () => unsub();
   }, [matchId]);
-
+  
   // Sync refs
   useEffect(() => {
     isRunningRef.current = state?.timer?.running || false;
@@ -58,19 +60,16 @@ export default function ScorerPage() {
   }, [state?.timer?.running, state?.timer?.controller]);
 
   // Tick interval
+  // --- Tick interval ---
   useEffect(() => {
     if (!matchId) return;
-    if (!timerIntervalRef.current) {
-      timerIntervalRef.current = setInterval(() => {
-        if (isRunningRef.current && controllerRef.current === "panel") {
-          tickTimer(matchId);
-        }
-      }, 1000);
-    }
-    return () => {
-      clearInterval(timerIntervalRef.current);
-      timerIntervalRef.current = null;
-    };
+
+    // One interval for each panel is fine; tickTimer is safe
+    const interval = setInterval(() => {
+      tickTimer(matchId); // no panel-specific logic needed
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, [matchId]);
 
   if (!state) return <div className="p-6">Loading…</div>;
@@ -142,6 +141,43 @@ export default function ScorerPage() {
           }}
           teamColor={side === "left" ? "blue" : "red"}
         />
+      </div>
+      <div className="flex gap-2 justify-end mt-8">
+        <button
+          onClick={async () => {
+            try {
+              // Save the demo match as finished
+              const savedMatchId = await finishMatch();
+
+              // Reset both teams at once
+              await Promise.all([
+                setTeam("demo", "left", {
+                  id: "",
+                  name: "Left",
+                  score: 0,
+                  current_player: null,
+                  jersey: null,
+                }),
+                setTeam("demo", "right", {
+                  id: "",
+                  name: "Right",
+                  score: 0,
+                  current_player: null,
+                  jersey: null,
+                }),
+              ]);
+
+              toast.success(`Match ${savedMatchId} saved successfully!`);
+            } catch (err) {
+              console.error(err);
+              toast.error(`Error: ${err.message}`);
+            }
+          }}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 flex gap-2 items-center cursor-pointer transition-colors"
+        >
+          <Save size={18} />
+          Finish Match
+        </button>
       </div>
     </div>
   );
