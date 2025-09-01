@@ -1,5 +1,6 @@
 import { db } from "../../firebase";
 import { ref, onValue, set, update, get } from "firebase/database";
+import { DEFAULT_DURATION } from "../constant"; 
 
 // ======================
 // References
@@ -21,11 +22,10 @@ export function subscribeScoreboard(matchId, callback) {
   });
 }
 
+
 // ======================
 // Match Initialization
 // ======================
-export const DEFAULT_DURATION = 450;
-export const DEFAULT_DURATION_SECONDS = 450;
 
 export async function initMatch(matchId) {
   await set(scoreboardRef(matchId), {

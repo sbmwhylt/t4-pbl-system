@@ -37,12 +37,23 @@ export default function Sidebar() {
       path: "/admin/users",
       icon: User2,
     },
+    // {
+    //   label: "Match Panel",
+    //   path: "/admin/panel",
+    //   external: true,
+    //   icon: Gamepad2,
+    // },
     {
-      label: "Match Panel",
-      path: "/admin/panel",
-      external: true,
+      label: "Scorers Page (Team 1)",
+      path: "/scorer/demo/left",
       icon: Gamepad2,
     },
+    {
+      label: "Scorers Page (Team 2)",
+      path: "/scorer/demo/right",
+      icon: Gamepad2,
+    },
+
     {
       label: "Live Scoreboard",
       // path: "/scoreboard/liveview",
