@@ -16,6 +16,7 @@ import {
   Gamepad2,
   LogOut,
   User2,
+  Cast,
 } from "lucide-react";
 import Spinner from "./ui/Spinner";
 import Modal from "@/components/ui/Modal";
@@ -69,8 +70,15 @@ export default function Sidebar() {
       label: "Live Scoreboard",
       // path: "/scoreboard/liveview",
       path: "/pages/live",
-      external: true,
       icon: Tv,
+      external: true,
+    },
+
+    {
+      label: "Score Page",
+      path: "/pages/score",
+      icon: Cast,
+      external: true,
     },
   ];
 
@@ -210,13 +218,10 @@ export default function Sidebar() {
                 window.open(`/scorer/demo/${side}`, "_blank");
               }}
               className={`flex-1 h-32  bg-gray-100 hover:bg-gray-200 font-medium rounded-lg flex flex-col items-center justify-center text-2xl cursor-pointer transition-all ${
-                side === "left"
-                  ? "text-red-500"
-                  : "text-blue-500"
+                side === "left" ? "text-red-500" : "text-blue-500"
               }`}
             >
               {side === "left" ? "Team 1" : "Team 2"}
-              
             </button>
           ))}
         </div>

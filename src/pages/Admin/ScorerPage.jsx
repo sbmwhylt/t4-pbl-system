@@ -78,20 +78,21 @@ export default function ScorerPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <h2
-        className={`text-xl font-medium mb-4 text-center ${
-          side === "left" ? "text-red-500" : "text-blue-500"
-        }`}
-      >
-        Scoring for - {side === "left" ? "Team 1 (Left)" : "Team 2 (Right)"}
-      </h2>
-
-      <button onClick={() => navigate("/admin/matches")}>
-        <CircleArrowLeft
-          className="text-gray-500 mb-6 hover:text-gray-700 cursor-pointer transition-all"
-          size={32}
-        />
-      </button>
+      <div className="flex justify-between items-center">
+        <button onClick={() => navigate("/admin/matches")}>
+          <CircleArrowLeft
+            className="text-gray-500 mb-6 hover:text-gray-700 cursor-pointer transition-all"
+            size={32}
+          />
+        </button>
+        <h2
+          className={`text-xl font-medium mb-4 text-center ${
+            side === "left" ? "text-red-500" : "text-blue-500"
+          }`}
+        >
+          Scoring for - {side === "left" ? "Team 1 (Left)" : "Team 2 (Right)"}
+        </h2>
+      </div>
 
       <Header matchId={matchId} />
 
