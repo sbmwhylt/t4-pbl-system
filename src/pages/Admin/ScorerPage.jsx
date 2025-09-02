@@ -13,7 +13,7 @@ import {
   resetTimer,
   tickTimer,
   updatePeriod,
-  finishMatch
+  finishMatch,
 } from "../../services";
 import { onValue, ref } from "firebase/database";
 import { db } from "../../firebase";
@@ -52,7 +52,7 @@ export default function ScorerPage() {
     });
     return () => unsub();
   }, [matchId]);
-  
+
   // Sync refs
   useEffect(() => {
     isRunningRef.current = state?.timer?.running || false;
@@ -78,6 +78,14 @@ export default function ScorerPage() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
+      <h2
+        className={`text-xl font-medium mb-4 text-center ${
+          side === "left" ? "text-red-500" : "text-blue-500"
+        }`}
+      >
+        Scoring for - {side === "left" ? "Team 1 (Left)" : "Team 2 (Right)"}
+      </h2>
+
       <button onClick={() => navigate("/admin/matches")}>
         <CircleArrowLeft
           className="text-gray-500 mb-6 hover:text-gray-700 cursor-pointer transition-all"
@@ -100,6 +108,8 @@ export default function ScorerPage() {
 
       {/* Team panel */}
       <div className="rounded-xl bg-gray-100 p-6 border border-gray-300 flex-col justify-between mt-6">
+        {/* Label for Team 1 / Team 2 */}
+
         <div className="flex items-center justify-between mb-3">
           <TeamSelector
             value={team}

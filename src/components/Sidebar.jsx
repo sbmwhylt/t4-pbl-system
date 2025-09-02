@@ -18,13 +18,15 @@ import {
   User2,
 } from "lucide-react";
 import Spinner from "./ui/Spinner";
+import Modal from "@/components/ui/Modal";
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const user = useUser();
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false); // Loading state for logout
+  const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navItems = [
     { label: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
@@ -43,15 +45,24 @@ export default function Sidebar() {
     //   external: true,
     //   icon: Gamepad2,
     // },
+
+    // ---- Scorers Pages
+
+    // {
+    //   label: "Scorers Page (Team 1)",
+    //   path: "/scorer/demo/left",
+    //   icon: Gamepad2,
+    // },
+    // {
+    //   label: "Scorers Page (Team 2)",
+    //   path: "/scorer/demo/right",
+    //   icon: Gamepad2,
+    // },
+
     {
-      label: "Scorers Page (Team 1)",
-      path: "/scorer/demo/left",
+      label: "Match Panel",
       icon: Gamepad2,
-    },
-    {
-      label: "Scorers Page (Team 2)",
-      path: "/scorer/demo/right",
-      icon: Gamepad2,
+      onClick: () => setIsModalOpen(true),
     },
 
     {
@@ -113,7 +124,7 @@ export default function Sidebar() {
 
           {/* Nav Items */}
           <nav className="flex flex-col gap-2 px-4 py-6">
-            {navItems.map(({ label, path, external, icon: Icon }) =>
+            {navItems.map(({ label, path, external, icon: Icon, onClick }) =>
               external ? (
                 <a
                   key={path}
@@ -125,6 +136,15 @@ export default function Sidebar() {
                   <Icon size={18} />
                   <span>{label}</span>
                 </a>
+              ) : onClick ? (
+                <button
+                  key={label}
+                  onClick={onClick}
+                  className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-purple-100 w-full text-left"
+                >
+                  <Icon size={18} />
+                  <span>{label}</span>
+                </button>
               ) : (
                 <Link
                   key={path}
@@ -173,6 +193,34 @@ export default function Sidebar() {
           </button>
         </div>
       </aside>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Choose Team"
+      >
+        <div className="flex gap-4 mt-4">
+          {["left", "right"].map((side) => (
+            <button
+              key={side}
+              onClick={() => {
+                console.log(side); // for testing
+                setIsModalOpen(false);
+                // Open scoring page in new tab
+                window.open(`/scorer/demo/${side}`, "_blank");
+              }}
+              className={`flex-1 h-32  bg-gray-100 hover:bg-gray-200 font-medium rounded-lg flex flex-col items-center justify-center text-2xl cursor-pointer transition-all ${
+                side === "left"
+                  ? "text-red-500"
+                  : "text-blue-500"
+              }`}
+            >
+              {side === "left" ? "Team 1" : "Team 2"}
+              
+            </button>
+          ))}
+        </div>
+      </Modal>
     </>
   );
 }
