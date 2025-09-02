@@ -1,9 +1,13 @@
-import { db } from "../../firebase";
+import { db } from "@/firebase";
 import { ref, onValue } from "firebase/database";
+
+// --------------------------- Team References
 
 function teamsRef() {
   return ref(db, "t4_bouldering/teams");
 }
+
+// --------------------------- Team Subscriptions
 
 export function subscribeTeams(callback) {
   return onValue(teamsRef(), (snap) => {
@@ -18,6 +22,7 @@ export function subscribeTeams(callback) {
   });
 }
 
+// --------------------------- Team Service Object
 
 export const teamService = {
   subscribeTeams,

@@ -1,6 +1,5 @@
 // Scoreboard
 export * from "./scoreboard/scoreboardService";
-export * from "./scoreboard/periodService";
 
 // Timer
 export * from "./timer/timerService";
@@ -25,3 +24,6 @@ export * from "./scoreboard/scoreboardService";
 // Users
 export * from "./users/userCRUD";
 export * from "./users/authService";
+
+// Constants
+export * from "./constant";

@@ -1,30 +1,27 @@
-import { db } from "../../firebase";
+import { db } from "@/firebase";
 import { ref, onValue, set, update, get } from "firebase/database";
-import { DEFAULT_DURATION } from "../constant"; 
+import { DEFAULT_DURATION } from "@/services/constant"; 
 
-// ======================
-// References
-// ======================
+// -------------------- References
+
 function scoreboardRef(matchId) {
   return ref(db, `scoreboard/${matchId}`);
 }
 
 function matchesRef() {
-  return ref(db, "t4_bouldering/matches");
+  return ref(db, "t4_bouldering/matches");  
 }
 
-// ======================
-// Subscriptions
-// ======================
+// ---------------------- Subscriptions
+
 export function subscribeScoreboard(matchId, callback) {
   return onValue(scoreboardRef(matchId), (snap) => {
     callback(snap.val() || null);
   });
 }
 
-// ======================
-// Match Initialization
-// ======================
+// ------------------------ Match Initialization
+
 export async function initMatch(matchId) {
   await set(scoreboardRef(matchId), {
     teams: {
@@ -40,24 +37,23 @@ export async function initMatch(matchId) {
   });
 }
 
-// ======================
-// Period Management
-// ======================
+  // -------------------------- Period Management
+
 export function updatePeriod(matchId, period) {
   return update(scoreboardRef(matchId), { period });
 }
 
-// ======================
-// Match Finalization
-// ======================
+// -------------------------- Match Finalization
+
 function generateMatchId(code) {
   return `M${code}`.padStart(3, "0"); // e.g., M001
 }
 
+// -------------------------- Get Next Sequence
+
 async function getNextSequence() {
   const matchesSnap = await get(matchesRef());
   const matches = matchesSnap.val() || {};
-
   const codes = Object.keys(matches)
     .map((id) => {
       const match = id.match(/^M(\d{3})$/);
@@ -69,27 +65,23 @@ async function getNextSequence() {
   return String(nextCode).padStart(3, "0");
 }
 
+// -------------------------- Finish Match 
+
 export async function finishMatch(matchId = "demo") {
   const demoRef = ref(db, `scoreboard/${matchId}`);
   const demoSnap = await get(demoRef);
   if (!demoSnap.exists()) throw new Error("No match data found");
-
   const demoData = demoSnap.val();
   const leftTeam = demoData?.teams?.left;
   const rightTeam = demoData?.teams?.right;
-
   if (!leftTeam?.id || !rightTeam?.id) {
     throw new Error("Both teams must be selected");
   }
-
   if ((leftTeam?.score || 0) <= 0 && (rightTeam?.score || 0) <= 0) {
     throw new Error("Both teams must have at least 1 point");
   }
-
   const nextCode = await getNextSequence();
   const newMatchId = generateMatchId(nextCode); // M001, M002, ...
-
-  // Save finished match
   await set(ref(db, `t4_bouldering/matches/${newMatchId}`), {
     id: newMatchId,
     ...demoData,
@@ -97,9 +89,6 @@ export async function finishMatch(matchId = "demo") {
     saved_at: Date.now().toString().slice(0, 13),
     start_time: Date.now(),
   });
-
-  // Reset the demo scoreboard for next match
   await initMatch(matchId);
-
   return newMatchId;
 }

@@ -1,10 +1,14 @@
-import { db } from "../../firebase";
+import { db } from "@/firebase";
 import { ref, update, runTransaction } from "firebase/database";
-import { DEFAULT_DURATION } from "../constant"; // constants.js
+import { DEFAULT_DURATION } from "@/services/constant"; 
+
+// ------------------------------ Timer References
 
 function scoreboardRef(matchId) {
   return ref(db, `scoreboard/${matchId}`);
 }
+
+// ------------------------------ Timer Updates
 
 async function setTimer(matchId, patch) {
   await update(
@@ -31,7 +35,8 @@ export async function resetTimer(matchId, duration = DEFAULT_DURATION, controlle
   });
 }
 
-// Safely handle multiple panels calling tickTimer
+// ------------------------------ Timer Ticking
+
 export async function tickTimer(matchId) {
   const r = ref(db, `scoreboard/${matchId}/timer`);
   await runTransaction(r, (current) => {
@@ -51,6 +56,8 @@ export async function tickTimer(matchId) {
     };
   });
 }
+
+// ------------------------------ Timer Service Object
 
 export const timerService = {
   startTimer,

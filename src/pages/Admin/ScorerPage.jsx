@@ -1,4 +1,3 @@
-// ScorerPage.jsx
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -14,14 +13,14 @@ import {
   tickTimer,
   updatePeriod,
   finishMatch,
-} from "../../services";
+} from "@/services";
 import { onValue, ref } from "firebase/database";
-import { db } from "../../firebase";
-import Header from "../../components/ui/panel/Header";
-import TeamSelector from "../../components/ui/panel/TeamSelector";
-import ScoreButtons from "../../components/ui/panel/ScoreButtons";
-import TimerControls from "../../components/ui/panel/TimerControls";
-import PlayerButtons from "../../components/ui/panel/PlayersButtons";
+import { db } from "@/firebase";
+import Header from "@/components/ui/panel/Header";
+import TeamSelector from "@/components/ui/panel/TeamSelector";
+import ScoreButtons from "@/components/ui/panel/ScoreButtons";
+import TimerControls from "@/components/ui/panel/TimerControls";
+import PlayerButtons from "@/components/ui/panel/PlayersButtons";
 import { CircleArrowLeft, Save } from "lucide-react";
 import { toast } from "react-hot-toast";
 

@@ -1,16 +1,18 @@
-// src/services/matches/matchesService.js
 import { db } from "../../firebase";
-import { ref, set, get, update, onValue } from "firebase/database";
+import { ref, set, onValue } from "firebase/database";
+
+// ----------------- Match reference
 
 function matchesRef() {
   return ref(db, "t4_bouldering/matches");
 }
 
+// ----------------- Create Match
+
 async function createMatch({ leftTeam, rightTeam, matchDate, matchTime, teams }) {
   if (!leftTeam || !rightTeam) {
     throw new Error("Both teams must be selected");
   }
-
   const newMatchId = `M${Date.now()}`;
   await set(ref(db, `t4_bouldering/matches/${newMatchId}`), {
     id: newMatchId,
@@ -23,9 +25,10 @@ async function createMatch({ leftTeam, rightTeam, matchDate, matchTime, teams })
     status: "scheduled",
     start_time: Date.now(),
   });
-
   return newMatchId;
 }
+
+// ----------------- Fetch Matches
 
 function getMatches(callback, setLoading) {
   const unsub = onValue(matchesRef(), (snap) => {
@@ -35,6 +38,8 @@ function getMatches(callback, setLoading) {
   });
   return unsub;
 }
+
+// ----------------- Export
 
 export const matchesService = {
   createMatch,
