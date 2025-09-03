@@ -59,15 +59,11 @@ export default function ScorerPage() {
   }, [state?.timer?.running, state?.timer?.controller]);
 
   // Tick interval
-  // --- Tick interval ---
   useEffect(() => {
     if (!matchId) return;
-
-    // One interval for each panel is fine; tickTimer is safe
     const interval = setInterval(() => {
-      tickTimer(matchId); // no panel-specific logic needed
+      tickTimer(matchId);
     }, 1000);
-
     return () => clearInterval(interval);
   }, [matchId]);
 
@@ -85,11 +81,12 @@ export default function ScorerPage() {
           />
         </button>
         <h2
-          className={`text-xl font-medium mb-4 text-center ${
+          className={`font-semibold mb-4 text-center ${
             side === "left" ? "text-red-500" : "text-blue-500"
           }`}
         >
-          Scoring for - {side === "left" ? "Team 1 (Left)" : "Team 2 (Right)"}
+          <span className="text-gray-700 ">Scoring for -</span>
+          {side === "left" ? "Team 1 (Left)" : "Team 2 (Right)"}
         </h2>
       </div>
 
