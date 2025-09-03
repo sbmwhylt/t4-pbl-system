@@ -21,6 +21,7 @@ import TeamSelector from "@/components/ui/panel/TeamSelector";
 import ScoreButtons from "@/components/ui/panel/ScoreButtons";
 import TimerControls from "@/components/ui/panel/TimerControls";
 import PlayerButtons from "@/components/ui/panel/PlayersButtons";
+import AttemptButtons from "@/components/ui/panel/AttemptButtons";
 import { CircleArrowLeft, Save } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -74,20 +75,55 @@ export default function ScorerPage() {
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <div className="flex justify-between items-center">
-        <button onClick={() => navigate("/admin/matches")}>
+        {/* <button onClick={() => navigate("/admin/matches")}>
           <CircleArrowLeft
-            className="text-gray-500 mb-6 hover:text-gray-700 cursor-pointer transition-all"
-            size={32}
+            className="text-gray-400  hover:text-gray-700 cursor-pointer transition-all"
+            size={35}
           />
-        </button>
+        </button> */}
         <h2
-          className={`font-semibold mb-4 text-center ${
+          className={`font-semibold  text-center text-2xl ${
             side === "left" ? "text-red-500" : "text-blue-500"
           }`}
         >
-          <span className="text-gray-700 ">Scoring for -</span>
-          {side === "left" ? "Team 1 (Left)" : "Team 2 (Right)"}
+          <span className="text-gray-500 ">Scoring for: </span>
+          {side === "left" ? (team.name + " (Left)") : (team.name + " (Right)")}
         </h2>
+        <button
+          onClick={async () => {
+            try {
+              // Save the demo match as finished
+              const savedMatchId = await finishMatch();
+
+              // Reset both teams at once
+              await Promise.all([
+                setTeam("demo", "left", {
+                  id: "",
+                  name: "Left",
+                  score: 0,
+                  current_player: null,
+                  jersey: null,
+                }),
+                setTeam("demo", "right", {
+                  id: "",
+                  name: "Right",
+                  score: 0,
+                  current_player: null,
+                  jersey: null,
+                }),
+              ]);
+
+              toast.success(`Match ${savedMatchId} saved successfully!`);
+            } catch (err) {
+              console.error(err);
+              toast.error(`Error: ${err.message}`);
+            }
+          }}
+          className="px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 flex gap-2 items-center cursor-pointer transition-colors"
+        >
+          <Save size={18} />
+          Finish Match
+        </button>
       </div>
 
       <Header matchId={matchId} />
@@ -148,44 +184,19 @@ export default function ScorerPage() {
           }}
           teamColor={side === "left" ? "blue" : "red"}
         />
+        {/* Attempt Buttons - only show if a team + player are selected */}
+        {team?.id && selectedPlayer?.id && (
+          <div className="mt-6">
+            <AttemptButtons
+              matchId={matchId}
+              side={side}
+              playerId={selectedPlayer.id}
+              currentAttempt={selectedPlayer?.attempt || 1}
+            />
+          </div>
+        )}
       </div>
-      <div className="flex gap-2 justify-end mt-8">
-        <button
-          onClick={async () => {
-            try {
-              // Save the demo match as finished
-              const savedMatchId = await finishMatch();
-
-              // Reset both teams at once
-              await Promise.all([
-                setTeam("demo", "left", {
-                  id: "",
-                  name: "Left",
-                  score: 0,
-                  current_player: null,
-                  jersey: null,
-                }),
-                setTeam("demo", "right", {
-                  id: "",
-                  name: "Right",
-                  score: 0,
-                  current_player: null,
-                  jersey: null,
-                }),
-              ]);
-
-              toast.success(`Match ${savedMatchId} saved successfully!`);
-            } catch (err) {
-              console.error(err);
-              toast.error(`Error: ${err.message}`);
-            }
-          }}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 flex gap-2 items-center cursor-pointer transition-colors"
-        >
-          <Save size={18} />
-          Finish Match
-        </button>
-      </div>
+      <div className="flex gap-2 justify-end mt-8"></div>
     </div>
   );
 }
