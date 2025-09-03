@@ -132,7 +132,7 @@ export default function Live() {
                 {period}
               </div>
               <div className="w-22 border-t-3 border-red-600 my-1 opacity-50"></div>
-              <div className="text-3xl font-mono font-semibold mt-1">
+              <div className="text-3xl tracking-wider font-semibold mt-1">
                 {formatTime(timer.remaining)}
               </div>
             </div>

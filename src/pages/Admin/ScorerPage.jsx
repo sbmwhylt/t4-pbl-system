@@ -13,6 +13,8 @@ import {
   tickTimer,
   updatePeriod,
   finishMatch,
+  adjustPlayerScore,
+  
 } from "@/services";
 import { onValue, ref } from "firebase/database";
 import { db } from "@/firebase";
@@ -87,7 +89,7 @@ export default function ScorerPage() {
           }`}
         >
           <span className="text-gray-500 ">Scoring for: </span>
-          {side === "left" ? (team.name + " (Left)") : (team.name + " (Right)")}
+          {side === "left" ? team.name + " (Left)" : team.name + " (Right)"}
         </h2>
         <button
           onClick={async () => {
@@ -154,9 +156,21 @@ export default function ScorerPage() {
           </div>
         </div>
         <ScoreButtons
-          onPlus1={() => adjustScore(matchId, side, 1)}
-          onPlus2={() => adjustScore(matchId, side, 2)}
-          onMinus1={() => adjustScore(matchId, side, -1)}
+          onPlus1={() =>
+            selectedPlayer
+              ? adjustPlayerScore(matchId, side, selectedPlayer.id, 1)
+              : adjustScore(matchId, side, 1)
+          }
+          onPlus2={() =>
+            selectedPlayer
+              ? adjustPlayerScore(matchId, side, selectedPlayer.id, 2)
+              : adjustScore(matchId, side, 2)
+          }
+          onMinus1={() =>
+            selectedPlayer
+              ? adjustPlayerScore(matchId, side, selectedPlayer.id, -1)
+              : adjustScore(matchId, side, -1)
+          }
           onClear={() => clearScore(matchId, side)}
         />
       </div>
@@ -186,14 +200,12 @@ export default function ScorerPage() {
         />
         {/* Attempt Buttons - only show if a team + player are selected */}
         {team?.id && selectedPlayer?.id && (
-          <div className="mt-6">
-            <AttemptButtons
-              matchId={matchId}
-              side={side}
-              playerId={selectedPlayer.id}
-              currentAttempt={selectedPlayer?.attempt || 1}
-            />
-          </div>
+          <AttemptButtons
+            matchId={matchId}
+            side={side}
+            playerId={selectedPlayer.id}
+            currentAttempt={team.players?.[selectedPlayer.id]?.attempt || 1}
+          />
         )}
       </div>
       <div className="flex gap-2 justify-end mt-8"></div>

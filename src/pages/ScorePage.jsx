@@ -133,7 +133,7 @@ export default function ScorePage() {
             <div className="absolute right-0 top-0 h-full w-1 bg-white/30"></div>
 
             <div className="text-3xl font-semibold uppercase">{period}</div>
-            <div className="text-9xl font-mono font-bold">
+            <div className="text-9xl tracking-wider font-bold">
               {formatTime(timer.remaining)}
             </div>
           </div>

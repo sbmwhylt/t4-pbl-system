@@ -56,7 +56,9 @@ export async function setTeam(matchId, side, team) {
 
     // filter by team + active, then build object keyed by id
     const teamPlayers = Object.entries(val)
-      .filter(([_, p]) => (p.team_id || p.team) === team.id && p.status === "active")
+      .filter(
+        ([_, p]) => (p.team_id || p.team) === team.id && p.status === "active"
+      )
       .reduce((acc, [id, p]) => {
         acc[id] = {
           name: p.name || "",
@@ -81,14 +83,13 @@ export async function setTeam(matchId, side, team) {
   }
 }
 
-
-// ----------------------- Clear Score
+// ----------------------- Clear Total Score
 
 export async function clearScore(matchId, side) {
   await update(scoreboardRef(matchId), { [`teams/${side}/score`]: 0 });
 }
 
-// ----------------------- Adjust Score
+// ----------------------- Adjust Total Score
 
 export async function adjustScore(matchId, side, delta) {
   const r = ref(db, `scoreboard/${matchId}/teams/${side}/score`);
@@ -98,6 +99,31 @@ export async function adjustScore(matchId, side, delta) {
 // ----------------------- Player Attempts
 
 export async function updatePlayerAttempt(matchId, side, playerId, attempt) {
-  const r = ref(db, `scoreboard/${matchId}/teams/${side}/players/${playerId}/attempt`);
+  const r = ref(
+    db,
+    `scoreboard/${matchId}/teams/${side}/players/${playerId}/attempt`
+  );
   await set(r, attempt);
+}
+
+// ----------------------- Adjust Player Score
+
+export async function adjustPlayerScore(matchId, side, playerId, delta) {
+  if (!playerId) return;
+
+  const playerRef = ref(
+    db,
+    `scoreboard/${matchId}/teams/${side}/players/${playerId}/points`
+  );
+  const teamRef = ref(db, `scoreboard/${matchId}/teams/${side}/score`);
+
+  // Update player points
+  await runTransaction(playerRef, (current) => {
+    return Math.max(0, (current || 0) + delta);
+  });
+
+  // Update team score
+  await runTransaction(teamRef, (current) => {
+    return Math.max(0, (current || 0) + delta);
+  });
 }
