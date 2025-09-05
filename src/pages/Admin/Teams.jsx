@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import { db } from "@/firebase";
-import { ref, onValue } from "firebase/database";
+import { ref, get, onValue } from "firebase/database";
 import AdminLayout from "@/components/layout/AdminLayout";
-import { Users, Trophy, Swords, Star, Medal } from "lucide-react";
+import { Users, Swords, Star } from "lucide-react";
+import { getTeamWins, getTeamPlayersCount } from "@/services";
+import { getTeamMatches } from "@/services";
 
 export default function Teams() {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [teamWins, setTeamWins] = useState({});
+  const [teamPlayersCount, setTeamPlayersCount] = useState({});
+  const [teamMatches, setTeamMatches] = useState({});
+
+  // ---------------- get teams ----------------
 
   useEffect(() => {
     const teamsRef = ref(db, "t4_bouldering/teams");
@@ -27,6 +34,20 @@ export default function Teams() {
     return () => unsubscribe();
   }, []);
 
+  // ---------------- get wins + players ----------------
+
+  useEffect(() => {
+    async function fetchData() {
+      const wins = await getTeamWins();
+      const counts = await getTeamPlayersCount();
+      const matches = await getTeamMatches();
+      setTeamWins(wins);
+      setTeamPlayersCount(counts);
+      setTeamMatches(matches);
+    }
+    fetchData();
+  }, []);
+
   return (
     <AdminLayout>
       <h2 className="text-2xl font-bold mb-4">Teams</h2>
@@ -37,16 +58,16 @@ export default function Teams() {
       ) : (
         <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           {teams.map((team) => {
-            const playerCount = team.players?.length || 0;
-            const matchesPlayed = 5; // placeholder
-            const wins = 2; // placeholder
+            const wins = teamWins[team.id] || 0;
+            const playerCount = teamPlayersCount[team.id] || 0;
+            const matchesPlayed = teamMatches[team.id] || 0;
 
             return (
               <div
                 key={team.id}
                 className="relative bg-white shadow-md rounded-lg p-6 grid grid-cols-2 items-center overflow-hidden"
               >
-                {/* Silhouette image */}
+                {/* Background logo */}
                 <img
                   src={team.logo_url}
                   alt={team.name}
@@ -61,7 +82,6 @@ export default function Teams() {
                       <p className="text-gray-500">
                         ID: <span className="font-semibold">{team.id}</span>
                       </p>
-                      {/* <p className="text-gray-500 ">Abv: {team.abbreviation}</p> */}
                     </div>
                   </div>
 
@@ -76,7 +96,7 @@ export default function Teams() {
                     <div className="flex gap-2 items-center">
                       <Swords className="inline-block" size={18} />
                       <p>
-                        Matches Played:{" "}
+                        Matches:{" "}
                         <span className="font-semibold">{matchesPlayed}</span>
                       </p>
                     </div>
