@@ -12,9 +12,9 @@ import {
   resetTimer,
   tickTimer,
   finishMatch,
-} from "../../services/";
+} from "@/services";
 import { onValue, ref } from "firebase/database";
-import { db } from "../../firebase";
+import { db } from "@/firebase";
 import { toast } from "react-hot-toast";
 import { Save } from "lucide-react";
 
@@ -56,29 +56,38 @@ export default function PanelPage() {
   }, [matchId]);
 
   // --- Keep running state in sync ---
-  useEffect(() => {
-    isRunningRef.current = state?.timer?.running || false;
-    controllerRef.current = state?.timer?.controller || null;
-  }, [state?.timer?.running, state?.timer?.controller]);
 
-  // --- Single stable interval ---
   useEffect(() => {
-    if (!matchId) return;
+    if (!state?.timer) return;
 
-    if (!timerIntervalRef.current) {
+    // clear previous interval
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+
+    // if running, tick locally
+    if (state.timer.running && state.timer.endTime) {
       timerIntervalRef.current = setInterval(() => {
-        // Only the controller decrements
-        if (isRunningRef.current && controllerRef.current === "panel") {
-          tickTimer(matchId);
-        }
+        // no DB call — just calculate locally
+        const remaining = timerService.getRemaining(state.timer);
+        setState((prev) => ({
+          ...prev,
+          timer: {
+            ...prev.timer,
+            remaining,
+          },
+        }));
       }, 1000);
     }
 
     return () => {
-      clearInterval(timerIntervalRef.current);
-      timerIntervalRef.current = null;
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
     };
-  }, [matchId]);
+  }, [state?.timer?.running, state?.timer?.endTime]);
 
   if (!state) return <div className="p-6">Loading…</div>;
 
@@ -182,7 +191,7 @@ export default function PanelPage() {
           <h3 className="text-lg font-semibold mb-2 text-center">
             Team 2 Players
           </h3>
-          
+
           <PlayerButtons
             players={
               right?.id
@@ -195,7 +204,6 @@ export default function PanelPage() {
             }
             activePlayerId={selectedRightPlayer?.id}
             onSelect={(player) => {
-            
               setSelectedRightPlayer(player);
               setTeam(matchId, "right", {
                 current_player: player?.name,

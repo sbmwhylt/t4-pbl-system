@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Play,
   Pause,
@@ -16,19 +17,36 @@ export default function TimerControls({
   period,
   onPeriodChange,
 }) {
+  const [setTick] = useState(0); // just to force re-renders
+
+  // ------------------------------ Timer Controls
+
   const formatTime = (secs) => {
-    const m = Math.floor(secs / 60)
-      .toString()
-      .padStart(2, "0");
+    const m = Math.floor(secs / 60).toString().padStart(2, "0");
     const s = (secs % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
 
-  const baseBtn =
-    "px-3 py-3 rounded-full text-white transition-colors hover:opacity-90 cursor-pointer";
-
   const isRunning = timer?.running;
-  const isFinished = (timer?.remaining || 0) <= 0;
+
+  useEffect(() => {
+    if (!isRunning) return;
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [isRunning, timer?.endTime]);
+
+  const getRemaining = () => {
+    if (!timer) return 0;
+    if (timer.running && timer.endTime) {
+      return Math.max(0, Math.floor((timer.endTime - Date.now()) / 1000));
+    }
+    return timer.remaining ?? timer.duration ?? 0;
+  };
+
+  const remaining = getRemaining();
+  const isFinished = remaining <= 0;
+
+  // ------------------------------ Period Controls
 
   const currentPeriodIndex =
     PERIODS.indexOf(period) >= 0 ? PERIODS.indexOf(period) : 0;
@@ -45,13 +63,16 @@ export default function TimerControls({
     }
   };
 
+  const baseBtn =
+    "px-3 py-3 rounded-full text-white transition-colors hover:opacity-90 cursor-pointer";
+
   return (
     <div className="bg-gray-100 border border-gray-300 rounded-xl p-6 flex flex-col gap-6">
       {/* Timer + Status */}
       <div className="flex justify-between items-center">
         <div className="flex flex-col items-start">
           <div className="text-6xl font-bold tabular-nums p-3">
-            {formatTime(timer?.remaining || 0)}
+            {formatTime(remaining)}
           </div>
           <div className="flex items-center gap-2 ml-3">
             <span
