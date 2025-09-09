@@ -10,7 +10,6 @@ import {
   startTimer,
   pauseTimer,
   resetTimer,
-  tickTimer,
   finishMatch,
 } from "@/services";
 import { onValue, ref } from "firebase/database";

@@ -10,11 +10,9 @@ import {
   startTimer,
   pauseTimer,
   resetTimer,
-  tickTimer,
   updatePeriod,
   finishMatch,
   adjustPlayerScore,
-  
 } from "@/services";
 import { onValue, ref } from "firebase/database";
 import { db } from "@/firebase";
