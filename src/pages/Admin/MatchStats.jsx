@@ -54,7 +54,7 @@ export default function MatchStats() {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         {["left", "right"].map((side) => {
           const team = teams?.[side];
           if (!team) return null;
@@ -62,10 +62,10 @@ export default function MatchStats() {
           return (
             <div
               key={side}
-              className="p-6 bg-white rounded-xl border border-gray-100 flex flex-col gap-4"
+              className="p-6 bg-white rounded-xl border border-gray-100"
             >
               {/* Team Header */}
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-bold text-gray-800">
                   {team.name}
                 </h3>
@@ -77,79 +77,102 @@ export default function MatchStats() {
                 </div>
               </div>
 
-              {/* Player Cards with Divider */}
+              {/* Player Stats Table */}
               {team.players && Object.keys(team.players).length > 0 ? (
-                <div className="flex flex-col divide-y divide-gray-200 ">
-                  {Object.entries(team.players).map(([id, p]) => {
-                    const totalPoints = Object.values(p.boulders || {}).reduce(
-                      (sum, b) => sum + (b.points || 0),
-                      0
-                    );
-                    const totalAttempts = Object.values(
-                      p.boulders || {}
-                    ).reduce((sum, b) => sum + (b.attempts || 0), 0);
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left text-gray-700">
+                    <thead className="text-xs text-gray-500 uppercase border-b border-gray-200">
+                      <tr>
+                        <th scope="col" className="px-2 py-3">
+                          Player
+                        </th>
+                        <th scope="col" className="px-2 py-3 text-center">
+                          Points
+                        </th>
+                        <th scope="col" className="px-2 py-3 text-center">
+                          Attempts
+                        </th>
+                        <th scope="col" className="px-2 py-3 text-center">
+                          Boulders
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {Object.entries(team.players).map(([id, p]) => {
+                        const totalPoints = Object.values(
+                          p.boulders || {}
+                        ).reduce((sum, b) => sum + (b.points || 0), 0);
+                        const totalAttempts = Object.values(
+                          p.boulders || {}
+                        ).reduce((sum, b) => sum + (b.attempts || 0), 0);
 
-                    return (
-                      <div key={id} className="pt-5 pb-10">
-                        <div className="flex justify-between items-center mb-3">
-                          <div className="flex items-center gap-2">
-                            <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold 
-    ${side === "left" ? "bg-red-500" : "bg-blue-500"}`}
-                            >
-                              {p.name.charAt(0)}
-                            </div>
-
-                            <p className="font-semibold text-gray-800">
-                              {p.name} #{p.jersey_number}
-                            </p>
-                          </div>
-                          <div className="flex gap-4 text-gray-700">
-                            <p className="text-sm">
-                              Total Points:{" "}
-                              <span className="font-bold">{totalPoints}</span>
-                            </p>
-                            <p className="text-sm">
-                              Total Attempts:{" "}
-                              <span className="font-bold">{totalAttempts}</span>
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Boulders */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-                          {Object.entries(p.boulders || {}).map(
-                            ([bName, b]) => (
-                              <div
-                                key={bName}
-                                className="p-2 border border-gray-100 rounded-lg flex flex-col items-center bg-gray-50"
-                              >
-                                <p className="font-semibold mb-1 text-gray-700">
-                                  {bName}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  Attempts: {b.attempts || 0}
-                                </p>
-                                <p
-                                  className={`text-sm font-bold ${getPointColor(
-                                    b.points || 0
-                                  )}`}
+                        return (
+                          <tr key={id} className="">
+                            <td className="px-2 py-4">
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold 
+                                  ${
+                                    side === "left"
+                                      ? "bg-red-500"
+                                      : "bg-blue-500"
+                                  }`}
                                 >
-                                  Points: {b.points || 0}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  Best Zone: {b.currentZone || "-"}
-                                </p>
+                                  {p.name.charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-gray-800">
+                                    {p.name}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    #{p.jersey_number}
+                                  </p>
+                                </div>
                               </div>
-                            )
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                            </td>
+                            <td className="px-2 py-4 text-center font-medium">
+                              {totalPoints}
+                            </td>
+                            <td className="px-2 py-4 text-center">
+                              {totalAttempts}
+                            </td>
+                            <td className="px-2 py-4">
+                              <div className="flex flex-wrap gap-2 justify-center">
+                                {Object.entries(p.boulders || {}).map(
+                                  ([bName, b]) => (
+                                    <div
+                                      key={bName}
+                                      className="text-xs px-3 py-2 rounded-md bg-gray-50 text-center min-w-[70px] flex justify-between items-start gap-2"
+                                    >
+                                      <div className="font-semibold text-gray-700">{bName}</div>
+                                      <div className="block">
+                                        <div
+                                          className={`font-bold ${getPointColor(
+                                            b.points || 0
+                                          )}`}
+                                        >
+                                          {b.points || 0} P
+                                        </div>
+                                        <div className="text-gray-500">
+                                          {b.attempts || 0} A
+                                        </div>
+                                        <div className="text-gray-500">
+                                          {b.currentZone || "-"}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               ) : (
-                <p className="text-gray-400 text-center mt-4">
+                <p className="text-gray-400 text-center mt-4 py-8">
                   No player stats available
                 </p>
               )}
