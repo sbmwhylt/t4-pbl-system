@@ -8,9 +8,7 @@ import {
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60)
-    .toString()
-    .padStart(2, "0");
+  const s = Math.floor(seconds % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
 }
 
@@ -36,7 +34,7 @@ export default function Live() {
     period: "1ST",
   });
   const [teams, setTeams] = useState({ left: BLANK_TEAM, right: BLANK_TEAM });
-  const tickingRef = useRef(null);
+  const [tick, setTick] = useState(0); // 👈 force re-renders every second when running
 
   // Subscribe to scoreboard
   useEffect(() => {
@@ -56,6 +54,13 @@ export default function Live() {
     return () => unsub();
   }, []);
 
+  // 👇 local ticking effect
+  useEffect(() => {
+    if (!state.timer?.running) return;
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [state.timer?.running, state.timer?.endTime]);
+
   // Determine left/right teams for display
   const leftScoreboard = {
     ...BLANK_TEAM,
@@ -74,6 +79,12 @@ export default function Live() {
   const timer = state.timer || BLANK_TIMER;
   const period = state.period || "1ST";
 
+  // 👇 compute remaining live
+  const remaining =
+    timer.running && timer.endTime
+      ? Math.max(0, Math.floor((timer.endTime - Date.now()) / 1000))
+      : timer.remaining ?? timer.duration ?? DEFAULT_DURATION;
+
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
 
   return (
@@ -89,7 +100,7 @@ export default function Live() {
         </div>
       )}
 
-      {/* Main scoreboard: only render if teams are selected */}
+      {/* Main scoreboard */}
       {!noTeamsSelected && (
         <div className="fixed bottom-0 left-0 w-full px-4 py-2 flex items-center justify-center pointer-events-none z-40">
           <div className="flex items-center justify-center w-full max-w-4xl bg-[#5f8bbb]/80 backdrop-blur-md rounded text-white px-4 gap-3 mb-3">
@@ -102,14 +113,7 @@ export default function Live() {
                     : "bg-gray-200 text-gray-600"
                 }`}
               >
-                {/* {leftScoreboard.current_player
-                  ? `${leftScoreboard.current_player} #${
-                      leftScoreboard.jersey || "-"
-                    }`
-                  : "-"} */}
-                {leftScoreboard.current_player
-                  ? leftScoreboard.current_player
-                  : "-"}
+                {leftScoreboard.current_player || "-"}
               </div>
               {left.logo_url && (
                 <img
@@ -118,7 +122,6 @@ export default function Live() {
                   className="w-18 h-18 mr-3"
                 />
               )}
-              {/* <div className="text-2xl font-semibold">{left.abbreviation}</div> */}
               <div className="flex justify-center items-center w-16 ">
                 <span className="text-5xl font-bold">
                   {leftScoreboard.score || 0}
@@ -133,7 +136,7 @@ export default function Live() {
               </div>
               <div className="w-22 border-t-3 border-red-600 my-1 opacity-50"></div>
               <div className="text-3xl tracking-wider font-semibold mt-1">
-                {formatTime(timer.remaining)}
+                {formatTime(remaining)}
               </div>
             </div>
 
@@ -144,7 +147,6 @@ export default function Live() {
                   {rightScoreboard.score || 0}
                 </span>
               </div>
-              {/* <div className="text-2xl font-semibold">{right.abbreviation}</div> */}
               {right.logo_url && (
                 <img
                   src={right.logo_url}
@@ -159,14 +161,7 @@ export default function Live() {
                     : "bg-gray-200 text-gray-600"
                 }`}
               >
-                {/* {rightScoreboard.current_player
-                  ? `${rightScoreboard.current_player} #${
-                      rightScoreboard.jersey || "-"
-                    }`
-                  : "-"} */}
-                {rightScoreboard.current_player
-                  ? rightScoreboard.current_player
-                  : "-"}
+                {rightScoreboard.current_player || "-"}
               </div>
             </div>
           </div>

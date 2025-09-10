@@ -59,14 +59,6 @@ export default function ScorerPage() {
     controllerRef.current = state?.timer?.controller || null;
   }, [state?.timer?.running, state?.timer?.controller]);
 
-  // Tick interval
-  useEffect(() => {
-    if (!matchId) return;
-    const interval = setInterval(() => {
-      tickTimer(matchId);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [matchId]);
 
   if (!state) return <div className="p-6">Loading…</div>;
 

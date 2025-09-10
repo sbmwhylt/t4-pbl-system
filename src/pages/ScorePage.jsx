@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   subscribeScoreboard,
@@ -17,9 +17,7 @@ const BLANK_TIMER = { remaining: DEFAULT_DURATION, running: false };
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60)
-    .toString()
-    .padStart(2, "0");
+  const s = Math.floor(seconds % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
 }
 
@@ -33,7 +31,7 @@ export default function ScorePage() {
   });
 
   const [teams, setTeams] = useState({});
-  const tickingRef = useRef(null);
+  const [tick, setTick] = useState(0); // 👈 add this
 
   // Subscribe to scoreboard updates
   useEffect(() => {
@@ -52,6 +50,13 @@ export default function ScorePage() {
     });
     return () => unsub();
   }, []);
+
+  // 👇 local ticking effect
+  useEffect(() => {
+    if (!state.timer?.running) return;
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [state.timer?.running, state.timer?.endTime]);
 
   const leftScoreboard = {
     ...BLANK_TEAM,
@@ -72,6 +77,11 @@ export default function ScorePage() {
   const timer = state.timer || BLANK_TIMER;
   const period = state.period || "1ST";
 
+  // 👇 compute remaining live
+  const remaining = timer.running && timer.endTime
+    ? Math.max(0, Math.floor((timer.endTime - Date.now()) / 1000))
+    : timer.remaining ?? timer.duration ?? DEFAULT_DURATION;
+
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
 
   function getTeamColor(abbreviation) {
@@ -91,11 +101,7 @@ export default function ScorePage() {
     <div className="w-full h-screen flex flex-col items-center justify-center bg-gray-900 text-white">
       {noTeamsSelected ? (
         <div className="flex flex-col items-center justify-center h-full">
-          <img
-            src="/T4-logo.png"
-            alt="Loading"
-            className="w-32 h-32 animate-pulse"
-          />
+          <img src="/T4-logo.png" alt="Loading" className="w-32 h-32 animate-pulse" />
           <p className="mt-4 text-lg">Waiting for match data...</p>
         </div>
       ) : (
@@ -108,33 +114,23 @@ export default function ScorePage() {
           >
             {left.logo_url && (
               <div className="w-90 h-90 flex items-center justify-center  object-cover">
-                <img
-                  src={left.logo_url}
-                  alt={left.abbreviation}
-                  className="object-cover"
-                />
+                <img src={left.logo_url} alt={left.abbreviation} className="object-cover" />
               </div>
             )}
-            <div className="text-9xl font-extrabold mt-6">
-              {leftScoreboard.score}
-            </div>
+            <div className="text-9xl font-extrabold mt-6">{leftScoreboard.score}</div>
             <div className="text-5xl bg-black/30 px-4 py-2 rounded">
-              {leftScoreboard.current_player
-                ? `${leftScoreboard.current_player}
-                `
-                : "No Player"}
+              {leftScoreboard.current_player || "No Player"}
             </div>
           </div>
 
-          {/* Timer / Period with divider */}
+          {/* Timer / Period */}
           <div className="flex flex-col items-center justify-center gap-3 relative bg-gray-800">
-            {/* Divider line */}
             <div className="absolute left-0 top-0 h-full w-1 bg-white/30"></div>
             <div className="absolute right-0 top-0 h-full w-1 bg-white/30"></div>
 
             <div className="text-3xl font-semibold uppercase">{period}</div>
             <div className="text-9xl tracking-wider font-bold">
-              {formatTime(timer.remaining)}
+              {formatTime(remaining)}
             </div>
           </div>
 
@@ -145,22 +141,13 @@ export default function ScorePage() {
             )}`}
           >
             {right.logo_url && (
-              <div className="w-90 h-90 flex items-center justify-center   object-cover">
-                <img
-                  src={right.logo_url}
-                  alt={right.abbreviation}
-                  className="object-cover"
-                />
+              <div className="w-90 h-90 flex items-center justify-center object-cover">
+                <img src={right.logo_url} alt={right.abbreviation} className="object-cover" />
               </div>
             )}
-            <div className="text-9xl font-extrabold mt-6">
-              {rightScoreboard.score}
-            </div>
+            <div className="text-9xl font-extrabold mt-6">{rightScoreboard.score}</div>
             <div className="text-5xl bg-black/30 px-4 py-2 rounded">
-              {rightScoreboard.current_player
-                ? `${rightScoreboard.current_player}
-                  `
-                : "No Player"}
+              {rightScoreboard.current_player || "No Player"}
             </div>
           </div>
         </div>

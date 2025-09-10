@@ -17,18 +17,12 @@ export default function TimerControls({
   period,
   onPeriodChange,
 }) {
-  const [setTick] = useState(0); // just to force re-renders
-
-  // ------------------------------ Timer Controls
-
-  const formatTime = (secs) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, "0");
-    const s = (secs % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
-  };
+  // ✅ keep both state + setter
+  const [tick, setTick] = useState(0);
 
   const isRunning = timer?.running;
 
+  // Force re-render every second while running
   useEffect(() => {
     if (!isRunning) return;
     const id = setInterval(() => setTick((t) => t + 1), 1000);
@@ -46,8 +40,13 @@ export default function TimerControls({
   const remaining = getRemaining();
   const isFinished = remaining <= 0;
 
-  // ------------------------------ Period Controls
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, "0");
+    const s = (secs % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
+  // ------------------------------ Period Controls
   const currentPeriodIndex =
     PERIODS.indexOf(period) >= 0 ? PERIODS.indexOf(period) : 0;
 
