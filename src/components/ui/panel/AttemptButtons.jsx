@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { StepForward, StepBack } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import { updatePlayerAttempt } from "@/services";
 
 export default function AttemptButtons({
@@ -22,16 +22,21 @@ export default function AttemptButtons({
     const newAttempt = Math.min(Math.max(1, attempt + delta), maxAttempts);
     if (newAttempt !== attempt) {
       setAttempt(newAttempt);
-      await updatePlayerAttempt(matchId, side, playerId, selectedBoulder, newAttempt);
+      await updatePlayerAttempt(
+        matchId,
+        side,
+        playerId,
+        selectedBoulder,
+        newAttempt
+      );
     }
   };
 
   return (
     <div className="mt-6 flex flex-col items-center justify-center">
-      <h1 className="mb-6 text-lg font-semibold text-center">Player Attempts</h1>
       <div className="flex gap-10 items-center">
         {/* Attempt Calendar */}
-        <div className="grid grid-cols-10 gap-3">
+        <div className="grid grid-cols-15 gap-1">
           {[...Array(maxAttempts)].map((_, i) => {
             const num = i + 1;
             const isActive = attempt === num;
@@ -40,13 +45,13 @@ export default function AttemptButtons({
             return (
               <div
                 key={num}
-                className={`w-10 h-10 flex items-center justify-center rounded-lg font-semibold text-sm
+                className={`w-8 h-8 flex items-center justify-center rounded-full font-medium text-sm
                   ${
                     isActive
-                      ? "bg-green-500 text-white"
+                      ? "bg-green-400 text-white"
                       : isPast
-                      ? "bg-gray-300 opacity-50"
-                      : "bg-gray-200"
+                      ? " opacity-40"
+                      : ""
                   }
                 `}
               >
@@ -57,32 +62,35 @@ export default function AttemptButtons({
         </div>
 
         {/* Navigation buttons */}
-        <div className="flex gap-4">
+        <div className="flex gap-3">
+          {/* Previous Attempt Button */}
           <button
             onClick={() => handleChange(-1)}
             disabled={attempt <= 1}
-            className={`px-3 py-3 rounded-lg font-semibold text-lg
-              ${
-                attempt <= 1
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-300 text-gray-600 hover:bg-gray-400"
-              }
-            `}
+            className={`flex items-center justify-center w-12 h-12 rounded-full text-lg font-semibold transition-colors cursor-pointer
+      ${
+        attempt <= 1
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+      }
+    `}
           >
-            <StepBack size={28} />
+            <ArrowLeft size={24} />
           </button>
+
+          {/* Next Attempt Button */}
           <button
             onClick={() => handleChange(1)}
             disabled={attempt >= maxAttempts}
-            className={`px-3 py-3 rounded-lg font-semibold text-lg
-              ${
-                attempt >= maxAttempts
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-500"
-              }
-            `}
+            className={`flex items-center justify-center w-12 h-12 rounded-full text-lg font-semibold transition-colors cursor-pointer
+      ${
+        attempt >= maxAttempts
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : "bg-blue-500 text-white hover:bg-blue-600"
+      }
+    `}
           >
-            <StepForward size={28} />
+            <ArrowRight size={24} />
           </button>
         </div>
       </div>

@@ -1,5 +1,3 @@
-// components/ui/panel/ZoneSelection.jsx
-import React from "react";
 import { zones } from "@/services";
 
 export default function ZoneSelection({
@@ -11,34 +9,34 @@ export default function ZoneSelection({
 }) {
   if (!playerId) return null;
 
-  const currentZoneIndex =
-    zones.indexOf(
-      playerBoulderData?.[teamSide]?.[playerId]?.[selectedBoulder]?.currentZone
-    ) || -1;
+  // Extract current boulder data
+  const boulderData =
+    playerBoulderData?.[teamSide]?.[playerId]?.[selectedBoulder] || {};
+  const currentZoneIndex = zones.indexOf(boulderData.currentZone);
 
   return (
-    <div className="flex gap-2 justify-center flex-wrap mt-4">
-      {zones.map((zone, idx) => (
-        <button
-          key={zone}
-          disabled={idx < currentZoneIndex}
-          onClick={() => onZoneClick(teamSide, playerId, zone)}
-          className={`px-4 py-2 rounded-md transition-colors ${
-            idx < currentZoneIndex
-              ? "bg-gray-400 text-white"
-              : "bg-blue-500 text-white hover:bg-blue-700"
-          }`}
-        >
-          {idx < currentZoneIndex ? "✔" : zone}
-        </button>
-      ))}
-      <div className="w-full text-center mt-2">
-        Points:{" "}
-        {playerBoulderData?.[teamSide]?.[playerId]?.[selectedBoulder]?.points ||
-          0}{" "}
-        | Attempts:{" "}
-        {playerBoulderData?.[teamSide]?.[playerId]?.[selectedBoulder]?.attempts ||
-          0}
+    <div className="flex flex-col items-center mt-4 w-full">
+      <div className="flex gap-3 justify-center items-center w-full">
+        {zones.map((zone, idx) => {
+          const isCompleted = idx < currentZoneIndex;
+          const isCurrent = idx === currentZoneIndex;
+
+          return (
+            <button
+              key={zone}
+              disabled={isCompleted}
+              onClick={() => !isCompleted && onZoneClick(teamSide, playerId, zone)}
+              className={`
+                px-4 py-2 rounded font-medium transition-colors w-full 
+                ${isCompleted ? "bg-gray-200 text-gray-400 cursor-not-allowed" : ""}
+                ${isCurrent ? "bg-blue-500 text-white" : ""}
+                ${!isCompleted && !isCurrent ? "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer" : ""}
+              `}
+            >
+              {isCompleted ? "✔" : zone}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

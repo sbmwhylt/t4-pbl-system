@@ -1,5 +1,3 @@
-import AttemptButtons from "@/components/ui/panel/AttemptButtons";
-
 export default function PlayerButtons({
   players = [],
   activePlayerId,
@@ -8,7 +6,7 @@ export default function PlayerButtons({
 }) {
   if (!players.length) {
     return (
-      <div className="mt-4 text-center text-gray-500 font-semibold">
+      <div className="mt-4 text-center text-gray-500 font-semibold tracking-wide">
         Choose a team to show players
       </div>
     );
@@ -16,7 +14,7 @@ export default function PlayerButtons({
 
   return (
     <>
-      <div className="mt-4 grid grid-cols-3 gap-4">
+      <div className="mt-10 grid grid-cols-5 gap-3">
         {players.map((player) => {
           const isActive = player.id === activePlayerId;
           const activeClass =
@@ -28,7 +26,7 @@ export default function PlayerButtons({
             <button
               key={player.id}
               onClick={() => onSelect(player)}
-              className={`p-2 rounded text-lg font-medium w-full transition-colors cursor-pointer  ${
+              className={`p-2 rounded text-md font-medium w-full transition-colors cursor-pointer  ${
                 isActive
                   ? activeClass
                   : "bg-gray-300 text-gray-800 hover:bg-gray-300"
@@ -39,7 +37,6 @@ export default function PlayerButtons({
           );
         })}
       </div>
-      
     </>
   );
 }

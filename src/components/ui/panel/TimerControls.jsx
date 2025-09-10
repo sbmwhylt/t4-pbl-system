@@ -41,7 +41,9 @@ export default function TimerControls({
   const isFinished = remaining <= 0;
 
   const formatTime = (secs) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, "0");
+    const m = Math.floor(secs / 60)
+      .toString()
+      .padStart(2, "0");
     const s = (secs % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
@@ -66,14 +68,12 @@ export default function TimerControls({
     "px-3 py-3 rounded-full text-white transition-colors hover:opacity-90 cursor-pointer";
 
   return (
-    <div className="bg-gray-100 border border-gray-300 rounded-xl p-6 flex flex-col gap-6">
+    <div className="">
       {/* Timer + Status */}
       <div className="flex justify-between items-center">
+        {/* Timer */}
         <div className="flex flex-col items-start">
-          <div className="text-6xl font-bold tabular-nums p-3">
-            {formatTime(remaining)}
-          </div>
-          <div className="flex items-center gap-2 ml-3">
+          <div className="flex items-center gap-2 ml-4">
             <span
               className={`w-3 h-3 rounded-full ${
                 isFinished
@@ -87,10 +87,13 @@ export default function TimerControls({
               {isFinished ? "Finished" : isRunning ? "Playing" : "Paused"}
             </span>
           </div>
+          <div className="text-6xl font-bold tabular-nums mt-1 ml-3">
+            {formatTime(remaining)}
+          </div>
         </div>
 
         {/* Period Controls */}
-        <div className="flex justify-center items-center gap-5 bg-white rounded-full p-2">
+        <div className="flex justify-center items-center gap-5 bg-gray-100 rounded-full p-2">
           <button
             onClick={prevPeriod}
             disabled={currentPeriodIndex === 0}

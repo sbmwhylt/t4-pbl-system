@@ -20,7 +20,7 @@ export default function TeamSelector({ label, teams, value, onChange }) {
       <label className="block text-sm font-medium mb-1">{label}</label>
       <div className="flex items-center gap-2">
         <select
-          className="flex-1 rounded-lg bg-white border border-gray-300 px-3 py-2 text-sm"
+          className="flex-1 rounded-lg bg-gray-100 border border-gray-300 px-3 py-2 text-lg"
           value={selectedTeamId}
           onChange={handleChange}
         >
@@ -36,7 +36,7 @@ export default function TeamSelector({ label, teams, value, onChange }) {
           <img
             src={selectedTeam.logo_url}
             alt={selectedTeam.name}
-            className="w-10 h-10 rounded ml-2"
+            className="w-10 h-10 rounded ml-1"
           />
         )}
       </div>

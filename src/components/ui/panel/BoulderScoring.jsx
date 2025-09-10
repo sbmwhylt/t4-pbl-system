@@ -1,6 +1,5 @@
-// components/BoulderScoring.jsx
-import React, { useEffect, useState } from "react";
-import { boulders, zones, initPlayerBoulders, resetBoulder, setPlayerZone, getPlayerBoulders, calculateTeamScore } from "../services/boulderService";
+import { useEffect, useState } from "react";
+import { boulders, zones, initPlayerBoulders, resetBoulder, setPlayerZone, getPlayerBoulders, calculateTeamScore } from "@/services";
 
 const BoulderScoring = ({ matchId, teams }) => {
   const [selectedBoulder, setSelectedBoulder] = useState("A");

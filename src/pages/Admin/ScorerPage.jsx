@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { onValue, ref } from "firebase/database";
 import { db } from "@/firebase";
@@ -13,7 +13,6 @@ import AttemptButtons from "@/components/ui/panel/AttemptButtons";
 
 import { CircleArrowLeft, Save } from "lucide-react";
 
-// Services
 import {
   subscribeScoreboard,
   subscribeTeams,
@@ -32,6 +31,10 @@ import {
 } from "@/services";
 
 export default function ScorerPage() {
+  useEffect(() => {
+    document.title = "Score Panel - " + (side === "left" ? "Left Team" : "Right Team");
+  }, []);
+
   const { matchId = "demo", side = "left" } = useParams();
   const navigate = useNavigate();
 
@@ -109,15 +112,27 @@ export default function ScorerPage() {
     <div className="p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2
-          className={`font-semibold text-center text-2xl ${
-            side === "left" ? "text-red-500" : "text-blue-500"
-          }`}
-        >
-          <span className="text-gray-500">Scoring for: </span>
-          {team.name} ({side === "left" ? "Left" : "Right"})
-        </h2>
+        {/* Left side: Scoring label + Team Selector */}
+        <div className="flex gap-5 items-center">
+          <div className="leading-tight">
+            <h3 className="text-gray-700 text-sm">Scoring for:</h3>
+            <h2
+              className={`text-xs font-medium rounded  ${
+                side === "left" ? "text-red-500" : "text-blue-500"
+              }`}
+            >
+              {side === "left" ? "Left Side" : "Right Side"}
+            </h2>
+          </div>
 
+          <TeamSelector
+            value={team}
+            teams={teams}
+            onChange={(t) => setTeam(matchId, side, t)}
+          />
+        </div>
+
+        {/* Right side: Finish Match button */}
         <button
           onClick={async () => {
             try {
@@ -128,9 +143,9 @@ export default function ScorerPage() {
               toast.error(`Error: ${err.message}`);
             }
           }}
-          className="px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 flex gap-2 items-center transition-colors"
+          className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors cursor-pointer "
         >
-          <Save size={18} /> Finish Match
+          <Save size={20} strokeWidth={1.5} /> Save
         </button>
       </div>
 
@@ -146,41 +161,35 @@ export default function ScorerPage() {
           onReset={() => resetTimer(matchId)}
           onPeriodChange={(p) => updatePeriod(matchId, p)}
         />
-      </div>
+        {/* Boulder Selection */}
+        <div className="flex items-center justify-between gap-1 mt-10 px-3">
+          <div className="flex gap-2 items-center ">
+            <p className="text-lg font-medium mr-3">Boulders: </p>
+            {boulders.map((b) => (
+              <button
+                key={b}
+                onClick={() => handleBoulderChange(b)}
+                className={`px-4 py-2 rounded-lg text-lg  ${
+                  selectedBoulder === b
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-300 text-gray-700"
+                }`}
+              >
+                {b}
+              </button>
+            ))}
+          </div>
 
-      {/* Boulder Selection */}
-      <div className="flex gap-2 mt-6 mb-4">
-        {boulders.map((b) => (
-          <button
-            key={b}
-            onClick={() => handleBoulderChange(b)}
-            className={`px-3 py-1 rounded-md ${
-              selectedBoulder === b
-                ? "bg-green-500 text-white"
-                : "bg-gray-300 text-black"
-            }`}
-          >
-            Boulder {b}
-          </button>
-        ))}
+          <div className="flex items-center gap-2">
+            <p className="text-lg font-medium">Total Score:</p>{" "}
+            <p className="text-6xl font-semibold">{team.score}</p>
+          </div>
+        </div>
       </div>
 
       {/* Team & Players */}
-      <div className="rounded-xl bg-gray-100 p-6 border border-gray-300 flex flex-col gap-4">
+      <div className="rounded-xl  p-4 flex flex-col gap-4">
         {/* Team Selector */}
-        <div className="flex items-center justify-between mb-3">
-          <TeamSelector
-            value={team}
-            teams={teams}
-            onChange={(t) => setTeam(matchId, side, t)}
-          />
-          <div className="text-3xl font-semibold">{team.score}</div>
-        </div>
-
-        {/* Player List */}
-        <h3 className="text-lg font-semibold text-center">
-          {side === "left" ? "Team 1 Players" : "Team 2 Players"}
-        </h3>
 
         <PlayerButtons
           players={
@@ -222,7 +231,7 @@ export default function ScorerPage() {
             playerId={selectedPlayer.id}
             selectedBoulder={selectedBoulder}
             playerBoulderData={playerBoulderData}
-            maxAttempts={20}
+            maxAttempts={30}
           />
         )}
       </div>
