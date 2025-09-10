@@ -1,37 +1,36 @@
 import { useState, useEffect } from "react";
-import { updatePlayerAttempt } from "@/services";
 import { StepForward, StepBack } from "lucide-react";
+import { updatePlayerAttempt } from "@/services";
 
 export default function AttemptButtons({
   matchId,
   side,
   playerId,
-  currentAttempt = 1,
+  selectedBoulder,
+  playerBoulderData,
   maxAttempts = 20,
 }) {
-  const [attempt, setAttempt] = useState(currentAttempt);
+  const [attempt, setAttempt] = useState(1);
 
-  // Sync with Firebase-provided attempt
   useEffect(() => {
-    setAttempt(currentAttempt || 1);
-  }, [currentAttempt, playerId]);
+    const boulderAttempts =
+      playerBoulderData?.[side]?.[playerId]?.[selectedBoulder]?.attempts || 1;
+    setAttempt(boulderAttempts);
+  }, [playerBoulderData, playerId, selectedBoulder, side]);
 
   const handleChange = async (delta) => {
     const newAttempt = Math.min(Math.max(1, attempt + delta), maxAttempts);
     if (newAttempt !== attempt) {
       setAttempt(newAttempt);
-      await updatePlayerAttempt(matchId, side, playerId, newAttempt);
+      await updatePlayerAttempt(matchId, side, playerId, selectedBoulder, newAttempt);
     }
   };
 
   return (
     <div className="mt-6 flex flex-col items-center justify-center">
-      <h1 className="mb-6 text-lg font-semibold text-center">
-        Player Attempts
-      </h1>
-
+      <h1 className="mb-6 text-lg font-semibold text-center">Player Attempts</h1>
       <div className="flex gap-10 items-center">
-        {/* Left: Attempt "calendar" */}
+        {/* Attempt Calendar */}
         <div className="grid grid-cols-10 gap-3">
           {[...Array(maxAttempts)].map((_, i) => {
             const num = i + 1;
@@ -57,7 +56,7 @@ export default function AttemptButtons({
           })}
         </div>
 
-        {/* Right: Navigation buttons */}
+        {/* Navigation buttons */}
         <div className="flex gap-4">
           <button
             onClick={() => handleChange(-1)}

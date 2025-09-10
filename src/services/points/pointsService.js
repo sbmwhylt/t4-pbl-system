@@ -64,7 +64,6 @@ export async function setTeam(matchId, side, team) {
           name: p.name || "",
           jersey_number: p.jersey_number || "",
           points: 0,
-          attempt: 1,
         };
         return acc;
       }, {});
@@ -96,15 +95,6 @@ export async function adjustScore(matchId, side, delta) {
   await runTransaction(r, (current) => Math.max(0, (current || 0) + delta));
 }
 
-// ----------------------- Player Attempts
-
-export async function updatePlayerAttempt(matchId, side, playerId, attempt) {
-  const r = ref(
-    db,
-    `scoreboard/${matchId}/teams/${side}/players/${playerId}/attempt`
-  );
-  await set(r, attempt);
-}
 
 // ----------------------- Adjust Player Score
 

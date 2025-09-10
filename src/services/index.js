@@ -14,6 +14,9 @@ export * from "./matches/matchesService";
 export * from "./teams/teamService";
 export * from "./teams/teamCRUD";
 
+// Boulders
+export * from "./boulders/boulderService";
+
 // Players
 export * from "./players/playerService";
 export * from "./players/playerCRUD";
