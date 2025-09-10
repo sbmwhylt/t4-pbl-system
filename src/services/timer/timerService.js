@@ -60,10 +60,8 @@ export async function resumeTimer(matchId, controller = "panel") {
   const r = ref(db, `scoreboard/${matchId}/timer`);
   await runTransaction(r, (current) => {
     if (!current || current.running) return current;
-
     const now = Date.now();
     const remaining = current.remaining ?? current.duration ?? DEFAULT_DURATION;
-
     return {
       ...current,
       running: true,

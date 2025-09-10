@@ -22,7 +22,7 @@ export async function initPlayerBoulders(matchId, teamSide, playerId) {
   const snapshot = await get(playerBouldersRef(matchId, teamSide, playerId));
   if (!snapshot.exists()) {
     const data = {};
-    boulders.forEach((b) => (data[b] = { currentZone: "", attempts: 1, points: 0 }));
+    boulders.forEach((b) => (data[b] = { currentZone: "", attempts: 0, points: 0 }));
     await set(playerBouldersRef(matchId, teamSide, playerId), data);
   }
 }
@@ -77,7 +77,7 @@ export async function updateTeamScore(matchId, teamSide) {
 export async function updatePlayerAttempt(matchId, teamSide, playerId, boulder, newAttempt) {
   await runTransaction(playerBouldersRef(matchId, teamSide, playerId), (current) => {
     if (!current) return current;
-    const boulderData = current[boulder] || { currentZone: "", attempts: 1, points: 0 };
+    const boulderData = current[boulder] || { currentZone: "", attempts: 0, points: 0 };
     boulderData.attempts = newAttempt;
     current[boulder] = boulderData;
     return current;

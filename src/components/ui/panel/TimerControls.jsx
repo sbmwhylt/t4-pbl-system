@@ -17,7 +17,6 @@ export default function TimerControls({
   period,
   onPeriodChange,
 }) {
-  // ✅ keep both state + setter
   const [tick, setTick] = useState(0);
 
   const isRunning = timer?.running;

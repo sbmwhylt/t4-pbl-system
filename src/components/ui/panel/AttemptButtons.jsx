@@ -10,25 +10,31 @@ export default function AttemptButtons({
   playerBoulderData,
   maxAttempts = 20,
 }) {
-  const [attempt, setAttempt] = useState(1);
+  const [attempt, setAttempt] = useState(0); // internal starts at 0
 
   useEffect(() => {
     const boulderAttempts =
-      playerBoulderData?.[side]?.[playerId]?.[selectedBoulder]?.attempts || 1;
+      playerBoulderData?.[side]?.[playerId]?.[selectedBoulder]?.attempts || 0;
     setAttempt(boulderAttempts);
   }, [playerBoulderData, playerId, selectedBoulder, side]);
 
   const handleChange = async (delta) => {
-    const newAttempt = Math.min(Math.max(1, attempt + delta), maxAttempts);
+    let newAttempt = attempt + delta;
+    newAttempt = Math.min(Math.max(0, newAttempt), maxAttempts); // clamp 0..max
+
     if (newAttempt !== attempt) {
       setAttempt(newAttempt);
-      await updatePlayerAttempt(
-        matchId,
-        side,
-        playerId,
-        selectedBoulder,
-        newAttempt
-      );
+
+      // Only update if attempt > 0
+      if (newAttempt > 0) {
+        await updatePlayerAttempt(
+          matchId,
+          side,
+          playerId,
+          selectedBoulder,
+          newAttempt
+        );
+      }
     }
   };
 
@@ -38,7 +44,7 @@ export default function AttemptButtons({
         {/* Attempt Calendar */}
         <div className="grid grid-cols-15 gap-1">
           {[...Array(maxAttempts)].map((_, i) => {
-            const num = i + 1;
+            const num = i + 1; // display starts at 1
             const isActive = attempt === num;
             const isPast = num < attempt;
 
@@ -50,10 +56,9 @@ export default function AttemptButtons({
                     isActive
                       ? "bg-green-400 text-white"
                       : isPast
-                      ? " opacity-40"
+                      ? "opacity-40"
                       : ""
-                  }
-                `}
+                  }`}
               >
                 {num}
               </div>
@@ -63,13 +68,12 @@ export default function AttemptButtons({
 
         {/* Navigation buttons */}
         <div className="flex gap-3">
-          {/* Previous Attempt Button */}
           <button
             onClick={() => handleChange(-1)}
-            disabled={attempt <= 1}
+            disabled={attempt <= 0}
             className={`flex items-center justify-center w-12 h-12 rounded-full text-lg font-semibold transition-colors cursor-pointer
       ${
-        attempt <= 1
+        attempt <= 0
           ? "bg-gray-200 text-gray-400 cursor-not-allowed"
           : "bg-gray-300 text-gray-700 hover:bg-gray-400"
       }
@@ -78,7 +82,6 @@ export default function AttemptButtons({
             <ArrowLeft size={24} />
           </button>
 
-          {/* Next Attempt Button */}
           <button
             onClick={() => handleChange(1)}
             disabled={attempt >= maxAttempts}
