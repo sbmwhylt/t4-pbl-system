@@ -47,7 +47,6 @@ export async function setPlayerZone(matchId, teamSide, playerId, boulder, zone) 
     current[boulder] = boulderData;
     return current;
   });
-
   await updateTeamScore(matchId, teamSide);
 }
 
@@ -79,6 +78,18 @@ export async function updatePlayerAttempt(matchId, teamSide, playerId, boulder, 
     if (!current) return current;
     const boulderData = current[boulder] || { currentZone: "", attempts: 0, points: 0 };
     boulderData.attempts = newAttempt;
+    current[boulder] = boulderData;
+    return current;
+  });
+}
+
+// Reset only the zone for a specific boulder (keep attempts intact)
+export async function resetBoulderZone(matchId, teamSide, playerId, boulder) {
+  await runTransaction(playerBouldersRef(matchId, teamSide, playerId), (current) => {
+    if (!current) return current;
+    const boulderData = current[boulder] || { currentZone: "", attempts: 0, points: 0 };
+    boulderData.currentZone = "";
+    boulderData.points = 0; // Reset points since zone is cleared
     current[boulder] = boulderData;
     return current;
   });

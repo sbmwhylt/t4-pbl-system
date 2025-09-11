@@ -6,6 +6,7 @@ export default function ZoneSelection({
   selectedBoulder,
   playerBoulderData,
   onZoneClick,
+  onZoneReset, // Add this prop for reset functionality
 }) {
   if (!playerId) return null;
 
@@ -13,6 +14,7 @@ export default function ZoneSelection({
   const boulderData =
     playerBoulderData?.[teamSide]?.[playerId]?.[selectedBoulder] || {};
   const currentZoneIndex = zones.indexOf(boulderData.currentZone);
+  const hasZoneSelected = boulderData.currentZone && boulderData.currentZone !== "";
 
   return (
     <div className="flex flex-col items-center mt-4 w-full">
@@ -37,6 +39,17 @@ export default function ZoneSelection({
             </button>
           );
         })}
+        
+        {/* Reset Button */}
+        {hasZoneSelected && (
+          <button
+            onClick={() => onZoneReset(teamSide, playerId)}
+            className="px-4 py-2 bg-red-500 text-white rounded font-medium hover:bg-red-600 transition-colors cursor-pointer"
+            title="Reset zone selection"
+          >
+            Reset
+          </button>
+        )}
       </div>
     </div>
   );

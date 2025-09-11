@@ -25,14 +25,15 @@ import {
   updatePeriod,
   boulders,
   initPlayerBoulders,
-  resetBoulder,
+  resetBoulderZone,
   setPlayerZone,
   getPlayerBoulders,
 } from "@/services";
 
 export default function ScorerPage() {
   useEffect(() => {
-    document.title = "Score Panel - " + (side === "left" ? "Left Team" : "Right Team");
+    document.title =
+      "Score Panel - " + (side === "left" ? "Left Team" : "Right Team");
   }, []);
 
   const { matchId = "demo", side = "left" } = useParams();
@@ -73,6 +74,7 @@ export default function ScorerPage() {
     initBoulders();
   }, [state]);
 
+  // Load player boulder data
   const loadPlayerBoulderData = async () => {
     const data = { left: {}, right: {} };
     for (let teamSide of ["left", "right"]) {
@@ -88,19 +90,22 @@ export default function ScorerPage() {
     setPlayerBoulderData(data);
   };
 
+  // Handle boulder change
   const handleBoulderChange = async (boulder) => {
     setSelectedBoulder(boulder);
-    for (let teamSide of ["left", "right"]) {
-      const teamPlayers = state?.teams?.[teamSide]?.players || {};
-      for (let playerId in teamPlayers) {
-        await resetBoulder(matchId, teamSide, playerId, boulder);
-      }
-    }
+    await loadPlayerBoulderData(); // Just load the data for the new boulder
+  };
+
+  // Handle zone click
+  const handleZoneClick = async (teamSide, playerId, zone) => {
+    await setPlayerZone(matchId, teamSide, playerId, selectedBoulder, zone);
     await loadPlayerBoulderData();
   };
 
-  const handleZoneClick = async (teamSide, playerId, zone) => {
-    await setPlayerZone(matchId, teamSide, playerId, selectedBoulder, zone);
+  // Handle zone reset
+  const handleZoneReset = async (teamSide, playerId) => {
+    await resetBoulderZone(matchId, teamSide, playerId, selectedBoulder);
+    await updateTeamScore(matchId, teamSide);
     await loadPlayerBoulderData();
   };
 
@@ -220,6 +225,7 @@ export default function ScorerPage() {
             selectedBoulder={selectedBoulder}
             playerBoulderData={playerBoulderData}
             onZoneClick={handleZoneClick}
+            onZoneReset={handleZoneReset} // Add this prop
           />
         )}
 
