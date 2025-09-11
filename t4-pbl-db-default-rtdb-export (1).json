@@ -1,0 +1,759 @@
+{
+  "scoreboard": {
+    "demo": {
+      "period": "1ST",
+      "teams": {
+        "left": {
+          "id": "T1",
+          "name": "Donx",
+          "players": {
+            "P013": {
+              "attempt": 1,
+              "jersey_number": "99",
+              "name": "Ross",
+              "points": 0
+            },
+            "P014": {
+              "attempt": 1,
+              "jersey_number": "7",
+              "name": "F. Eather",
+              "points": 0
+            },
+            "P015": {
+              "attempt": 1,
+              "jersey_number": "49",
+              "name": "Smith",
+              "points": 0
+            },
+            "P020": {
+              "attempt": 1,
+              "jersey_number": "33",
+              "name": "Cann",
+              "points": 0
+            },
+            "P021": {
+              "attempt": 1,
+              "jersey_number": "17",
+              "name": "Murray",
+              "points": 0
+            }
+          },
+          "score": 0
+        },
+        "right": {
+          "id": "T2",
+          "name": "Honey Badgers",
+          "players": {
+            "P005": {
+              "attempt": 1,
+              "jersey_number": "24",
+              "name": "S. Axon",
+              "points": 0
+            },
+            "P006": {
+              "attempt": 1,
+              "jersey_number": "20",
+              "name": "E. Axon",
+              "points": 0
+            },
+            "P007": {
+              "attempt": 1,
+              "jersey_number": "2",
+              "name": "A. Eather",
+              "points": 0
+            },
+            "P008": {
+              "attempt": 1,
+              "jersey_number": "8",
+              "name": "McNee",
+              "points": 0
+            },
+            "P009": {
+              "attempt": 1,
+              "jersey_number": "4",
+              "name": "Cumberland",
+              "points": 0
+            }
+          },
+          "score": 0
+        }
+      },
+      "timer": {
+        "duration": 450,
+        "remaining": 450,
+        "running": false
+      }
+    }
+  },
+  "t4_bouldering": {
+    "boulders": {
+      "B1": {
+        "flash_bonus": 2,
+        "name": "A",
+        "points_top": 2,
+        "points_top_attempt_2": 1,
+        "points_zone_1": 1,
+        "points_zone_2": 1
+      },
+      "B2": {
+        "flash_bonus": 2,
+        "name": "B",
+        "points_top": 2,
+        "points_top_attempt_2": 1,
+        "points_zone_1": 1,
+        "points_zone_2": 1
+      },
+      "B3": {
+        "flash_bonus": 2,
+        "name": "C",
+        "points_top": 2,
+        "points_top_attempt_2": 1,
+        "points_zone_1": 1,
+        "points_zone_2": 1
+      },
+      "B4": {
+        "flash_bonus": 2,
+        "name": "D",
+        "points_top": 2,
+        "points_top_attempt_2": "1",
+        "points_zone_1": 1,
+        "points_zone_2": 1
+      }
+    },
+    "live_status": {
+      "M001081925": {
+        "clock": "07:30",
+        "clock_running": false,
+        "on_boulders": {
+          "T1": {
+            "attempts": 0,
+            "boulder_id": "",
+            "player_id": "",
+            "points": 0
+          },
+          "T2": {
+            "attempts": 0,
+            "boulder_id": "",
+            "player_id": "",
+            "points": 0
+          },
+          "undefined": {
+            "P1": {
+              "current_player": "Murray",
+              "jersey": 17,
+              "period": "1ST",
+              "player_id": "P1",
+              "time_remaining": 450
+            },
+            "P4": {
+              "current_player": "James",
+              "jersey": 10,
+              "period": "1ST",
+              "player_id": "P4",
+              "time_remaining": 450
+            }
+          }
+        },
+        "period": "1ST"
+      },
+      "M002081925": {
+        "clock": "07:30",
+        "clock_running": false,
+        "on_boulders": {
+          "T2": {
+            "attempts": 0,
+            "boulder_id": "",
+            "player_id": "",
+            "points": 0
+          },
+          "T3": {
+            "attempts": 0,
+            "boulder_id": "",
+            "player_id": "",
+            "points": 0
+          },
+          "undefined": {
+            "P3": {
+              "current_player": "Jones",
+              "jersey": 8,
+              "period": "1ST",
+              "player_id": "P3",
+              "time_remaining": 444
+            }
+          }
+        },
+        "period": "1ST",
+        "time_remaining": 368
+      },
+      "M021082325": {
+        "clock": "07:30",
+        "clock_running": false,
+        "on_boulders": {
+          "T2": {
+            "attempts": 0,
+            "boulder_id": "",
+            "player_id": "",
+            "points": 0
+          },
+          "T3": {
+            "attempts": 0,
+            "boulder_id": "",
+            "player_id": "",
+            "points": 0
+          },
+          "undefined": {
+            "P011": {
+              "current_player": "French",
+              "jersey": "123",
+              "period": "1ST",
+              "player_id": "P011",
+              "time_remaining": 450
+            },
+            "P012": {
+              "current_player": "Hope",
+              "jersey": "45",
+              "period": "1ST",
+              "player_id": "P012",
+              "time_remaining": 450
+            }
+          }
+        },
+        "period": "1ST"
+      },
+      "M031082325": {
+        "clock": "07:30",
+        "clock_running": false,
+        "on_boulders": {
+          "T2": {
+            "attempts": 0,
+            "boulder_id": "",
+            "player_id": "",
+            "points": 0
+          },
+          "T3": {
+            "attempts": 0,
+            "boulder_id": "",
+            "player_id": "",
+            "points": 0
+          }
+        },
+        "period": "1ST"
+      },
+      "M041082825": {
+        "clock": "07:30",
+        "on_boulders": {
+          "T1": {
+            "attempts": 0,
+            "boulder_id": "",
+            "player_id": "",
+            "points": 0
+          },
+          "T2": {
+            "attempts": 0,
+            "boulder_id": "",
+            "player_id": "",
+            "points": 0
+          },
+          "undefined": {
+            "P013": {
+              "current_player": "Cole",
+              "jersey": "45",
+              "period": "1ST",
+              "player_id": "P013",
+              "time_remaining": 450
+            },
+            "P014": {
+              "current_player": "Peters",
+              "jersey": "44",
+              "period": "1ST",
+              "player_id": "P014",
+              "time_remaining": 450
+            },
+            "P015": {
+              "current_player": "Anie",
+              "jersey": "12",
+              "period": "1ST",
+              "player_id": "P015",
+              "time_remaining": 450
+            },
+            "attempts": 10,
+            "boulder_id": "D",
+            "period": "1ST",
+            "points": "Top",
+            "time_remaining": 450
+          }
+        },
+        "period": "1ST"
+      }
+    },
+    "matches": {
+      "M001": {
+        "id": "M001",
+        "period": "4TH",
+        "saved_at": "1757026900736",
+        "start_time": 1757026900736,
+        "status": "finished",
+        "teams": {
+          "left": {
+            "current_player": "Cowell",
+            "id": "T3",
+            "jersey": "4",
+            "name": "Hornets",
+            "players": {
+              "P011": {
+                "attempt": 6,
+                "jersey_number": "7",
+                "name": "French",
+                "points": 40
+              },
+              "P012": {
+                "attempt": 1,
+                "jersey_number": "22",
+                "name": "Hope",
+                "points": 0
+              },
+              "P016": {
+                "attempt": 8,
+                "jersey_number": "4",
+                "name": "Cowell",
+                "points": 16
+              },
+              "P017": {
+                "attempt": 6,
+                "jersey_number": "81",
+                "name": "MacAlpine",
+                "points": 14
+              },
+              "P018": {
+                "attempt": 5,
+                "jersey_number": "17",
+                "name": "Lane",
+                "points": 14
+              }
+            },
+            "score": 84
+          },
+          "right": {
+            "current_player": "Smith",
+            "id": "T1",
+            "jersey": "49",
+            "name": "Donx",
+            "players": {
+              "P013": {
+                "attempt": 4,
+                "jersey_number": "99",
+                "name": "Ross",
+                "points": 12
+              },
+              "P014": {
+                "attempt": 3,
+                "jersey_number": "7",
+                "name": "F. Eather",
+                "points": 8
+              },
+              "P015": {
+                "attempt": 4,
+                "jersey_number": "49",
+                "name": "Smith",
+                "points": 12
+              },
+              "P020": {
+                "attempt": 4,
+                "jersey_number": "33",
+                "name": "Cann",
+                "points": 8
+              },
+              "P021": {
+                "attempt": 4,
+                "jersey_number": "17",
+                "name": "Murray",
+                "points": 10
+              }
+            },
+            "score": 50
+          }
+        },
+        "timer": {
+          "duration": 450,
+          "remaining": 450,
+          "running": false
+        }
+      },
+      "M002": {
+        "id": "M002",
+        "period": "1ST",
+        "saved_at": "1757287797556",
+        "start_time": 1757287797556,
+        "status": "finished",
+        "teams": {
+          "left": {
+            "id": "T3",
+            "name": "Hornets",
+            "players": {
+              "P011": {
+                "attempt": 1,
+                "jersey_number": "7",
+                "name": "French",
+                "points": 0
+              },
+              "P012": {
+                "attempt": 1,
+                "jersey_number": "22",
+                "name": "Hope",
+                "points": 0
+              },
+              "P016": {
+                "attempt": 1,
+                "jersey_number": "4",
+                "name": "Cowell",
+                "points": 0
+              },
+              "P017": {
+                "attempt": 1,
+                "jersey_number": "81",
+                "name": "MacAlpine",
+                "points": 0
+              },
+              "P018": {
+                "attempt": 1,
+                "jersey_number": "17",
+                "name": "Lane",
+                "points": 0
+              }
+            },
+            "score": 0
+          },
+          "right": {
+            "current_player": "A. Eather",
+            "id": "T2",
+            "jersey": "2",
+            "name": "Honey Badgers",
+            "players": {
+              "P005": {
+                "attempt": 1,
+                "jersey_number": "24",
+                "name": "S. Axon",
+                "points": 14
+              },
+              "P006": {
+                "attempt": 2,
+                "jersey_number": "20",
+                "name": "E. Axon",
+                "points": 9
+              },
+              "P007": {
+                "attempt": 5,
+                "jersey_number": "2",
+                "name": "A. Eather",
+                "points": 13
+              },
+              "P008": {
+                "attempt": 1,
+                "jersey_number": "8",
+                "name": "McNee",
+                "points": 0
+              },
+              "P009": {
+                "attempt": 1,
+                "jersey_number": "4",
+                "name": "Cumberland",
+                "points": 0
+              }
+            },
+            "score": 36
+          }
+        },
+        "timer": {
+          "controller": "panel",
+          "duration": 450,
+          "lastAction": 1757287766819,
+          "remaining": 450,
+          "running": false
+        }
+      },
+      "M003": {
+        "id": "M003",
+        "period": "1ST",
+        "saved_at": "1757395911696",
+        "start_time": 1757395911696,
+        "status": "finished",
+        "teams": {
+          "left": {
+            "current_player": "Ross",
+            "id": "T1",
+            "jersey": "99",
+            "name": "Donx",
+            "players": {
+              "P013": {
+                "attempt": 2,
+                "jersey_number": "99",
+                "name": "Ross",
+                "points": 10
+              },
+              "P014": {
+                "attempt": 1,
+                "jersey_number": "7",
+                "name": "F. Eather",
+                "points": 0
+              },
+              "P015": {
+                "attempt": 1,
+                "jersey_number": "49",
+                "name": "Smith",
+                "points": 0
+              },
+              "P020": {
+                "attempt": 1,
+                "jersey_number": "33",
+                "name": "Cann",
+                "points": 0
+              },
+              "P021": {
+                "attempt": 1,
+                "jersey_number": "17",
+                "name": "Murray",
+                "points": 0
+              }
+            },
+            "score": 10
+          },
+          "right": {
+            "current_player": "S. Axon",
+            "id": "T2",
+            "jersey": "24",
+            "name": "Honey Badgers",
+            "players": {
+              "P005": {
+                "attempt": 4,
+                "jersey_number": "24",
+                "name": "S. Axon",
+                "points": 12
+              },
+              "P006": {
+                "attempt": 1,
+                "jersey_number": "20",
+                "name": "E. Axon",
+                "points": 0
+              },
+              "P007": {
+                "attempt": 1,
+                "jersey_number": "2",
+                "name": "A. Eather",
+                "points": 0
+              },
+              "P008": {
+                "attempt": 1,
+                "jersey_number": "8",
+                "name": "McNee",
+                "points": 0
+              },
+              "P009": {
+                "attempt": 1,
+                "jersey_number": "4",
+                "name": "Cumberland",
+                "points": 0
+              }
+            },
+            "score": 13
+          }
+        },
+        "timer": {
+          "duration": 450,
+          "remaining": 450,
+          "running": false
+        }
+      },
+      "M01083025": {
+        "id": "M01083025",
+        "period": "4TH",
+        "saved_at": "1756541534011",
+        "start_time": 1756541534011,
+        "status": "finished",
+        "teams": {
+          "left": {
+            "current_player": "Hope",
+            "id": "T3",
+            "jersey": "22",
+            "name": "Hornets",
+            "score": 46
+          },
+          "right": {
+            "current_player": "Ross",
+            "id": "T1",
+            "jersey": "99",
+            "name": "Donx",
+            "score": 70
+          }
+        },
+        "timer": {
+          "controller": "panel",
+          "duration": 450,
+          "remaining": 0,
+          "running": false
+        }
+      },
+      "M04082325": {
+        "id": "M04082325",
+        "period": "4TH",
+        "saved_at": "1755936503558",
+        "start_time": 1755936503558,
+        "status": "finished",
+        "teams": {
+          "left": {
+            "current_player": "Cowell",
+            "id": "T3",
+            "jersey": "1",
+            "name": "Hornets",
+            "score": 47
+          },
+          "right": {
+            "current_player": "McNee",
+            "id": "T2",
+            "jersey": "8",
+            "name": "Honey Badgers",
+            "score": 62
+          }
+        },
+        "timer": {
+          "controller": "panel",
+          "duration": 450,
+          "remaining": 0,
+          "running": false
+        }
+      }
+    },
+    "players": {
+      "P005": {
+        "jersey_number": "24",
+        "name": "S. Axon",
+        "status": "active",
+        "team_id": "T2"
+      },
+      "P006": {
+        "jersey_number": "20",
+        "name": "E. Axon",
+        "status": "active",
+        "team_id": "T2"
+      },
+      "P007": {
+        "jersey_number": "2",
+        "name": "A. Eather",
+        "status": "active",
+        "team_id": "T2"
+      },
+      "P008": {
+        "jersey_number": "8",
+        "name": "McNee",
+        "status": "active",
+        "team_id": "T2"
+      },
+      "P009": {
+        "jersey_number": "4",
+        "name": "Cumberland",
+        "status": "active",
+        "team_id": "T2"
+      },
+      "P010": {
+        "jersey_number": "12",
+        "name": "test",
+        "status": "inactive",
+        "team_id": "T2"
+      },
+      "P011": {
+        "jersey_number": "7",
+        "name": "French",
+        "status": "active",
+        "team_id": "T3"
+      },
+      "P012": {
+        "jersey_number": "22",
+        "name": "Hope",
+        "status": "active",
+        "team_id": "T3"
+      },
+      "P013": {
+        "jersey_number": "99",
+        "name": "Ross",
+        "status": "active",
+        "team_id": "T1"
+      },
+      "P014": {
+        "jersey_number": "7",
+        "name": "F. Eather",
+        "status": "active",
+        "team_id": "T1"
+      },
+      "P015": {
+        "jersey_number": "49",
+        "name": "Smith",
+        "status": "active",
+        "team_id": "T1"
+      },
+      "P016": {
+        "jersey_number": "4",
+        "name": "Cowell",
+        "status": "active",
+        "team_id": "T3"
+      },
+      "P017": {
+        "jersey_number": "81",
+        "name": "MacAlpine",
+        "status": "active",
+        "team_id": "T3"
+      },
+      "P018": {
+        "jersey_number": "17",
+        "name": "Lane",
+        "status": "active",
+        "team_id": "T3"
+      },
+      "P019": {
+        "jersey_number": "77",
+        "name": "Wellings",
+        "status": "inactive",
+        "team_id": "T3"
+      },
+      "P020": {
+        "jersey_number": "33",
+        "name": "Cann",
+        "status": "active",
+        "team_id": "T1"
+      },
+      "P021": {
+        "jersey_number": "17",
+        "name": "Murray",
+        "status": "active",
+        "team_id": "T1"
+      }
+    },
+    "teams": {
+      "T1": {
+        "abbreviation": "DNX",
+        "logo_url": "https://i.imgur.com/GNwkWh4.png",
+        "name": "Donx"
+      },
+      "T2": {
+        "abbreviation": "BGR",
+        "logo_url": "https://i.imgur.com/yplPbd1.png",
+        "name": "Honey Badgers"
+      },
+      "T3": {
+        "abbreviation": "HTS",
+        "logo_url": "https://i.imgur.com/IJ0eFQ2.png",
+        "name": "Hornets"
+      }
+    },
+    "users": {
+      "2yGxM1K8PrMWbS9wk30Z71XNLLl1": {
+        "email": "scorer1@t4pbl.com",
+        "fullname": "Scorer 1",
+        "role": "admin"
+      },
+      "fc8D7904zOOoXKF6xq4QbG02kAe2": {
+        "email": "admin@t4pbl.com",
+        "fullname": "Ashley Watt",
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -12,6 +12,8 @@ import Panel from "@/pages/Admin/Panel";
 import Live from "@/pages/Live";
 import Score from "@/pages/ScorePage";
 import User from "@/pages/Admin/Users";
+import ScorerPage from "@/pages/Admin/ScorerPage";
+import SelectionPage from "@/pages/Admin/SelectionPage";
 import useAutoLogout from "@/hooks/useAutoLogout";
 
 function App() {
@@ -76,6 +78,24 @@ function App() {
           element={
             <PrivateRoute>
               <Panel />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/scorer/:matchId/:side"
+          element={
+            <PrivateRoute>
+              <ScorerPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/scorer/demo"
+          element={
+            <PrivateRoute>
+              <SelectionPage />
             </PrivateRoute>
           }
         />

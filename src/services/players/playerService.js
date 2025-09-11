@@ -1,11 +1,16 @@
-import { db } from "@/firebase";
-import { ref, onValue} from "firebase/database";
+import { db } from "../../firebase";
+import { ref, onValue } from "firebase/database";
 
-// Subscribe to player changes
+// ----------------- Player reference
+
+function playersRef() {
+  return ref(db, "t4_bouldering/players");
+}
+
+// ----------------- Subscribe to Player Updates
 
 export function subscribePlayers(callback) {
-  const playersRef = ref(db, "t4_bouldering/players");
-  return onValue(playersRef, (snap) => {
+  return onValue(playersRef(), (snap) => {
     const val = snap.val() || {};
     const list = Object.entries(val).map(([id, p]) => ({
       id,

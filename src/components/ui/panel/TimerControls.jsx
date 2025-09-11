@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Play,
   Pause,
@@ -5,17 +6,50 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { timerService } from "@/services";
 
 const PERIODS = ["1ST", "2ND", "3RD", "4TH"];
 
 export default function TimerControls({
+  matchId,
   timer,
   onStart,
   onPause,
+  onResume,
   onReset,
   period,
   onPeriodChange,
+  panelSide = "left", // 'left' or 'right'
 }) {
+  const [tick, setTick] = useState(0);
+  const [localTimer, setLocalTimer] = useState(timer);
+
+  // Sync with external timer changes
+  useEffect(() => {
+    setLocalTimer(timer);
+  }, [timer]);
+
+  const isRunning = localTimer?.running;
+  const isController = localTimer?.lastController === panelSide;
+
+  // Force re-render every second while running
+  useEffect(() => {
+    if (!isRunning) return;
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, [isRunning, localTimer?.endTime]);
+
+  const getRemaining = () => {
+    if (!localTimer) return 0;
+    if (localTimer.running && localTimer.endTime) {
+      return Math.max(0, Math.floor((localTimer.endTime - Date.now()) / 1000));
+    }
+    return localTimer.remaining ?? localTimer.duration ?? 0;
+  };
+
+  const remaining = getRemaining();
+  const isFinished = remaining <= 0;
+
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60)
       .toString()
@@ -24,12 +58,40 @@ export default function TimerControls({
     return `${m}:${s}`;
   };
 
-  const baseBtn =
-    "px-3 py-3 rounded-full text-white transition-colors hover:opacity-90 cursor-pointer";
+  // Timer control handlers
+  const handleStart = async () => {
+    if (onStart) {
+      onStart(panelSide);
+    } else {
+      await timerService.startTimer(matchId, localTimer?.duration, panelSide);
+    }
+  };
 
-  const isRunning = timer?.running;
-  const isFinished = (timer?.remaining || 0) <= 0;
+  const handlePause = async () => {
+    if (onPause) {
+      onPause(panelSide);
+    } else {
+      await timerService.pauseTimer(matchId, panelSide);
+    }
+  };
 
+  const handleResume = async () => {
+    if (onResume) {
+      onResume(panelSide);
+    } else {
+      await timerService.resumeTimer(matchId, panelSide);
+    }
+  };
+
+  const handleReset = async () => {
+    if (onReset) {
+      onReset(panelSide);
+    } else {
+      await timerService.resetTimer(matchId, localTimer?.duration, panelSide);
+    }
+  };
+
+  // Period Controls
   const currentPeriodIndex =
     PERIODS.indexOf(period) >= 0 ? PERIODS.indexOf(period) : 0;
 
@@ -45,32 +107,32 @@ export default function TimerControls({
     }
   };
 
+  const baseBtn =
+    "px-3 py-3 rounded-full text-white transition-colors hover:opacity-90 cursor-pointer";
+
   return (
-    <div className="bg-gray-100 border border-gray-300 rounded-xl p-6 flex flex-col gap-6">
+    <div className="p-4 bg-gray-50 rounded-lg">
+      {/* Controller Indicator */}
+      <div className="text-sm text-center mb-2 font-medium">
+        {isController ? (
+          <span className="text-green-600">● Controlling</span>
+        ) : (
+          <span className="text-gray-500">● Viewing</span>
+        )}
+      </div>
+
       {/* Timer + Status */}
       <div className="flex justify-between items-center">
+        {/* Timer */}
         <div className="flex flex-col items-start">
-          <div className="text-6xl font-bold tabular-nums p-3">
-            {formatTime(timer?.remaining || 0)}
-          </div>
-          <div className="flex items-center gap-2 ml-3">
-            <span
-              className={`w-3 h-3 rounded-full ${
-                isFinished
-                  ? "bg-red-500"
-                  : isRunning
-                  ? "bg-green-500"
-                  : "bg-gray-400"
-              }`}
-            ></span>
-            <span className="text-sm font-medium text-gray-700">
-              {isFinished ? "Finished" : isRunning ? "Playing" : "Paused"}
-            </span>
+          <div className="flex items-center gap-2 ml-4"></div>
+          <div className="text-5xl font-bold ">
+            {formatTime(remaining)}
           </div>
         </div>
 
         {/* Period Controls */}
-        <div className="flex justify-center items-center gap-5 bg-white rounded-full p-2">
+        <div className="flex justify-center items-center gap-5 bg-gray-100 rounded-full p-2">
           <button
             onClick={prevPeriod}
             disabled={currentPeriodIndex === 0}
@@ -92,29 +154,28 @@ export default function TimerControls({
 
         {/* Timer Controls */}
         <div className="flex justify-center gap-3">
-          <button
-            onClick={onStart}
-            disabled={isRunning || isFinished}
-            className={`${baseBtn} ${
-              isRunning || isFinished
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green-500"
-            }`}
-          >
-            <Play />
-          </button>
-          <button
-            onClick={onPause}
-            disabled={!isRunning || isFinished}
-            className={`${baseBtn} ${
-              !isRunning || isFinished
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-yellow-500"
-            }`}
-          >
-            <Pause />
-          </button>
-          <button onClick={onReset} className={`${baseBtn} bg-red-600`}>
+          {isRunning ? (
+            <button
+              onClick={handlePause}
+              disabled={isFinished}
+              className={`${baseBtn} ${
+                isFinished ? "bg-gray-400 cursor-not-allowed" : "bg-yellow-500"
+              }`}
+            >
+              <Pause />
+            </button>
+          ) : (
+            <button
+              onClick={isFinished ? handleReset : handleResume}
+              disabled={isFinished && !isController}
+              className={`${baseBtn} ${
+                isFinished ? "bg-gray-400 cursor-not-allowed" : "bg-green-500"
+              }`}
+            >
+              <Play />
+            </button>
+          )}
+          <button onClick={handleReset} className={`${baseBtn} bg-red-600`}>
             <TimerReset />
           </button>
         </div>

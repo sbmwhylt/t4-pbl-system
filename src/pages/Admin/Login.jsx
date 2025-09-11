@@ -33,6 +33,7 @@ export default function Login() {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/admin/dashboard");
       toast.success("Logged in successfully!");
+      // console.log("Logged in user:", auth.currentUser);
     } catch (err) {
       toast.error("Invalid Credentials, please try again.");
     }
@@ -71,13 +72,14 @@ export default function Login() {
             className="border rounded-full px-3 py-3 border-gray-300 focus:border-purple-500 focus:ring-purple-500 outline-none"
           />
 
-          <div>
-
-          </div>
-          <a href="" className="flex justify-end border-gray-300 text-sm text-gray-600 hover:text-gray-800">forgot password?</a>
+          <div></div>
+          <a
+            href=""
+            className="flex justify-end border-gray-300 text-sm text-gray-600 hover:text-gray-800"
+          >
+            forgot password?
+          </a>
         </div>
-
-      
 
         <Button
           type="submit"

@@ -40,12 +40,11 @@ export default function Boulders() {
         <Table
           columns={[
             { header: "ID", accessor: "id" },
-            { header: "Name", accessor: "name" },
-            { header: "Points Zone 1", accessor: "points_zone_1" },
-            { header: "Points Zone 2", accessor: "points_zone_2" },
-            { header: "Points Top", accessor: "points_top" },
-            { header: "Points Top Attempt 2", accessor: "points_top_attempt_2" },
-            { header: "Flash Bonus", accessor: "flash_bonus" },
+            { header: "Points Zone 1", accessor: "Z1" },
+            { header: "Points Zone 2", accessor: "Z2" },
+            { header: "Points Top", accessor: "TOP" },
+            { header: "Points Top Attempt 2", accessor: "TOP2" },
+            { header: "Flash Bonus", accessor: "FLASH" },
           ]}
           data={boulders}
         />
