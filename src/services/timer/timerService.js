@@ -1,11 +1,15 @@
 import { db } from "@/firebase";
-import { ref, update, runTransaction } from "firebase/database";
+import { ref, update, runTransaction, onValue } from "firebase/database";
 import { DEFAULT_DURATION } from "@/services/constant";
 
 // ------------------------------ Timer References
 
 function scoreboardRef(matchId) {
   return ref(db, `scoreboard/${matchId}`);
+}
+
+function timerRef(matchId) {
+  return ref(db, `scoreboard/${matchId}/timer`);
 }
 
 // ------------------------------ Timer Updates
@@ -33,15 +37,28 @@ export async function startTimer(
     endTime: now + duration * 1000,
     remaining: duration,
     lastAction: now,
+    lastController: controller,
   });
 }
 
 export async function pauseTimer(matchId, controller = "panel") {
-  const r = ref(db, `scoreboard/${matchId}/timer`);
+  const r = timerRef(matchId);
   await runTransaction(r, (current) => {
-    if (!current || !current.running) return current;
-
+    if (!current) return current;
+    
     const now = Date.now();
+    
+    // If already paused, just update the controller
+    if (!current.running) {
+      return {
+        ...current,
+        controller,
+        lastController: controller,
+        lastAction: now,
+      };
+    }
+
+    // Calculate remaining time and pause
     const endTime = current.endTime ?? now;
     const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
 
@@ -50,24 +67,40 @@ export async function pauseTimer(matchId, controller = "panel") {
       running: false,
       controller,
       remaining,
-      endTime: null, // clear ticking reference
+      endTime: null,
       lastAction: now,
+      lastController: controller,
     };
   });
 }
 
 export async function resumeTimer(matchId, controller = "panel") {
-  const r = ref(db, `scoreboard/${matchId}/timer`);
+  const r = timerRef(matchId);
   await runTransaction(r, (current) => {
-    if (!current || current.running) return current;
+    if (!current) return current;
+    
+    // If already running, just update the controller
+    if (current.running) {
+      const now = Date.now();
+      return {
+        ...current,
+        controller,
+        lastController: controller,
+        lastAction: now,
+      };
+    }
+
     const now = Date.now();
     const remaining = current.remaining ?? current.duration ?? DEFAULT_DURATION;
+    
     return {
       ...current,
       running: true,
       controller,
       endTime: now + remaining * 1000,
+      remaining: remaining,
       lastAction: now,
+      lastController: controller,
     };
   });
 }
@@ -85,6 +118,17 @@ export async function resetTimer(
     controller,
     endTime: null,
     lastAction: now,
+    lastController: controller,
+  });
+}
+
+// ------------------------------ Real-time Listener
+
+export function subscribeToTimer(matchId, callback) {
+  const timerRef = ref(db, `scoreboard/${matchId}/timer`);
+  return onValue(timerRef, (snapshot) => {
+    const timerData = snapshot.val();
+    callback(timerData);
   });
 }
 
@@ -106,4 +150,5 @@ export const timerService = {
   resumeTimer,
   resetTimer,
   getRemaining,
+  subscribeToTimer,
 };

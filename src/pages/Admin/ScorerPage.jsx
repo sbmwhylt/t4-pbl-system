@@ -21,6 +21,7 @@ import {
   finishMatch,
   startTimer,
   pauseTimer,
+  resumeTimer,
   resetTimer,
   updatePeriod,
   boulders,
@@ -28,14 +29,10 @@ import {
   resetBoulderZone,
   setPlayerZone,
   getPlayerBoulders,
+  timerService, // Import the timer service
 } from "@/services";
 
 export default function ScorerPage() {
-  useEffect(() => {
-    document.title =
-      "Score Panel - " + (side === "left" ? "Left Team" : "Right Team");
-  }, []);
-
   const { matchId = "demo", side = "left" } = useParams();
   const navigate = useNavigate();
 
@@ -45,6 +42,11 @@ export default function ScorerPage() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [selectedBoulder, setSelectedBoulder] = useState("A");
   const [playerBoulderData, setPlayerBoulderData] = useState({});
+
+  useEffect(() => {
+    document.title =
+      "Score Panel - " + (side === "left" ? "Left Team" : "Right Team");
+  }, [side]);
 
   // Subscriptions
   useEffect(() => subscribeScoreboard(matchId, setState), [matchId]);
@@ -93,7 +95,7 @@ export default function ScorerPage() {
   // Handle boulder change
   const handleBoulderChange = async (boulder) => {
     setSelectedBoulder(boulder);
-    await loadPlayerBoulderData(); // Just load the data for the new boulder
+    await loadPlayerBoulderData();
   };
 
   // Handle zone click
@@ -107,6 +109,23 @@ export default function ScorerPage() {
     await resetBoulderZone(matchId, teamSide, playerId, selectedBoulder);
     await updateTeamScore(matchId, teamSide);
     await loadPlayerBoulderData();
+  };
+
+  // Timer control handlers
+  const handleStartTimer = async () => {
+    await timerService.startTimer(matchId, state?.timer?.duration, side);
+  };
+
+  const handlePauseTimer = async () => {
+    await timerService.pauseTimer(matchId, side);
+  };
+
+  const handleResumeTimer = async () => {
+    await timerService.resumeTimer(matchId, side);
+  };
+
+  const handleResetTimer = async () => {
+    await timerService.resetTimer(matchId, state?.timer?.duration, side);
   };
 
   if (!state) return <div className="p-6">Loading…</div>;
@@ -159,13 +178,17 @@ export default function ScorerPage() {
       {/* Timer */}
       <div className="mt-6">
         <TimerControls
+          matchId={matchId}
           timer={state.timer}
           period={state.period}
-          onStart={() => startTimer(matchId)}
-          onPause={() => pauseTimer(matchId)}
-          onReset={() => resetTimer(matchId)}
+          onStart={handleStartTimer}
+          onPause={handlePauseTimer}
+          onResume={handleResumeTimer}
+          onReset={handleResetTimer}
           onPeriodChange={(p) => updatePeriod(matchId, p)}
+          panelSide={side}
         />
+        
         {/* Boulder Selection */}
         <div className="flex items-center justify-between gap-1 mt-10 px-3">
           <div className="flex gap-2 items-center ">
@@ -225,7 +248,7 @@ export default function ScorerPage() {
             selectedBoulder={selectedBoulder}
             playerBoulderData={playerBoulderData}
             onZoneClick={handleZoneClick}
-            onZoneReset={handleZoneReset} // Add this prop
+            onZoneReset={handleZoneReset}
           />
         )}
 
