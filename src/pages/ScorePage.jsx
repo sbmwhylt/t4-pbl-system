@@ -91,8 +91,8 @@ export default function ScorePage() {
 
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
 
-  // Function to calculate player stats
-  const getPlayerStats = (teamSide) => {
+  // Function to get player boulder data
+  const getPlayerBoulderData = (teamSide) => {
     const players = state.teams?.[teamSide]?.players || {};
     const currentPlayerName = state.teams?.[teamSide]?.current_player;
 
@@ -102,33 +102,17 @@ export default function ScorePage() {
     const player = Object.values(players).find(
       (p) => p.name === currentPlayerName
     );
+
     if (!player || !player.boulders) return null;
 
-    const boulders = player.boulders;
-    let totalAttempts = 0;
-    let totalPoints = 0;
-    let currentZone = "";
-
-    // Calculate totals and find the highest zone achieved
-    Object.values(boulders).forEach((boulder) => {
-      totalAttempts += boulder.attempts || 0;
-      totalPoints += boulder.points || 0;
-
-      // Find the highest zone (for display purposes)
-      if (boulder.currentZone && boulder.currentZone !== "") {
-        currentZone = boulder.currentZone;
-      }
-    });
-
-    return {
-      attempts: totalAttempts,
-      points: totalPoints,
-      zone: currentZone,
-    };
+    return player.boulders;
   };
 
-  const leftPlayerStats = getPlayerStats("left");
-  const rightPlayerStats = getPlayerStats("right");
+  const leftBoulderData = getPlayerBoulderData("left");
+  const rightBoulderData = getPlayerBoulderData("right");
+
+  // Boulder order
+  const boulders = ["A", "B", "C", "D"];
 
   function getTeamColor(abbreviation) {
     switch (abbreviation) {
@@ -142,6 +126,14 @@ export default function ScorePage() {
         return "bg-gray-500";
     }
   }
+
+  const zoneColors = {
+    Z1: "text-red-400",
+    Z2: "text-blue-400",
+    Top: "text-yellow-400",
+    Top2: "text-purple-400",
+    Flash: "text-green-400",
+  };
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center bg-white text-white">
@@ -173,6 +165,7 @@ export default function ScorePage() {
             <div className="text-9xl font-extrabold mt-6">
               {leftScoreboard.score}
             </div>
+
             {/* Current Player */}
             <div className="px-6 py-4 rounded-xl text-center flex items-center justify-center gap-4">
               {/* Image Placeholder with Jersey Number */}
@@ -188,32 +181,35 @@ export default function ScorePage() {
               </h2>
             </div>
 
-            {/* Left Player Stats */}
-            {leftPlayerStats && (
-              <div className="grid grid-cols-3 mt-4 rounded-xl overflow-clip">
-                <div className="bg-black/50  p-4 text-center ">
-                  <p className="text-sm uppercase tracking-wider text-gray-300">
-                    Zone
-                  </p>
-                  <p className="text-3xl font-semibold text-white">
-                    {leftPlayerStats.zone || "—"}
-                  </p>
-                </div>
-                <div className="bg-black/50  p-4 text-center shadow">
-                  <p className="text-sm uppercase tracking-wider text-gray-300">
-                    Attempts
-                  </p>
-                  <p className="text-3xl font-semibold text-white">
-                    {leftPlayerStats.attempts}
-                  </p>
-                </div>
-                <div className="bg-black/50  p-4 text-center shadow">
-                  <p className="text-sm uppercase tracking-wider text-gray-300">
-                    Points
-                  </p>
-                  <p className="text-3xl font-semibold text-white">
-                    {leftPlayerStats.points}
-                  </p>
+            {leftBoulderData && (
+              <div className="w-full flex justify-center">
+                <div className="grid grid-cols-2 max-w-md w-full gap-2">
+                  {boulders.map((boulder) => {
+                    const data = leftBoulderData[boulder] || {
+                      currentZone: "",
+                    };
+
+                    return (
+                      <div
+                        key={boulder}
+                        className="bg-black/40 rounded px-4 py-2 flex items-center justify-between "
+                      >
+                        {/* Boulder label */}
+                        <span className="text-lg font-semibold text-gray-300">
+                          {boulder}
+                        </span>
+
+                        {/* Zone status */}
+                        <span
+                          className={`text-2xl font-bold ${
+                            zoneColors || "text-gray-500"
+                          }`}
+                        >
+                          {data.currentZone || "—"}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -248,6 +244,7 @@ export default function ScorePage() {
             <div className="text-9xl font-extrabold mt-6">
               {rightScoreboard.score}
             </div>
+
             {/* Current Player */}
             <div className="px-6 py-4 rounded-xl text-center flex items-center justify-center gap-4">
               {/* Image Placeholder with Jersey Number */}
@@ -263,32 +260,36 @@ export default function ScorePage() {
               </h2>
             </div>
 
-            {/*Right Player Stats */}
-            {rightPlayerStats && (
-              <div className="grid grid-cols-3 mt-4 rounded-xl overflow-clip">
-                <div className="bg-black/50  p-4 text-center ">
-                  <p className="text-sm uppercase tracking-wider text-gray-300">
-                    Zone
-                  </p>
-                  <p className="text-3xl font-semibold text-white">
-                    {rightPlayerStats.zone || "—"}
-                  </p>
-                </div>
-                <div className="bg-black/50  p-4 text-center shadow">
-                  <p className="text-sm uppercase tracking-wider text-gray-300">
-                    Attempts
-                  </p>
-                  <p className="text-3xl font-semibold text-white">
-                    {rightPlayerStats.attempts}
-                  </p>
-                </div>
-                <div className="bg-black/50  p-4 text-center shadow">
-                  <p className="text-sm uppercase tracking-wider text-gray-300">
-                    Points
-                  </p>
-                  <p className="text-3xl font-semibold text-white">
-                    {rightPlayerStats.points}
-                  </p>
+            {/* Right Boulder Data */}
+            {rightBoulderData && (
+              <div className="w-full flex justify-center">
+                <div className="grid grid-cols-2 max-w-md w-full gap-2">
+                  {boulders.map((boulder) => {
+                    const data = rightBoulderData[boulder] || {
+                      currentZone: "",
+                    };
+
+                    return (
+                      <div
+                        key={boulder}
+                        className="bg-black/40 rounded px-4 py-2 flex items-center justify-between "
+                      >
+                        {/* Boulder label */}
+                        <span className="text-lg font-semibold text-gray-300">
+                          {boulder}
+                        </span>
+
+                        {/* Zone status */}
+                        <span
+                          className={`text-2xl font-bold ${
+                            zoneColors || "text-gray-500"
+                          }`}
+                        >
+                          {data.currentZone || "—"}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
