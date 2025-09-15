@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   subscribeScoreboard,
@@ -26,7 +26,7 @@ function formatTime(seconds) {
 export default function ScorePage() {
   useEffect(() => {
     document.title = "Score Page View";
-  });
+  }, []);
 
   const { matchId = "demo" } = useParams();
 
@@ -67,15 +67,11 @@ export default function ScorePage() {
   const leftScoreboard = {
     ...BLANK_TEAM,
     ...(state.teams?.left || {}),
-    current_player: state.teams?.left?.current_player || null,
-    jersey: state.teams?.left?.jersey || null,
   };
 
   const rightScoreboard = {
     ...BLANK_TEAM,
     ...(state.teams?.right || {}),
-    current_player: state.teams?.right?.current_player || null,
-    jersey: state.teams?.right?.jersey || null,
   };
 
   const left = teams[leftScoreboard.id] || leftScoreboard;
@@ -91,28 +87,30 @@ export default function ScorePage() {
 
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
 
-  // Function to get player boulder data
-  const getPlayerBoulderData = (teamSide) => {
-    const players = state.teams?.[teamSide]?.players || {};
-    const currentPlayerName = state.teams?.[teamSide]?.current_player;
+  // Function to get current player's boulder + zone
+  const getCurrentPlayerBoulder = (teamSide) => {
+    const team = state.teams?.[teamSide];
+    if (!team) return null;
 
-    if (!currentPlayerName) return null;
+    const { current_player, current_boulder, players } = team;
+    if (!current_player || !current_boulder) return null;
 
-    // Find the player by name
-    const player = Object.values(players).find(
-      (p) => p.name === currentPlayerName
+    const player = Object.values(players || {}).find(
+      (p) => p.name === current_player
     );
+    if (!player) return null;
 
-    if (!player || !player.boulders) return null;
+    const boulderData = player.boulders?.[current_boulder];
+    if (!boulderData) return null;
 
-    return player.boulders;
+    return {
+      label: current_boulder,
+      currentZone: boulderData.currentZone || "—",
+    };
   };
 
-  const leftBoulderData = getPlayerBoulderData("left");
-  const rightBoulderData = getPlayerBoulderData("right");
-
-  // Boulder order
-  const boulders = ["A", "B", "C", "D"];
+  const leftCurrentBoulder = getCurrentPlayerBoulder("left");
+  const rightCurrentBoulder = getCurrentPlayerBoulder("right");
 
   function getTeamColor(abbreviation) {
     switch (abbreviation) {
@@ -126,14 +124,6 @@ export default function ScorePage() {
         return "bg-gray-500";
     }
   }
-
-  const zoneColors = {
-    Z1: "text-red-400",
-    Z2: "text-blue-400",
-    Top: "text-yellow-400",
-    Top2: "text-purple-400",
-    Flash: "text-green-400",
-  };
 
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center bg-white text-white">
@@ -166,53 +156,30 @@ export default function ScorePage() {
               {leftScoreboard.score}
             </div>
 
-            {/* Current Player */}
-            <div className="px-6 py-4 rounded-xl text-center flex items-center justify-center gap-4">
-              {/* Image Placeholder with Jersey Number */}
-              <div className="w-14 h-14 bg-gradient-to-br from-gray-700 to-gray-900 bg-gray-800 rounded-full flex items-center justify-center">
-                <span className="text-gray-100 text-2xl font-bold tracking-wider">
-                  {leftScoreboard.jersey || "?"}
-                </span>
-              </div>
-
+            {/* Player Info Card */}
+            <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6">
               {/* Player Name */}
-              <h2 className="text-4xl font-bold text-white tracking-wide">
-                {leftScoreboard.current_player || "No Player"}
-              </h2>
-            </div>
-
-            {leftBoulderData && (
-              <div className="w-full flex justify-center">
-                <div className="grid grid-cols-2 max-w-md w-full gap-2">
-                  {boulders.map((boulder) => {
-                    const data = leftBoulderData[boulder] || {
-                      currentZone: "",
-                    };
-
-                    return (
-                      <div
-                        key={boulder}
-                        className="bg-black/40 rounded px-4 py-2 flex items-center justify-between "
-                      >
-                        {/* Boulder label */}
-                        <span className="text-lg font-semibold text-gray-300">
-                          {boulder}
-                        </span>
-
-                        {/* Zone status */}
-                        <span
-                          className={`text-2xl font-bold ${
-                            zoneColors || "text-gray-500"
-                          }`}
-                        >
-                          {data.currentZone || "—"}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
+              <div className="flex-1 text-center px-6">
+                <h2 className="text-3xl font-medium text-white tracking-wide truncate">
+                  {leftScoreboard.current_player || "No Player Selected"}
+                </h2>
               </div>
-            )}
+
+              {/* Boulder & Zone Info */}
+              {leftCurrentBoulder && (
+                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-2 divide-x divide-gray-500 min-w-[180px] ">
+                  <div className="text-center">
+                    <span className="text-2xl font-bold text-white block">
+                      {leftCurrentBoulder.label}
+                    </span>
+                  </div>
+
+                  <div className="text-center text-2xl font-bold text-white">
+                    {leftCurrentBoulder.currentZone || "-"}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Timer / Period */}
@@ -245,54 +212,30 @@ export default function ScorePage() {
               {rightScoreboard.score}
             </div>
 
-            {/* Current Player */}
-            <div className="px-6 py-4 rounded-xl text-center flex items-center justify-center gap-4">
-              {/* Image Placeholder with Jersey Number */}
-              <div className="w-14 h-14 bg-gradient-to-br from-gray-700 to-gray-900 bg-gray-800 rounded-full flex items-center justify-center">
-                <span className="text-gray-100 text-2xl font-bold tracking-wider">
-                  {rightScoreboard.jersey || "?"}
-                </span>
-              </div>
-
+            {/* Player Info Card */}
+            <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6">
               {/* Player Name */}
-              <h2 className="text-4xl font-bold text-white tracking-wide">
-                {rightScoreboard.current_player || "No Player"}
-              </h2>
-            </div>
-
-            {/* Right Boulder Data */}
-            {rightBoulderData && (
-              <div className="w-full flex justify-center">
-                <div className="grid grid-cols-2 max-w-md w-full gap-2">
-                  {boulders.map((boulder) => {
-                    const data = rightBoulderData[boulder] || {
-                      currentZone: "",
-                    };
-
-                    return (
-                      <div
-                        key={boulder}
-                        className="bg-black/40 rounded px-4 py-2 flex items-center justify-between "
-                      >
-                        {/* Boulder label */}
-                        <span className="text-lg font-semibold text-gray-300">
-                          {boulder}
-                        </span>
-
-                        {/* Zone status */}
-                        <span
-                          className={`text-2xl font-bold ${
-                            zoneColors || "text-gray-500"
-                          }`}
-                        >
-                          {data.currentZone || "—"}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
+              <div className="flex-1 text-center px-6">
+                <h2 className="text-3xl font-medium text-white tracking-wide truncate">
+                  {rightScoreboard.current_player || "No Player Selected"}
+                </h2>
               </div>
-            )}
+
+              {/* Boulder & Zone Info */}
+              {rightCurrentBoulder && (
+                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-2 divide-x divide-gray-500 min-w-[180px] ">
+                  <div className="text-center">
+                    <span className="text-2xl font-bold text-white block">
+                      {rightCurrentBoulder.label}
+                    </span>
+                  </div>
+
+                  <div className="text-center text-2xl font-bold text-white">
+                    {rightCurrentBoulder.currentZone || "-"}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

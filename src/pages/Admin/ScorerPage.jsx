@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { onValue, ref } from "firebase/database";
 import { db } from "@/firebase";
@@ -11,8 +11,9 @@ import TimerControls from "@/components/ui/panel/TimerControls";
 import ZoneSelection from "@/components/ui/panel/ZoneSelection";
 import AttemptButtons from "@/components/ui/panel/AttemptButtons";
 
-import { CircleArrowLeft, Save } from "lucide-react";
+import { Save } from "lucide-react";
 
+// Import specific functions instead of using star exports
 import {
   subscribeScoreboard,
   subscribeTeams,
@@ -25,7 +26,9 @@ import {
   resetBoulderZone,
   setPlayerZone,
   getPlayerBoulders,
-  timerService, // Import the timer service
+  timerService,
+  setCurrentBoulder,
+  initMatch,
 } from "@/services";
 
 export default function ScorerPage() {
@@ -36,7 +39,6 @@ export default function ScorerPage() {
   const [teams, setTeams] = useState([]);
   const [allPlayers, setAllPlayers] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
-  const [selectedBoulder, setSelectedBoulder] = useState("A");
   const [playerBoulderData, setPlayerBoulderData] = useState({});
 
   useEffect(() => {
@@ -88,23 +90,38 @@ export default function ScorerPage() {
     setPlayerBoulderData(data);
   };
 
-  // Handle boulder change
+  // Handle boulder change - persists for the team
   const handleBoulderChange = async (boulder) => {
-    setSelectedBoulder(boulder);
+    await setCurrentBoulder(matchId, side, boulder);
     await loadPlayerBoulderData();
   };
 
   // Handle zone click
   const handleZoneClick = async (teamSide, playerId, zone) => {
+    const selectedBoulder = state?.teams?.[teamSide]?.current_boulder || "A";
     await setPlayerZone(matchId, teamSide, playerId, selectedBoulder, zone);
     await loadPlayerBoulderData();
   };
 
   // Handle zone reset
   const handleZoneReset = async (teamSide, playerId) => {
+    const selectedBoulder = state?.teams?.[teamSide]?.current_boulder || "A";
     await resetBoulderZone(matchId, teamSide, playerId, selectedBoulder);
-    await updateTeamScore(matchId, teamSide);
     await loadPlayerBoulderData();
+  };
+
+  // Handle player selection - preserves current boulder for the team
+  const handlePlayerSelect = async (player) => {
+    setSelectedPlayer(player);
+    
+    // Get the current team state to preserve the current_boulder
+    const currentTeam = state?.teams?.[side] || {};
+    
+    await setTeam(matchId, side, {
+      current_player: player.name,
+      jersey: player.jersey_number,
+      current_boulder: currentTeam.current_boulder || "A", // Preserve current boulder
+    });
   };
 
   // Timer control handlers
@@ -127,17 +144,17 @@ export default function ScorerPage() {
   if (!state) return <div className="p-6">Loading…</div>;
 
   const team = state.teams?.[side] || { id: "", name: side, score: 0 };
+  const selectedBoulder = team.current_boulder || "A";
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        {/* Left side: Scoring label + Team Selector */}
         <div className="flex gap-5 items-center">
           <div className="leading-tight">
             <h3 className="text-gray-700 text-sm">Scoring for:</h3>
             <h2
-              className={`text-xs font-medium rounded  ${
+              className={`text-xs font-medium rounded ${
                 side === "left" ? "text-red-500" : "text-blue-500"
               }`}
             >
@@ -152,7 +169,6 @@ export default function ScorerPage() {
           />
         </div>
 
-        {/* Right side: Finish Match button */}
         <button
           onClick={async () => {
             try {
@@ -163,7 +179,7 @@ export default function ScorerPage() {
               toast.error(`Error: ${err.message}`);
             }
           }}
-          className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors cursor-pointer "
+          className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors cursor-pointer"
         >
           <Save size={20} strokeWidth={1.5} /> Save
         </button>
@@ -184,16 +200,16 @@ export default function ScorerPage() {
           onPeriodChange={(p) => updatePeriod(matchId, p)}
           panelSide={side}
         />
-        
+
         {/* Boulder Selection */}
         <div className="flex items-center justify-between gap-1 mt-10 px-3">
-          <div className="flex gap-2 items-center ">
+          <div className="flex gap-2 items-center">
             <p className="text-lg font-medium mr-3">Boulders: </p>
             {boulders.map((b) => (
               <button
                 key={b}
                 onClick={() => handleBoulderChange(b)}
-                className={`px-4 py-2 rounded-lg text-lg  ${
+                className={`px-4 py-2 rounded-lg text-lg ${
                   selectedBoulder === b
                     ? "bg-green-500 text-white"
                     : "bg-gray-300 text-gray-700"
@@ -205,38 +221,28 @@ export default function ScorerPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <p className="text-lg font-medium">Total Score:</p>{" "}
+            <p className="text-lg font-medium">Total Score:</p>
             <p className="text-6xl font-semibold">{team.score}</p>
           </div>
         </div>
       </div>
 
       {/* Team & Players */}
-      <div className="rounded-xl  p-4 flex flex-col gap-4">
-        {/* Team Selector */}
-
+      <div className="rounded-xl p-4 flex flex-col gap-4">
         <PlayerButtons
           players={
             team?.id
-              ? allPlayers
-                  .filter((p) => p.team_id === team.id && p.status === "active")
-                  .slice(0, 5)
+              ? allPlayers.filter(
+                  (p) => p.team_id === team.id && p.status === "active"
+                )
               : []
           }
           activePlayerId={selectedPlayer?.id}
-          onSelect={async (player) => {
-            setSelectedPlayer(player);
-
-            // Update the team-level current player
-            await setTeam(matchId, side, {
-              current_player: player.name,
-              jersey: player.jersey_number,
-            });
-          }}
+          onSelect={handlePlayerSelect}
           teamColor={side === "left" ? "blue" : "red"}
         />
 
-        {/* Zone Selection for selected player */}
+        {/* Zone Selection */}
         {team?.id && selectedPlayer?.id && (
           <ZoneSelection
             playerId={selectedPlayer.id}
@@ -248,7 +254,7 @@ export default function ScorerPage() {
           />
         )}
 
-        {/* Attempt Buttons - only show if a player is selected */}
+        {/* Attempts */}
         {team?.id && selectedPlayer?.id && (
           <AttemptButtons
             matchId={matchId}
