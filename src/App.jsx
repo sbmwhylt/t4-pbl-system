@@ -8,7 +8,6 @@ import Login from "@/pages/Admin/Login";
 import PrivateRoute from "@/PrivateRoute";
 import NotFound from "@/pages/404";
 import MatchStats from "@/pages/Admin/MatchStats";
-import Panel from "@/pages/Admin/Panel";
 import Live from "@/pages/Live";
 import Score from "@/pages/ScorePage";
 import User from "@/pages/Admin/Users";
@@ -69,15 +68,6 @@ function App() {
           element={
             <PrivateRoute>
               <MatchStats />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/admin/panel"
-          element={
-            <PrivateRoute>
-              <Panel />
             </PrivateRoute>
           }
         />

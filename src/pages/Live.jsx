@@ -8,7 +8,9 @@ import {
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60).toString().padStart(2, "0");
+  const s = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, "0");
   return `${m}:${s}`;
 }
 
@@ -61,19 +63,47 @@ export default function Live() {
     return () => clearInterval(id);
   }, [state.timer?.running, state.timer?.endTime]);
 
-  // Determine left/right teams for display
+  // Function to get current player's boulder + zone
+  const getCurrentPlayerBoulder = (teamSide) => {
+    const team = state.teams?.[teamSide];
+    if (!team) return null;
+
+    const { current_player, current_boulder, players } = team;
+    if (!current_player || !current_boulder) return null;
+
+    const player = Object.values(players || {}).find(
+      (p) => p.name === current_player
+    );
+    if (!player) return null;
+
+    const boulderData = player.boulders?.[current_boulder];
+    if (!boulderData) return null;
+
+    return {
+      label: current_boulder,
+      currentZone: boulderData.zone || boulderData.currentZone || "—",
+    };
+  };
+
+  const leftCurrentBoulder = getCurrentPlayerBoulder("left");
+  const rightCurrentBoulder = getCurrentPlayerBoulder("right");
+
   const leftScoreboard = {
     ...BLANK_TEAM,
     ...(state.teams?.left || {}),
     current_player: state.teams?.left?.current_player || null,
     jersey: state.teams?.left?.jersey || null,
+    current_zone: leftCurrentBoulder?.currentZone || null,
   };
+
   const rightScoreboard = {
     ...BLANK_TEAM,
     ...(state.teams?.right || {}),
     current_player: state.teams?.right?.current_player || null,
     jersey: state.teams?.right?.jersey || null,
+    current_zone: rightCurrentBoulder?.currentZone || null,
   };
+
   const left = teams[leftScoreboard.id] || leftScoreboard;
   const right = teams[rightScoreboard.id] || rightScoreboard;
   const timer = state.timer || BLANK_TIMER;
@@ -103,27 +133,28 @@ export default function Live() {
       {/* Main scoreboard */}
       {!noTeamsSelected && (
         <div className="fixed bottom-0 left-0 w-full px-4 py-2 flex items-center justify-center pointer-events-none z-40">
-          <div className="flex items-center justify-center w-full max-w-4xl bg-[#5f8bbb]/80 backdrop-blur-md rounded text-white px-4 gap-3 mb-3">
+          <div className="flex items-center justify-center w-full max-w-6xl bg-[#5f8bbb]/80 backdrop-blur-md rounded text-white px-4 gap-3 mb-3">
             {/* Left Team */}
             <div className="flex items-center gap-2">
-              <div
-                className={`text-center font-medium text-xl h-full w-32 p-2 rounded-sm mr-4 ${
-                  leftScoreboard.current_player
-                    ? "bg-blue-100 text-gray-900"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
+              <div className="text-center font-medium text-3xl h-full w-54 p-2 rounded-sm mr-10 bg-black/65">
                 {leftScoreboard.current_player || "-"}
               </div>
+
+              {/* Show current zone */}
+              <div className="flex items-center justify-center w-24 h-22 bg-blue-100 text-gray-900 text-2xl font-bold">
+                {leftScoreboard.current_zone || "-"}
+              </div>
+
               {left.logo_url && (
                 <img
                   src={left.logo_url}
                   alt={left.abbreviation}
-                  className="w-18 h-18 mr-3"
+                  className="w-20 h-20 mr-5 ml-4"
                 />
               )}
-              <div className="flex justify-center items-center w-16 ">
-                <span className="text-5xl font-bold">
+
+              <div className="flex justify-center items-center w-16">
+                <span className="text-7xl font-bold">
                   {leftScoreboard.score || 0}
                 </span>
               </div>
@@ -131,36 +162,37 @@ export default function Live() {
 
             {/* Period / Clock */}
             <div className="flex flex-col items-center justify-center w-28 mx-6 h-22 bg-black/50 rounded">
-              <div className="text-sm font-semibold uppercase mb-1">
+              <div className="text-lg font-semibold uppercase">
                 {period}
               </div>
               <div className="w-22 border-t-3 border-red-600 my-1 opacity-50"></div>
-              <div className="text-3xl tracking-wider font-semibold mt-1">
+              <div className="text-4xl tracking-wider font-semibold mt-1">
                 {formatTime(remaining)}
               </div>
             </div>
 
-            {/* Right Team */}
+            {/* Right Team - Mirrored layout */}
             <div className="flex items-center gap-2">
-              <div className="flex justify-center items-center w-16 ">
-                <span className="text-5xl font-bold">
+              <div className="flex justify-center items-center w-16">
+                <span className="text-7xl font-bold">
                   {rightScoreboard.score || 0}
                 </span>
               </div>
+
               {right.logo_url && (
                 <img
                   src={right.logo_url}
                   alt={right.abbreviation}
-                  className="w-18 h-18 ml-3"
+                  className="w-20 h-20 ml-5 mr-4"
                 />
               )}
-              <div
-                className={`text-center font-medium text-xl h-full w-32 p-2 rounded-sm ml-4 ${
-                  rightScoreboard.current_player
-                    ? "bg-blue-100 text-gray-900"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
+
+              {/* Show current zone */}
+              <div className="flex items-center justify-center w-24 h-22 bg-blue-100 text-gray-900 text-2xl font-bold">
+                {rightScoreboard.current_zone || "-"}
+              </div>
+
+              <div className="text-center font-medium text-3xl h-full w-54 p-2 rounded-sm ml-10 bg-black/65">
                 {rightScoreboard.current_player || "-"}
               </div>
             </div>
