@@ -87,7 +87,7 @@ export default function ScorePage() {
 
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
 
-  // Function to get current player's boulder + zone
+  // Function to get current player's boulder + zone + jersey
   const getCurrentPlayerBoulder = (teamSide) => {
     const team = state.teams?.[teamSide];
     if (!team) return null;
@@ -106,6 +106,7 @@ export default function ScorePage() {
     return {
       label: current_boulder,
       currentZone: boulderData.currentZone || "—",
+      player, // include full player object
     };
   };
 
@@ -144,7 +145,7 @@ export default function ScorePage() {
             )}`}
           >
             {left.logo_url && (
-              <div className="w-90 h-90 flex items-center justify-center  object-cover">
+              <div className="w-90 h-90 flex items-center justify-center object-cover">
                 <img
                   src={left.logo_url}
                   alt={left.abbreviation}
@@ -158,22 +159,24 @@ export default function ScorePage() {
 
             {/* Player Info Card */}
             <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6">
-              {/* Player Name */}
-              <div className="flex-1 text-center px-6">
+              {/* Player Name + Jersey */}
+              <div className="flex-1 text-center px-6 flex items-center justify-center gap-2">
                 <h2 className="text-3xl font-medium text-white tracking-wide truncate">
                   {leftScoreboard.current_player || "No Player Selected"}
                 </h2>
+                {leftScoreboard.jersey && (
+                  <span className="text-3xl">{leftScoreboard.jersey}</span> 
+                )}
               </div>
 
               {/* Boulder & Zone Info */}
               {leftCurrentBoulder && (
-                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-2 divide-x divide-gray-500 min-w-[180px] ">
+                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-2 divide-x divide-gray-500 min-w-[180px]">
                   <div className="text-center">
                     <span className="text-2xl font-bold text-white block">
                       {leftCurrentBoulder.label}
                     </span>
                   </div>
-
                   <div className="text-center text-2xl font-bold text-white">
                     {leftCurrentBoulder.currentZone || "-"}
                   </div>
@@ -214,22 +217,24 @@ export default function ScorePage() {
 
             {/* Player Info Card */}
             <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6">
-              {/* Player Name */}
-              <div className="flex-1 text-center px-6">
+              {/* Player Name + Jersey */}
+              <div className="flex-1 text-center px-6 flex items-center justify-center gap-2">
                 <h2 className="text-3xl font-medium text-white tracking-wide truncate">
                   {rightScoreboard.current_player || "No Player Selected"}
                 </h2>
+                {rightScoreboard.jersey && (
+                  <span className="text-3xl">{rightScoreboard.jersey}</span>
+                )}
               </div>
 
               {/* Boulder & Zone Info */}
               {rightCurrentBoulder && (
-                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-2 divide-x divide-gray-500 min-w-[180px] ">
+                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-2 divide-x divide-gray-500 min-w-[180px]">
                   <div className="text-center">
                     <span className="text-2xl font-bold text-white block">
                       {rightCurrentBoulder.label}
                     </span>
                   </div>
-
                   <div className="text-center text-2xl font-bold text-white">
                     {rightCurrentBoulder.currentZone || "-"}
                   </div>
