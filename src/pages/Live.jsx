@@ -133,7 +133,7 @@ export default function Live() {
       {/* Main scoreboard */}
       {!noTeamsSelected && (
         <div className="fixed bottom-0 left-0 w-full px-4 py-2 flex items-center justify-center pointer-events-none z-40">
-          <div className="flex items-center justify-center w-full max-w-6xl bg-[#5f8bbb]/80 backdrop-blur-md rounded text-white px-4 gap-3 mb-3">
+          <div className="flex items-center justify-center w-fit bg-[#5f8bbb]/80 backdrop-blur-md rounded text-white px-4 gap-3 mb-3">
             {/* Left Team */}
             <div className="flex items-center gap-2">
               <div className="text-center font-medium text-3xl h-full w-54 p-2 rounded-sm mr-10 bg-black/65">
