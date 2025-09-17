@@ -137,7 +137,7 @@ export default function ScorePage() {
           />
         </div>
       ) : (
-        <div className="w-full h-full grid grid-cols-3">
+        <div className="w-full h-full grid grid-cols-[2fr_1fr_2fr]">
           {/* Left Team */}
           <div
             className={`flex flex-col items-center justify-center gap-4 p-6 ${getTeamColor(
@@ -158,7 +158,7 @@ export default function ScorePage() {
             </div>
 
             {/* Player Info Card */}
-            <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6">
+            <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6 w-125">
               {/* Player Name + Jersey */}
               <div className="flex-1 text-center px-6 flex items-center justify-center gap-2">
                 <h2 className="text-3xl font-medium text-white tracking-wide truncate">
@@ -216,7 +216,7 @@ export default function ScorePage() {
             </div>
 
             {/* Player Info Card */}
-            <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6">
+            <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6 w-125">
               {/* Player Name + Jersey */}
               <div className="flex-1 text-center px-6 flex items-center justify-center gap-2">
                 <h2 className="text-3xl font-medium text-white tracking-wide truncate">
