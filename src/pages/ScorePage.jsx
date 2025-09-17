@@ -190,7 +190,7 @@ export default function ScorePage() {
             <div className="absolute left-0 top-0 h-full w-1 bg-white/30"></div>
             <div className="absolute right-0 top-0 h-full w-1 bg-white/30"></div>
 
-            <div className="text-5xl font-semibold uppercase bg-black/90 text-center px-5 py-4 rounded-full">{period}</div>
+            <div className="text-5xl font-semibold uppercase text-center rounded-full">{period}</div>
             <div className="text-9xl tracking-wider font-bold">
               {formatTime(remaining)}
             </div>
