@@ -158,7 +158,7 @@ export default function ScorePage() {
             </div>
 
             {/* Player Info Card */}
-            <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6 w-125">
+            <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6 w-110">
               {/* Player Name + Jersey */}
               <div className="flex-1 text-center px-6 flex items-center justify-center gap-2">
                 <h2 className="text-3xl font-medium text-white tracking-wide truncate">
@@ -171,12 +171,12 @@ export default function ScorePage() {
 
               {/* Boulder & Zone Info */}
               {leftCurrentBoulder && (
-                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-2 divide-x divide-gray-500 min-w-[180px]">
-                  <div className="text-center">
+                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-1 divide-x divide-gray-500 min-w-[110px]">
+                  {/* <div className="text-center">
                     <span className="text-2xl font-bold text-white block">
                       {leftCurrentBoulder.label}
                     </span>
-                  </div>
+                  </div> */}
                   <div className="text-center text-2xl font-bold text-white">
                     {leftCurrentBoulder.currentZone || "-"}
                   </div>
@@ -186,11 +186,11 @@ export default function ScorePage() {
           </div>
 
           {/* Timer / Period */}
-          <div className="flex flex-col items-center justify-center gap-3 relative bg-gray-800">
+          <div className="flex flex-col items-center justify-center gap-6 relative bg-gray-800">
             <div className="absolute left-0 top-0 h-full w-1 bg-white/30"></div>
             <div className="absolute right-0 top-0 h-full w-1 bg-white/30"></div>
 
-            <div className="text-3xl font-semibold uppercase">{period}</div>
+            <div className="text-5xl font-semibold uppercase bg-black/90 text-center px-5 py-4 rounded-full">{period}</div>
             <div className="text-9xl tracking-wider font-bold">
               {formatTime(remaining)}
             </div>
@@ -216,7 +216,7 @@ export default function ScorePage() {
             </div>
 
             {/* Player Info Card */}
-            <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6 w-125">
+            <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6 w-110">
               {/* Player Name + Jersey */}
               <div className="flex-1 text-center px-6 flex items-center justify-center gap-2">
                 <h2 className="text-3xl font-medium text-white tracking-wide truncate">
@@ -229,12 +229,12 @@ export default function ScorePage() {
 
               {/* Boulder & Zone Info */}
               {rightCurrentBoulder && (
-                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-2 divide-x divide-gray-500 min-w-[180px]">
-                  <div className="text-center">
+                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-1 divide-x divide-gray-500 min-w-[110px]">
+                  {/* <div className="text-center">
                     <span className="text-2xl font-bold text-white block">
                       {rightCurrentBoulder.label}
                     </span>
-                  </div>
+                  </div> */}
                   <div className="text-center text-2xl font-bold text-white">
                     {rightCurrentBoulder.currentZone || "-"}
                   </div>
