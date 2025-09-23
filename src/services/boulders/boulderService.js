@@ -85,12 +85,38 @@ export async function updatePlayerAttempt(matchId, teamSide, playerId, boulder, 
 
 // Reset only the zone for a specific boulder (keep attempts intact)
 export async function resetBoulderZone(matchId, teamSide, playerId, boulder) {
-  await runTransaction(playerBouldersRef(matchId, teamSide, playerId), (current) => {
-    if (!current) return current;
-    const boulderData = current[boulder] || { currentZone: "", attempts: 0, points: 0 };
-    boulderData.currentZone = "";
-    boulderData.points = 0; // Reset points since zone is cleared
-    current[boulder] = boulderData;
-    return current;
+  const teamRef = ref(db, `scoreboard/demo/teams/${teamSide}`);
+
+  await runTransaction(teamRef, (team) => {
+    if (!team || !team.players || !team.players[playerId]) return team;
+
+    const player = team.players[playerId];
+
+    // 🔹 Reset just this boulder
+    if (player.boulders && player.boulders[boulder]) {
+      player.boulders[boulder].currentZone = "";
+      player.boulders[boulder].points = 0;
+      player.boulders[boulder].attempts = 0;
+    }
+
+    // 🔹 Recalculate team score (sum of all players’ boulder points)
+    let teamTotal = 0;
+    for (const pid in team.players) {
+      const p = team.players[pid];
+      if (p && p.boulders) {
+        for (const key in p.boulders) {
+          const b = p.boulders[key];
+          if (b && typeof b.points === "number") {
+            teamTotal += b.points;
+          }
+        }
+      }
+    }
+    team.score = teamTotal;
+
+    return team;
   });
 }
+
+
+
