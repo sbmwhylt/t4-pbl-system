@@ -34,7 +34,7 @@ export default function Sidebar() {
     { label: "Teams", path: "/admin/teams", icon: Users },
     { label: "Players", path: "/admin/players", icon: UserRound },
     { label: "Boulders", path: "/admin/boulders", icon: Mountain },
-    { label: "Matches", path: "/admin/matches", icon: CalendarDays },
+    { label: "Games", path: "/admin/games", icon: CalendarDays },
     {
       label: "Users",
       path: "/admin/users",
@@ -61,22 +61,22 @@ export default function Sidebar() {
     // },
 
     {
-      label: "Match Panel",
+      label: "Scorer Panel",
       icon: Gamepad2,
       onClick: () => setIsModalOpen(true),
     },
 
     {
-      label: "Live Scoreboard",
+      label: "Broadcast Scoreboard",
       // path: "/scoreboard/liveview",
-      path: "/pages/live",
+      path: "/broadcast-scoreboard",
       icon: Tv,
       external: true,
     },
 
     {
-      label: "Score Page",
-      path: "/pages/score",
+      label: "Onsite Scoreboard",
+      path: "/onsite-scoreboard",
       icon: Cast,
       external: true,
     },
@@ -158,7 +158,7 @@ export default function Sidebar() {
                   key={path}
                   to={path}
                   className={`flex items-center gap-3 px-3 py-2 rounded-md hover:bg-purple-100 ${
-                    pathname === path ? "bg-purple-200 font-semibold" : ""
+                    pathname === path ? "bg-purple-200" : ""
                   }`}
                 >
                   <Icon size={18} />

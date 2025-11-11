@@ -137,7 +137,7 @@ export default function Live() {
             {/* Left Team */}
             <div className="flex items-center gap-2">
               <div className="text-center font-medium text-3xl h-full w-54 p-2 rounded-sm mr-10 bg-black/65">
-                {leftScoreboard.current_player || "-"}
+                {leftScoreboard.current_player} {leftScoreboard.jersey || "-"}
               </div>
 
               {/* Show current zone */}
@@ -193,7 +193,7 @@ export default function Live() {
               </div>
 
               <div className="text-center font-medium text-3xl h-full w-54 p-2 rounded-sm ml-10 bg-black/65">
-                {rightScoreboard.current_player || "-"}
+                {rightScoreboard.current_player} {rightScoreboard.jersey || "-"}
               </div>
             </div>
           </div>

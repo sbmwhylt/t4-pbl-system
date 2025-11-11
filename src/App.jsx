@@ -55,7 +55,7 @@ function App() {
           }
         />
         <Route
-          path="/admin/matches"
+          path="/admin/games"
           element={
             <PrivateRoute>
               <Matches />
@@ -100,8 +100,8 @@ function App() {
         />
 
         {/* Public Routes */}
-        <Route path="/pages/live" element={<Live />} />
-        <Route path="/pages/score" element={<Score />} />
+        <Route path="/broadcast-scoreboard" element={<Live />} />
+        <Route path="/onsite-scoreboard" element={<Score />} />
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<NotFound />} />
