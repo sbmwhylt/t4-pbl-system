@@ -136,7 +136,7 @@ export default function Live() {
           <div className="flex items-center justify-center w-fit bg-[#5f8bbb]/80 backdrop-blur-md rounded text-white px-4 gap-3 mb-3">
             {/* Left Team */}
             <div className="flex items-center gap-2">
-              <div className="text-center font-medium text-3xl h-full w-54 p-2 rounded-sm mr-10 bg-black/65">
+              <div className="text-center font-medium text-3xl h-full w-60 p-2 rounded-sm mr-10 bg-black/65">
                 {leftScoreboard.current_player} {leftScoreboard.jersey || "-"}
               </div>
 
@@ -192,7 +192,7 @@ export default function Live() {
                 {rightScoreboard.current_zone || "-"}
               </div>
 
-              <div className="text-center font-medium text-3xl h-full w-54 p-2 rounded-sm ml-10 bg-black/65">
+              <div className="text-center font-medium text-3xl h-full w-60 p-2 rounded-sm ml-10 bg-black/65">
                 {rightScoreboard.current_player} {rightScoreboard.jersey || "-"}
               </div>
             </div>

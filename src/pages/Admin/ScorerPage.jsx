@@ -110,17 +110,30 @@ export default function ScorerPage() {
     await loadPlayerBoulderData();
   };
 
-  // Handle player selection - preserves current boulder for the team
+  // Handle player selection - allows unselecting and preserves current boulder
   const handlePlayerSelect = async (player) => {
+    // If the same player is clicked again, unselect
+    if (selectedPlayer?.id === player.id) {
+      setSelectedPlayer(null);
+
+      const currentTeam = state?.teams?.[side] || {};
+      await setTeam(matchId, side, {
+        current_player: null,
+        jersey: null,
+        current_boulder: currentTeam.current_boulder || "A",
+      });
+
+      return;
+    }
+
+    // Otherwise, select the new player
     setSelectedPlayer(player);
-    
-    // Get the current team state to preserve the current_boulder
+
     const currentTeam = state?.teams?.[side] || {};
-    
     await setTeam(matchId, side, {
       current_player: player.name,
       jersey: player.jersey_number,
-      current_boulder: currentTeam.current_boulder || "A", // Preserve current boulder
+      current_boulder: currentTeam.current_boulder || "A",
     });
   };
 
