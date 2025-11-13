@@ -2,7 +2,10 @@ import { useEffect, useRef } from "react";
 import { auth } from "../firebase"; // your firebase config
 import { signOut } from "firebase/auth";
 
-const INACTIVITY_LIMIT = 4 * 60 * 60 * 1000; // 4 hours = 14,400,000 ms
+// 4hrs 
+// const INACTIVITY_LIMIT = 4 * 60 * 60 * 1000; 
+// 15 mins
+const INACTIVITY_LIMIT =  15 * 60 * 1000;
 
 export default function useAutoLogout() {
   const lastActivityRef = useRef(Date.now());
