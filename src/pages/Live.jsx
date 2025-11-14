@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   subscribeScoreboard,
   DEFAULT_DURATION,
   subscribeTeams,
+  timerService,
 } from "@/services";
-import { timerService } from "@/services";
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -37,7 +37,7 @@ export default function Live() {
     period: "1ST",
   });
   const [teams, setTeams] = useState({ left: BLANK_TEAM, right: BLANK_TEAM });
-  const [tick, setTick] = useState(0); // 👈 force re-renders every second when running
+  const [tick, setTick] = useState(0); // 👈 Force re-renders every second when running
 
   // Subscribe to scoreboard
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function Live() {
     return () => unsub();
   }, []);
 
-  // 👇 local ticking effect
+  // 👇 Local ticking effect - updates every second when timer is running
   useEffect(() => {
     if (!state.timer?.running) return;
     const id = setInterval(() => setTick((t) => t + 1), 1000);
@@ -110,7 +110,7 @@ export default function Live() {
   const timer = state.timer || BLANK_TIMER;
   const period = state.period || "1ST";
 
-  // 👇 compute remaining live
+  // 👇 Compute remaining time using SERVER TIME from timerService
   const remaining =
     timer.running && timer.endTime
       ? Math.max(

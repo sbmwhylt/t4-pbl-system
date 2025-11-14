@@ -40,6 +40,7 @@ export default function ScorerPage() {
   const [allPlayers, setAllPlayers] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [playerBoulderData, setPlayerBoulderData] = useState({});
+  const [, forceUpdate] = useState(0); // 👈 Just to force re-renders
 
   useEffect(() => {
     document.title =
@@ -58,6 +59,13 @@ export default function ScorerPage() {
     });
     return () => unsub();
   }, [matchId]);
+
+  // 👇 SIMPLIFIED: Just force update every 100ms when running
+  useEffect(() => {
+    if (!state?.timer?.running) return;
+    const id = setInterval(() => forceUpdate(n => n + 1), 100);
+    return () => clearInterval(id);
+  }, [state?.timer?.running]);
 
   // Initialize boulders for all active players
   useEffect(() => {

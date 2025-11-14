@@ -1,6 +1,12 @@
-import { Play, Pause, TimerReset, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Play,
+  Pause,
+  TimerReset,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { timerService } from "@/services/timer/timerService";
-import { useSyncedCountdown } from "@/hooks/useSyncedCountdown";
+import { DEFAULT_DURATION } from "@/services/constant";
 
 const PERIODS = ["1ST", "2ND", "3RD", "4TH"];
 
@@ -15,10 +21,16 @@ export default function TimerControls({
   onPeriodChange,
   panelSide = "left",
 }) {
-  // Use the synced countdown hook
-  const remaining = useSyncedCountdown(timer);
-  const isFinished = remaining <= 0;
+  // 👇 FIXED: Calculate remaining time directly using server time (same as Live.jsx)
+  const remaining =
+    timer?.running && timer?.endTime
+      ? Math.max(
+          0,
+          Math.floor((timer.endTime - timerService.serverNow()) / 1000)
+        )
+      : timer?.remaining ?? timer?.duration ?? DEFAULT_DURATION;
 
+  const isFinished = remaining <= 0;
   const isRunning = timer?.running;
   const isController = timer?.lastController === panelSide;
 
@@ -44,17 +56,21 @@ export default function TimerControls({
   };
 
   // Period controls
-  const currentPeriodIndex = PERIODS.indexOf(period) >= 0 ? PERIODS.indexOf(period) : 0;
+  const currentPeriodIndex =
+    PERIODS.indexOf(period) >= 0 ? PERIODS.indexOf(period) : 0;
 
   const prevPeriod = () => {
     if (currentPeriodIndex > 0) onPeriodChange(PERIODS[currentPeriodIndex - 1]);
   };
   const nextPeriod = () => {
-    if (currentPeriodIndex < PERIODS.length - 1) onPeriodChange(PERIODS[currentPeriodIndex + 1]);
+    if (currentPeriodIndex < PERIODS.length - 1)
+      onPeriodChange(PERIODS[currentPeriodIndex + 1]);
   };
 
   const formatTime = (secs) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, "0");
+    const m = Math.floor(secs / 60)
+      .toString()
+      .padStart(2, "0");
     const s = (secs % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
@@ -66,7 +82,11 @@ export default function TimerControls({
     <div className="p-4 bg-gray-50 rounded-lg">
       {/* Controller Indicator */}
       <div className="text-sm text-center mb-2 font-medium">
-        {isController ? <span className="text-green-600">● Controlling</span> : <span className="text-gray-500">● Viewing</span>}
+        {isController ? (
+          <span className="text-green-600">● Controlling</span>
+        ) : (
+          <span className="text-gray-500">● Viewing</span>
+        )}
       </div>
 
       {/* Timer + Status */}
@@ -85,7 +105,9 @@ export default function TimerControls({
           >
             <ChevronLeft />
           </button>
-          <div className="text-2xl font-bold text-gray-800">{PERIODS[currentPeriodIndex]}</div>
+          <div className="text-2xl font-bold text-gray-800">
+            {PERIODS[currentPeriodIndex]}
+          </div>
           <button
             onClick={nextPeriod}
             disabled={currentPeriodIndex === PERIODS.length - 1}
@@ -101,7 +123,9 @@ export default function TimerControls({
             <button
               onClick={handlePause}
               disabled={isFinished}
-              className={`${baseBtn} ${isFinished ? "bg-gray-400 cursor-not-allowed" : "bg-yellow-500"}`}
+              className={`${baseBtn} ${
+                isFinished ? "bg-gray-400 cursor-not-allowed" : "bg-yellow-500"
+              }`}
             >
               <Pause />
             </button>
@@ -109,7 +133,9 @@ export default function TimerControls({
             <button
               onClick={isFinished ? handleReset : handleResume}
               disabled={isFinished && !isController}
-              className={`${baseBtn} ${isFinished ? "bg-gray-400 cursor-not-allowed" : "bg-green-500"}`}
+              className={`${baseBtn} ${
+                isFinished ? "bg-gray-400 cursor-not-allowed" : "bg-green-500"
+              }`}
             >
               <Play />
             </button>

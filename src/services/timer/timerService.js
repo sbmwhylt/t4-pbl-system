@@ -73,7 +73,8 @@ export async function pauseTimer(matchId, controller = "panel") {
     }
 
     const endTime = current.endTime ?? now;
-    const remaining = Math.max(0, Math.ceil((endTime - now) / 1000));
+    // 👇 FIXED: Use Math.floor instead of Math.ceil to match Live.jsx and ScorerPage.jsx
+    const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
 
     return {
       ...current,
@@ -153,7 +154,7 @@ export function getRemaining(timer) {
   const now = serverNow();
 
   if (timer.running && timer.endTime) {
-    return Math.max(0, Math.ceil((timer.endTime - now) / 1000));
+    return Math.max(0, Math.floor((timer.endTime - now) / 1000));
   }
 
   return timer.remaining ?? timer.duration ?? DEFAULT_DURATION;
@@ -170,4 +171,3 @@ export const timerService = {
   subscribeToTimer,
   serverNow,
 };
-

@@ -4,9 +4,8 @@ import {
   subscribeScoreboard,
   DEFAULT_DURATION,
   subscribeTeams,
+  timerService,
 } from "@/services";
-import { timerService } from "@/services";
-
 
 const BLANK_TEAM = {
   id: "",
@@ -39,7 +38,7 @@ export default function ScorePage() {
   });
 
   const [teams, setTeams] = useState({});
-  const [tick, setTick] = useState(0);
+  const [, forceUpdate] = useState(0); // 👈 FIXED: Use forceUpdate instead of tick
 
   // Subscribe to scoreboard updates
   useEffect(() => {
@@ -59,12 +58,12 @@ export default function ScorePage() {
     return () => unsub();
   }, []);
 
-  // local ticking effect
+  // 👇 FIXED: Update every 100ms for smooth sync (same as Live.jsx)
   useEffect(() => {
     if (!state.timer?.running) return;
-    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    const id = setInterval(() => forceUpdate((n) => n + 1), 100);
     return () => clearInterval(id);
-  }, [state.timer?.running, state.timer?.endTime]);
+  }, [state.timer?.running]);
 
   const leftScoreboard = {
     ...BLANK_TEAM,
@@ -81,10 +80,13 @@ export default function ScorePage() {
   const timer = state.timer || BLANK_TIMER;
   const period = state.period || "1ST";
 
-  // compute remaining live
+  // 👇 FIXED: Calculate using server time (same as Live.jsx)
   const remaining =
     timer.running && timer.endTime
-      ? Math.max(0, Math.floor((timer.endTime -timerService.serverNow()) / 1000))
+      ? Math.max(
+          0,
+          Math.floor((timer.endTime - timerService.serverNow()) / 1000)
+        )
       : timer.remaining ?? timer.duration ?? DEFAULT_DURATION;
 
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
@@ -167,7 +169,7 @@ export default function ScorePage() {
                   {leftScoreboard.current_player || "No Player Selected"}
                 </h2>
                 {leftScoreboard.jersey && (
-                  <span className="text-3xl">{leftScoreboard.jersey}</span> 
+                  <span className="text-3xl">{leftScoreboard.jersey}</span>
                 )}
               </div>
 
@@ -192,7 +194,9 @@ export default function ScorePage() {
             <div className="absolute left-0 top-0 h-full w-1 bg-white/30"></div>
             <div className="absolute right-0 top-0 h-full w-1 bg-white/30"></div>
 
-            <div className="text-5xl font-semibold uppercase text-center rounded-full">{period}</div>
+            <div className="text-5xl font-semibold uppercase text-center rounded-full">
+              {period}
+            </div>
             <div className="text-9xl tracking-wider font-bold">
               {formatTime(remaining)}
             </div>
