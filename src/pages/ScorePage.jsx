@@ -166,26 +166,17 @@ export default function ScorePage() {
               {/* Player Name + Jersey */}
               <div className="flex-1 text-center px-6 flex items-center justify-center gap-2">
                 <h2 className="text-3xl font-medium text-white tracking-wide truncate">
-                  {leftScoreboard.current_player || "No Player Selected"}
+                  {leftScoreboard.current_player || "-"}
                 </h2>
-                {leftScoreboard.jersey && (
-                  <span className="text-3xl">{leftScoreboard.jersey}</span>
-                )}
+                <span className="text-3xl">{leftScoreboard.jersey || "-"}</span>
               </div>
 
               {/* Boulder & Zone Info */}
-              {leftCurrentBoulder && (
-                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-1 divide-x divide-gray-500 min-w-[110px]">
-                  {/* <div className="text-center">
-                    <span className="text-2xl font-bold text-white block">
-                      {leftCurrentBoulder.label}
-                    </span>
-                  </div> */}
-                  <div className="text-center text-2xl font-bold text-white">
-                    {leftCurrentBoulder.currentZone || "-"}
-                  </div>
+              <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-1 divide-x divide-gray-500 min-w-[110px] text-center">
+                <div className="text-2xl font-bold text-white">
+                  {leftCurrentBoulder?.currentZone || "-"}
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
@@ -226,26 +217,19 @@ export default function ScorePage() {
               {/* Player Name + Jersey */}
               <div className="flex-1 text-center px-6 flex items-center justify-center gap-2">
                 <h2 className="text-3xl font-medium text-white tracking-wide truncate">
-                  {rightScoreboard.current_player || "No Player Selected"}
+                  {rightScoreboard.current_player || "-"}
                 </h2>
-                {rightScoreboard.jersey && (
-                  <span className="text-3xl">{rightScoreboard.jersey}</span>
-                )}
+                <span className="text-3xl">
+                  {rightScoreboard.jersey || "-"}
+                </span>
               </div>
 
               {/* Boulder & Zone Info */}
-              {rightCurrentBoulder && (
-                <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-1 divide-x divide-gray-500 min-w-[110px]">
-                  {/* <div className="text-center">
-                    <span className="text-2xl font-bold text-white block">
-                      {rightCurrentBoulder.label}
-                    </span>
-                  </div> */}
-                  <div className="text-center text-2xl font-bold text-white">
-                    {rightCurrentBoulder.currentZone || "-"}
-                  </div>
+              <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-1 divide-x divide-gray-500 min-w-[110px] text-center">
+                <div className="text-2xl font-bold text-white">
+                  {rightCurrentBoulder?.currentZone || "-"}
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
