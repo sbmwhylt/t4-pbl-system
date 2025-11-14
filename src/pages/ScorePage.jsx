@@ -5,6 +5,8 @@ import {
   DEFAULT_DURATION,
   subscribeTeams,
 } from "@/services";
+import { timerService } from "@/services";
+
 
 const BLANK_TEAM = {
   id: "",
