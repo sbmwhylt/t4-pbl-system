@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { Play, Pause, TimerReset, ChevronLeft, ChevronRight } from "lucide-react";
-import { timerService } from "@/services";
-import { useSyncedCountdown } from "@/hooks/useSyncedCountdown"; // the hook we created
+import { timerService } from "@/services/timer/timerService";
+import { useSyncedCountdown } from "@/hooks/useSyncedCountdown";
 
 const PERIODS = ["1ST", "2ND", "3RD", "4TH"];
 
