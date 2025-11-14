@@ -12,6 +12,7 @@ onValue(ref(db, ".info/serverTimeOffset"), (snap) => {
 });
 
 // Always use server time, not device time
+
 export function serverNow() {
   return Date.now() + serverOffset;
 }
