@@ -168,5 +168,6 @@ export const timerService = {
   resetTimer,
   getRemaining,
   subscribeToTimer,
+  serverNow,
 };
 
