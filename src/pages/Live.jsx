@@ -112,7 +112,10 @@ export default function Live() {
   // 👇 compute remaining live
   const remaining =
     timer.running && timer.endTime
-      ? Math.max(0, Math.floor((timer.endTime - Date.now()) / 1000))
+      ? Math.max(
+          0,
+          Math.floor((timer.endTime - timerService.serverNow()) / 1000)
+        )
       : timer.remaining ?? timer.duration ?? DEFAULT_DURATION;
 
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
@@ -162,9 +165,7 @@ export default function Live() {
 
             {/* Period / Clock */}
             <div className="flex flex-col items-center justify-center w-28 mx-6 h-22 bg-black/50 rounded">
-              <div className="text-lg font-semibold uppercase">
-                {period}
-              </div>
+              <div className="text-lg font-semibold uppercase">{period}</div>
               <div className="w-22 border-t-3 border-red-600 my-1 opacity-50"></div>
               <div className="text-4xl tracking-wider font-semibold mt-1">
                 {formatTime(remaining)}

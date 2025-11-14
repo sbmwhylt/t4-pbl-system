@@ -82,7 +82,7 @@ export default function ScorePage() {
   // compute remaining live
   const remaining =
     timer.running && timer.endTime
-      ? Math.max(0, Math.floor((timer.endTime - Date.now()) / 1000))
+      ? Math.max(0, Math.floor((timer.endTime -timerService.serverNow()) / 1000))
       : timer.remaining ?? timer.duration ?? DEFAULT_DURATION;
 
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
