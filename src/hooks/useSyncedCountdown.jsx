@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { serverNow } from "@/services/timer/timerService";
+import { serverNow } from "@/services/timer/timerService.js";
 
 export function useSyncedCountdown(timer) {
   const [remaining, setRemaining] = useState(0);
