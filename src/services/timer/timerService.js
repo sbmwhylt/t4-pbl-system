@@ -169,14 +169,3 @@ export const timerService = {
   subscribeToTimer,
 };
 
-export function getRemaining(timer) {
-  if (!timer) return 0;
-
-  const now = serverNow();
-
-  if (timer.running && timer.endTime) {
-    return Math.max(0, Math.ceil((timer.endTime - now) / 1000));
-  }
-
-  return timer.remaining ?? timer.duration ?? DEFAULT_DURATION;
-}
