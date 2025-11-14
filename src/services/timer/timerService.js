@@ -12,7 +12,7 @@ onValue(ref(db, ".info/serverTimeOffset"), (snap) => {
 });
 
 // Always use server time, not device time
-function serverNow() {
+export function serverNow() {
   return Date.now() + serverOffset;
 }
 
@@ -167,6 +167,5 @@ export const timerService = {
   resetTimer,
   getRemaining,
   subscribeToTimer,
-  serverNow,
 };
 
