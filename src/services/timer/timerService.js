@@ -2,6 +2,20 @@ import { db } from "@/firebase";
 import { ref, update, runTransaction, onValue } from "firebase/database";
 import { DEFAULT_DURATION } from "@/services/constant";
 
+// ------------------------------ Server Time Sync
+
+let serverOffset = 0;
+
+// Keep server offset updated
+onValue(ref(db, ".info/serverTimeOffset"), (snap) => {
+  serverOffset = snap.val() || 0;
+});
+
+// Always use server time, not device time
+function serverNow() {
+  return Date.now() + serverOffset;
+}
+
 // ------------------------------ Timer References
 
 function scoreboardRef(matchId) {
@@ -17,9 +31,7 @@ function timerRef(matchId) {
 async function setTimer(matchId, patch) {
   await update(
     scoreboardRef(matchId),
-    Object.fromEntries(
-      Object.entries(patch).map(([k, v]) => [`timer/${k}`, v])
-    )
+    Object.fromEntries(Object.entries(patch).map(([k, v]) => [`timer/${k}`, v]))
   );
 }
 
@@ -29,7 +41,8 @@ export async function startTimer(
   duration = DEFAULT_DURATION,
   controller = "panel"
 ) {
-  const now = Date.now();
+  const now = serverNow();
+
   await setTimer(matchId, {
     running: true,
     controller,
@@ -43,12 +56,12 @@ export async function startTimer(
 
 export async function pauseTimer(matchId, controller = "panel") {
   const r = timerRef(matchId);
+
   await runTransaction(r, (current) => {
     if (!current) return current;
-    
-    const now = Date.now();
-    
-    // If already paused, just update the controller
+
+    const now = serverNow();
+
     if (!current.running) {
       return {
         ...current,
@@ -58,9 +71,8 @@ export async function pauseTimer(matchId, controller = "panel") {
       };
     }
 
-    // Calculate remaining time and pause
     const endTime = current.endTime ?? now;
-    const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
+    const remaining = Math.max(0, Math.ceil((endTime - now) / 1000));
 
     return {
       ...current,
@@ -76,12 +88,13 @@ export async function pauseTimer(matchId, controller = "panel") {
 
 export async function resumeTimer(matchId, controller = "panel") {
   const r = timerRef(matchId);
+
   await runTransaction(r, (current) => {
     if (!current) return current;
-    
-    // If already running, just update the controller
+
+    const now = serverNow();
+
     if (current.running) {
-      const now = Date.now();
       return {
         ...current,
         controller,
@@ -90,15 +103,14 @@ export async function resumeTimer(matchId, controller = "panel") {
       };
     }
 
-    const now = Date.now();
     const remaining = current.remaining ?? current.duration ?? DEFAULT_DURATION;
-    
+
     return {
       ...current,
       running: true,
       controller,
       endTime: now + remaining * 1000,
-      remaining: remaining,
+      remaining,
       lastAction: now,
       lastController: controller,
     };
@@ -110,7 +122,8 @@ export async function resetTimer(
   duration = DEFAULT_DURATION,
   controller = "panel"
 ) {
-  const now = Date.now();
+  const now = serverNow();
+
   await setTimer(matchId, {
     duration,
     remaining: duration,
@@ -127,8 +140,7 @@ export async function resetTimer(
 export function subscribeToTimer(matchId, callback) {
   const timerRef = ref(db, `scoreboard/${matchId}/timer`);
   return onValue(timerRef, (snapshot) => {
-    const timerData = snapshot.val();
-    callback(timerData);
+    callback(snapshot.val());
   });
 }
 
@@ -136,13 +148,17 @@ export function subscribeToTimer(matchId, callback) {
 
 export function getRemaining(timer) {
   if (!timer) return 0;
+
+  const now = serverNow();
+
   if (timer.running && timer.endTime) {
-    return Math.max(0, Math.floor((timer.endTime - Date.now()) / 1000));
+    return Math.max(0, Math.ceil((timer.endTime - now) / 1000));
   }
+
   return timer.remaining ?? timer.duration ?? DEFAULT_DURATION;
 }
 
-// ------------------------------ Timer Service Object
+// ------------------------------ Timer Service
 
 export const timerService = {
   startTimer,
@@ -152,3 +168,15 @@ export const timerService = {
   getRemaining,
   subscribeToTimer,
 };
+
+export function getRemaining(timer) {
+  if (!timer) return 0;
+
+  const now = serverNow();
+
+  if (timer.running && timer.endTime) {
+    return Math.max(0, Math.ceil((timer.endTime - now) / 1000));
+  }
+
+  return timer.remaining ?? timer.duration ?? DEFAULT_DURATION;
+}

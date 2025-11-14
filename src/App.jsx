@@ -13,10 +13,7 @@ import Score from "@/pages/ScorePage";
 import User from "@/pages/Admin/Users";
 import ScorerPage from "@/pages/Admin/ScorerPage";
 import SelectionPage from "@/pages/Admin/SelectionPage";
-import useAutoLogout from "@/hooks/useAutoLogout";
-
 function App() {
-  useAutoLogout();
 
   return (
     <Router>
