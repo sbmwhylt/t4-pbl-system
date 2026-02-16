@@ -1,6 +1,6 @@
 import { db } from "@/firebase";
 import { ref, onValue, set, update, get } from "firebase/database";
-import { DEFAULT_DURATION } from "@/services/constant"; 
+import { DEFAULT_DURATION } from "@/services/constant";
 
 // -------------------- References
 
@@ -9,7 +9,7 @@ function scoreboardRef(matchId) {
 }
 
 function matchesRef() {
-  return ref(db, "t4_bouldering/matches");  
+  return ref(db, "t4_bouldering/matches");
 }
 
 // ---------------------- Subscriptions
@@ -20,7 +20,7 @@ export function subscribeScoreboard(matchId, callback) {
   });
 }
 
-// ------------------------ Match Initialization
+// ------------------------ Match Initialization (ORIGINAL - Keep as is)
 
 export async function initMatch(matchId) {
   await set(scoreboardRef(matchId), {
@@ -37,7 +37,36 @@ export async function initMatch(matchId) {
   });
 }
 
-  // -------------------------- Period Management
+// ------------------------ Match Initialization (NEW - Multiple Teams)
+
+export async function initMatchMultiTeam(matchId, teamIds = []) {
+  const teams = {};
+
+  // If team IDs provided, initialize with them
+  if (teamIds.length > 0) {
+    teamIds.forEach((teamId) => {
+      teams[teamId] = {
+        id: teamId,
+        name: `Team ${teamId}`,
+        score: 0,
+        current_boulder: "A",
+        players: {},
+      };
+    });
+  }
+
+  await set(scoreboardRef(matchId), {
+    teams: teams,
+    timer: {
+      duration: DEFAULT_DURATION,
+      remaining: DEFAULT_DURATION,
+      running: false,
+    },
+    period: "1ST",
+  });
+}
+
+// -------------------------- Period Management
 
 export function updatePeriod(matchId, period) {
   return update(scoreboardRef(matchId), { period });
@@ -65,7 +94,7 @@ async function getNextSequence() {
   return String(nextCode).padStart(3, "0");
 }
 
-// -------------------------- Finish Match 
+// -------------------------- Finish Match (ORIGINAL - Keep as is)
 
 export async function finishMatch(matchId = "demo") {
   const demoRef = ref(db, `scoreboard/${matchId}`);
@@ -90,5 +119,53 @@ export async function finishMatch(matchId = "demo") {
     start_time: Date.now(),
   });
   await initMatch(matchId);
+  return newMatchId;
+}
+
+// -------------------------- Finish Match (NEW - Multiple Teams)
+
+export async function finishMatchMultiTeam(matchId = "demo") {
+  const demoRef = ref(db, `scoreboard/${matchId}`);
+  const demoSnap = await get(demoRef);
+  if (!demoSnap.exists()) throw new Error("No match data found");
+
+  const demoData = demoSnap.val();
+  const teams = demoData?.teams || {};
+
+  // Convert teams object to array for validation
+  const teamsList = Object.values(teams);
+
+  // Validate at least 2 teams exist
+  if (teamsList.length < 2) {
+    throw new Error("At least 2 teams must be selected");
+  }
+
+  // Validate all teams have IDs
+  const hasInvalidTeam = teamsList.some((team) => !team?.id);
+  if (hasInvalidTeam) {
+    throw new Error("All teams must have valid IDs");
+  }
+
+  // Validate at least one team has scored
+  const totalScore = teamsList.reduce(
+    (sum, team) => sum + (team?.score || 0),
+    0,
+  );
+  if (totalScore <= 0) {
+    throw new Error("At least one team must have scored");
+  }
+
+  const nextCode = await getNextSequence();
+  const newMatchId = generateMatchId(nextCode);
+
+  await set(ref(db, `t4_bouldering/matches/${newMatchId}`), {
+    id: newMatchId,
+    ...demoData,
+    status: "finished",
+    saved_at: Date.now().toString().slice(0, 13),
+    start_time: Date.now(),
+  });
+
+  await initMatchMultiTeam(matchId);
   return newMatchId;
 }

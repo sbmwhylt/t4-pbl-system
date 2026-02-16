@@ -13,8 +13,10 @@ import Score from "@/pages/ScorePage";
 import User from "@/pages/Admin/Users";
 import ScorerPage from "@/pages/Admin/ScorerPage";
 import SelectionPage from "@/pages/Admin/SelectionPage";
-function App() {
+import MultiTeamScorePage from "@/pages/MultiTeamScorePage";
+import MultiTeamScorerPage from "@/pages/Admin/MultiTeamScorerPage";
 
+function App() {
   return (
     <Router>
       <Routes>
@@ -79,7 +81,25 @@ function App() {
         />
 
         <Route
-          path="/scorer/demo"
+          path="/scorer-multi/:matchId/:teamId"
+          element={
+            <PrivateRoute>
+              <MultiTeamScorerPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/multi-team-scorer/demo"
+          element={
+            <PrivateRoute>
+              <MultiTeamScorerPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/selection"
           element={
             <PrivateRoute>
               <SelectionPage />
@@ -99,6 +119,10 @@ function App() {
         {/* Public Routes */}
         <Route path="/broadcast-scoreboard" element={<Live />} />
         <Route path="/onsite-scoreboard" element={<Score />} />
+        <Route
+          path="/multi-team-score/:matchId?"
+          element={<MultiTeamScorePage />}
+        />
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<NotFound />} />

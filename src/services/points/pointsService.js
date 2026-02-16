@@ -1,6 +1,5 @@
-import { db } from "../../firebase";
-import { ref, get, set, update, runTransaction } from "firebase/database";
-import { DEFAULT_DURATION } from "@/services/constant";
+import { db } from "@/firebase";
+import { ref, get, update, runTransaction } from "firebase/database";
 
 // --------------------- Scoreboard Reference
 
@@ -8,8 +7,8 @@ function scoreboardRef(matchId) {
   return ref(db, `scoreboard/${matchId}`);
 }
 
-
 // --------------------------- Team & Score Updates
+// Works for BOTH demo (left/right) and multimatch (T1, T2, T3)
 
 export async function setTeam(matchId, side, team) {
   if (team && typeof team === "object" && "current_player" in team) {
@@ -34,7 +33,7 @@ export async function setTeam(matchId, side, team) {
           name: team?.name || "",
           score: 0,
           current_player: null,
-          current_boulder: "A", // Initialize with default boulder
+          current_boulder: "A",
           jersey: null,
           players: {},
         },
@@ -73,7 +72,7 @@ export async function setTeam(matchId, side, team) {
         name: team.name || "",
         score: 0,
         current_player: null,
-        current_boulder: "A", // Initialize with default boulder
+        current_boulder: "A",
         jersey: null,
         players: teamPlayers,
       },

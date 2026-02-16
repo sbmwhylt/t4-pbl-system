@@ -7,7 +7,7 @@ function matchesRef() {
   return ref(db, "t4_bouldering/matches");
 }
 
-// ----------------- Create Match
+// ----------------- Create Match (ORIGINAL - Keep as is)
 
 async function createMatch({ leftTeam, rightTeam, matchDate, matchTime, teams }) {
   if (!leftTeam || !rightTeam) {
@@ -28,6 +28,37 @@ async function createMatch({ leftTeam, rightTeam, matchDate, matchTime, teams })
   return newMatchId;
 }
 
+// ----------------- Create Match (NEW - Multiple Teams)
+
+async function createMatchMultiTeam({ teamIds, matchDate, matchTime, teams }) {
+  if (!teamIds || teamIds.length < 2) {
+    throw new Error("At least 2 teams must be selected");
+  }
+  
+  const newMatchId = `M${Date.now()}`;
+  
+  // Build teams object dynamically using team IDs as keys
+  const matchTeams = {};
+  teamIds.forEach((teamId) => {
+    matchTeams[teamId] = teams[teamId] || { 
+      id: teamId, 
+      name: "Unknown",
+      score: 0 
+    };
+  });
+  
+  await set(ref(db, `t4_bouldering/matches/${newMatchId}`), {
+    id: newMatchId,
+    teams: matchTeams,
+    matchDate,
+    matchTime,
+    status: "scheduled",
+    start_time: Date.now(),
+  });
+  
+  return newMatchId;
+}
+
 // ----------------- Fetch Matches
 
 function getMatches(callback, setLoading) {
@@ -43,5 +74,6 @@ function getMatches(callback, setLoading) {
 
 export const matchesService = {
   createMatch,
+  createMatchMultiTeam,  // NEW
   getMatches,
 };

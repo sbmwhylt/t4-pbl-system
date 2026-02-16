@@ -40,25 +40,12 @@ export default function Sidebar() {
       path: "/admin/users",
       icon: User2,
     },
-    // {
-    //   label: "Match Panel",
-    //   path: "/admin/panel",
-    //   external: true,
-    //   icon: Gamepad2,
-    // },
 
-    // ---- Scorers Pages
-
-    // {
-    //   label: "Scorers Page (Team 1)",
-    //   path: "/scorer/demo/left",
-    //   icon: Gamepad2,
-    // },
-    // {
-    //   label: "Scorers Page (Team 2)",
-    //   path: "/scorer/demo/right",
-    //   icon: Gamepad2,
-    // },
+    {
+      label: "Multi-Team Scorer",
+      path: "/admin/multi-team-scorer/demo",
+      icon: Gamepad2,
+    },
 
     {
       label: "Scorer Panel",
@@ -68,7 +55,6 @@ export default function Sidebar() {
 
     {
       label: "Broadcast Scoreboard",
-      // path: "/scoreboard/liveview",
       path: "/broadcast-scoreboard",
       icon: Tv,
       external: true,
@@ -77,6 +63,13 @@ export default function Sidebar() {
     {
       label: "Onsite Scoreboard",
       path: "/onsite-scoreboard",
+      icon: Cast,
+      external: true,
+    },
+
+    {
+      label: "Multi-Team Display",
+      path: "/multi-team-score/demo",
       icon: Cast,
       external: true,
     },
@@ -164,7 +157,7 @@ export default function Sidebar() {
                   <Icon size={18} />
                   <span>{label}</span>
                 </Link>
-              )
+              ),
             )}
           </nav>
         </div>
@@ -172,11 +165,10 @@ export default function Sidebar() {
 
         <div className="flex gap-4 justify-between items-center bg-purple-300 m-3 rounded-full">
           <div className="flex items-center justify-center gap-2.5 rounded-full p-2 bg-black-300 cursor-pointer hover:text-purple-500 transition-colors">
-            <img
-              width="34"
-              alt="Default pfp"
-              src="https://avatar.iran.liara.run/public/boy?username=Ash"
-              className="rounded-full"
+            <User2
+              size={16}
+              color={"black"}
+              className="p-4 bg-white rounded-full text-purple-400"
             />
             <div className="flex flex-col leading-tight">
               <p className="text-sm font-medium text-gray-900">

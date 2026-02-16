@@ -1,4 +1,4 @@
-import { db } from "../../firebase";
+import { db } from "@/firebase";
 import { ref, get, set, update, runTransaction } from "firebase/database";
 
 export const boulders = ["A", "B", "C", "D"];
@@ -8,7 +8,7 @@ export const maxPoints = 6;
 // Map zone -> 
 const zonesPoints = { Z1: 1, Z2: 2, Top: 4, Top2: 5, Flash: 6 };
 
-// Refs
+// Refs - Works for both demo (left/right) and multimatch (T1, T2, T3)
 function playerBouldersRef(matchId, teamSide, playerId) {
   return ref(db, `scoreboard/${matchId}/teams/${teamSide}/players/${playerId}/boulders`);
 }
@@ -84,10 +84,11 @@ export async function updatePlayerAttempt(matchId, teamSide, playerId, boulder, 
 }
 
 // Reset only the zone for a specific boulder (keep attempts intact)
+// Works for BOTH demo (left/right) and multimatch (T1, T2, T3)
 export async function resetBoulderZone(matchId, teamSide, playerId, boulder) {
-  const teamRef = ref(db, `scoreboard/demo/teams/${teamSide}`);
+  const tRef = ref(db, `scoreboard/${matchId}/teams/${teamSide}`);
 
-  await runTransaction(teamRef, (team) => {
+  await runTransaction(tRef, (team) => {
     if (!team || !team.players || !team.players[playerId]) return team;
 
     const player = team.players[playerId];
@@ -99,7 +100,7 @@ export async function resetBoulderZone(matchId, teamSide, playerId, boulder) {
       player.boulders[boulder].attempts = 0;
     }
 
-    // 🔹 Recalculate team score (sum of all players’ boulder points)
+    // 🔹 Recalculate team score (sum of all players' boulder points)
     let teamTotal = 0;
     for (const pid in team.players) {
       const p = team.players[pid];
@@ -117,6 +118,3 @@ export async function resetBoulderZone(matchId, teamSide, playerId, boulder) {
     return team;
   });
 }
-
-
-
