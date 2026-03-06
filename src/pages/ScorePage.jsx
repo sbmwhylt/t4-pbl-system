@@ -29,7 +29,7 @@ export default function ScorePage() {
     document.title = "Score Page View";
   }, []);
 
-  const { matchId = "demo" } = useParams();
+  const { matchId = "singlematch" } = useParams();
 
   const [state, setState] = useState({
     teams: { left: BLANK_TEAM, right: BLANK_TEAM },

@@ -96,7 +96,7 @@ async function getNextSequence() {
 
 // -------------------------- Finish Match (ORIGINAL - Keep as is)
 
-export async function finishMatch(matchId = "demo") {
+export async function finishMatch(matchId = "singlematch") {
   const demoRef = ref(db, `scoreboard/${matchId}`);
   const demoSnap = await get(demoRef);
   if (!demoSnap.exists()) throw new Error("No match data found");
@@ -124,7 +124,7 @@ export async function finishMatch(matchId = "demo") {
 
 // -------------------------- Finish Match (NEW - Multiple Teams)
 
-export async function finishMatchMultiTeam(matchId = "demo") {
+export async function finishMatchMultiTeam(matchId = "singlematch") {
   const demoRef = ref(db, `scoreboard/${matchId}`);
   const demoSnap = await get(demoRef);
   if (!demoSnap.exists()) throw new Error("No match data found");

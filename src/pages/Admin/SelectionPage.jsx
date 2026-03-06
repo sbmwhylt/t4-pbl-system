@@ -9,7 +9,7 @@ export default function SelectionPage() {
   const user = useUser();
   const fullname = user?.fullname;
   const navigate = useNavigate();
-  const matchId = "demo"; // Or get dynamically if needed
+  const matchId = "singlematch"; // Or get dynamically if needed
   const [teams, setTeams] = useState({ left: {}, right: {} });
 
   // Fetch teams from Firebase

@@ -30,7 +30,7 @@ export default function Live() {
     document.title = "Live ScoreView";
   }, []);
 
-  const { matchId = "demo" } = useParams();
+  const { matchId = "singlematch" } = useParams();
   const [state, setState] = useState({
     teams: { left: BLANK_TEAM, right: BLANK_TEAM },
     timer: BLANK_TIMER,

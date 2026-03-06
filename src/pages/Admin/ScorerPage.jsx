@@ -32,7 +32,7 @@ import {
 } from "@/services";
 
 export default function ScorerPage() {
-  const { matchId = "demo", side = "left" } = useParams();
+  const { matchId = "singlematch", side = "left" } = useParams();
   const navigate = useNavigate();
 
   const [state, setState] = useState(null);

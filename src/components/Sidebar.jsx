@@ -208,7 +208,7 @@ export default function Sidebar() {
                 console.log(side); // for testing
                 setIsModalOpen(false);
                 // Open scoring page in new tab
-                window.open(`/scorer/demo/${side}`, "_blank");
+                window.open(`/scorer/singlematch/${side}`, "_blank");
               }}
               className={`flex-1 h-32  bg-gray-100 hover:bg-gray-200 font-medium rounded-lg flex flex-col items-center justify-center text-2xl cursor-pointer transition-all ${
                 side === "left" ? "text-red-500" : "text-blue-500"
