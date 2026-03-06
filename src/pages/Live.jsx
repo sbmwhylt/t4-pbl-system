@@ -125,12 +125,15 @@ export default function Live() {
     <div className="flex flex-col items-center justify-center pointer-events-none z-50">
       {/* Animated T4 logo */}
       {noTeamsSelected && (
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+        <div className="fixed inset-0 flex flex-col items-center justify-center h-full gap-6">
           <img
             src="/T4-logo.png"
-            alt="Loading"
-            className="w-24 h-24 animate-pulse"
+            alt="T4"
+            className="w-32 h-32 opacity-20 animate-pulse"
           />
+          <p className="text-gray-400 text-3xl font-bold tracking-widest uppercase">
+            Waiting for teams…
+          </p>
         </div>
       )}
 

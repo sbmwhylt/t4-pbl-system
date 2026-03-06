@@ -85,9 +85,9 @@ export default function ScorePage() {
     timer.running && timer.endTime
       ? Math.max(
           0,
-          Math.floor((timer.endTime - timerService.serverNow()) / 1000)
+          Math.floor((timer.endTime - timerService.serverNow()) / 1000),
         )
-      : timer.remaining ?? timer.duration ?? DEFAULT_DURATION;
+      : (timer.remaining ?? timer.duration ?? DEFAULT_DURATION);
 
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
 
@@ -100,7 +100,7 @@ export default function ScorePage() {
     if (!current_player || !current_boulder) return null;
 
     const player = Object.values(players || {}).find(
-      (p) => p.name === current_player
+      (p) => p.name === current_player,
     );
     if (!player) return null;
 
@@ -133,19 +133,22 @@ export default function ScorePage() {
   return (
     <div className="w-full h-screen flex flex-col items-center justify-center bg-white text-white">
       {noTeamsSelected ? (
-        <div className="flex flex-col items-center justify-center h-full">
+        <div className="flex flex-col items-center justify-center h-full gap-6">
           <img
             src="/T4-logo.png"
-            alt="Loading"
-            className="w-24 h-24 animate-pulse"
+            alt="T4"
+            className="w-32 h-32 opacity-20 animate-pulse"
           />
+          <p className="text-gray-400 text-3xl font-bold tracking-widest uppercase">
+            Waiting for teams…
+          </p>
         </div>
       ) : (
         <div className="w-full h-full grid grid-cols-[2fr_1fr_2fr]">
           {/* Left Team */}
           <div
             className={`flex flex-col items-center justify-center gap-4 p-6 ${getTeamColor(
-              left.abbreviation
+              left.abbreviation,
             )}`}
           >
             {left.logo_url && (
@@ -196,7 +199,7 @@ export default function ScorePage() {
           {/* Right Team */}
           <div
             className={`flex flex-col items-center justify-center gap-4 p-6 ${getTeamColor(
-              right.abbreviation
+              right.abbreviation,
             )}`}
           >
             {right.logo_url && (
