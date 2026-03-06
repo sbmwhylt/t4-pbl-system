@@ -43,8 +43,9 @@ export default function Sidebar() {
 
     {
       label: "Multi-Team Scorer",
-      path: "/admin/multi-team-scorer/demo",
+      path: "/admin/multi-team-scorer",
       icon: Gamepad2,
+      external: true,
     },
 
     {
@@ -69,7 +70,7 @@ export default function Sidebar() {
 
     {
       label: "Multi-Team Display",
-      path: "/multi-team-score/demo",
+      path: "/multi-match",
       icon: Cast,
       external: true,
     },

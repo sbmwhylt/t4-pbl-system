@@ -181,12 +181,15 @@ export default function MultiTeamScorerPage() {
 
   // Add new team slot
   const handleAddTeam = async () => {
-    const existingTeams = Object.keys(state?.teams || {});
-    const newTeamKey = `T${existingTeams.length + 1}`;
+    const existingKeys = Object.keys(state?.teams || {});
+    const maxN = existingKeys
+      .map((k) => parseInt(k.replace("T", "")) || 0)
+      .reduce((a, b) => Math.max(a, b), 0);
+    const newTeamKey = `T${maxN + 1}`;
 
     await setTeam(matchId, newTeamKey, {
       id: "",
-      name: `Team ${existingTeams.length + 1}`,
+      name: `Team ${maxN + 1}`,
       score: 0,
       current_boulder: "A",
     });

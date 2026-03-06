@@ -15,24 +15,12 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
-function getTeamColor(index) {
-  const colors = [
-    "bg-gradient-to-tr from-red-500 via-red-800 to-red-900",
-    "bg-gradient-to-tr from-blue-500 via-blue-800 to-blue-900",
-    "bg-gradient-to-tr from-green-500 via-green-800 to-green-900",
-    "bg-gradient-to-tr from-yellow-500 via-yellow-700 to-yellow-800",
-    "bg-gradient-to-tr from-purple-500 via-purple-800 to-purple-900",
-    "bg-gradient-to-tr from-pink-500 via-pink-800 to-pink-900",
-  ];
-  return colors[index % colors.length];
-}
-
 export default function MultiTeamScorePage() {
   useEffect(() => {
     document.title = "Multi-Team Score View";
   }, []);
 
-  const { matchId = "demo" } = useParams();
+  const { matchId = "multimatch" } = useParams();
 
   const [state, setState] = useState({
     teams: {},
@@ -80,7 +68,6 @@ export default function MultiTeamScorePage() {
         )
       : (timer.remaining ?? timer.duration ?? DEFAULT_DURATION);
 
-  // Get all teams from scoreboard
   const teams = Object.entries(state.teams || {}).map(([key, team]) => {
     const teamMeta = teamsData[team.id] || {};
     return {
@@ -93,103 +80,187 @@ export default function MultiTeamScorePage() {
 
   const noTeamsSelected = teams.length === 0 || teams.every((t) => !t.id);
 
-  // Get current player info for a team
   const getCurrentPlayerInfo = (team) => {
     if (!team.current_player) return null;
-
     const player = Object.values(team.players || {}).find(
       (p) => p.name === team.current_player,
     );
-
     if (!player) return null;
-
     const boulderData = player.boulders?.[team.current_boulder];
-
     return {
       name: team.current_player,
       jersey: team.jersey,
       currentZone: boulderData?.currentZone || "—",
+      points: player.points || 0,
     };
   };
 
+  const gridCols =
+    teams.length <= 2
+      ? "grid-cols-2"
+      : teams.length === 3
+        ? "grid-cols-3"
+        : teams.length === 4
+          ? "grid-cols-4"
+          : teams.length <= 6
+            ? "grid-cols-3"
+            : "grid-cols-4";
+
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4">
+    <div className="w-screen h-screen overflow-hidden flex flex-col bg-gray-100 text-gray-900">
       {noTeamsSelected ? (
-        <div className="flex flex-col items-center justify-center h-full">
+        <div className="flex flex-col items-center justify-center h-full gap-6">
           <img
             src="/T4-logo.png"
-            alt="Loading"
-            className="w-24 h-24 animate-pulse"
+            alt="T4"
+            className="w-32 h-32 opacity-20 animate-pulse"
           />
-          <p className="text-gray-400 mt-4">No teams selected</p>
+          <p className="text-gray-400 text-3xl font-bold tracking-widest uppercase">
+            Waiting for teams…
+          </p>
         </div>
       ) : (
-        <div className="w-full max-w-7xl">
-          {/* Timer & Period */}
-          <div className="bg-gray-800 rounded-xl p-8 mb-6 text-center">
-            <div className="text-4xl font-semibold uppercase mb-4">
-              {period}
+        <div className="flex flex-col h-full">
+          {/* Header bar */}
+          <div
+            className="flex items-center justify-between bg-white border-b-4 border-gray-200 px-10 shrink-0"
+            style={{ height: "14%" }}
+          >
+            {/* Period */}
+            <div className="flex items-baseline gap-4">
+              <span className="text-xl font-bold tracking-widest uppercase text-gray-400">
+                Period
+              </span>
+              <span
+                className="font-black text-gray-900 uppercase leading-none"
+                style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}
+              >
+                {period}
+              </span>
             </div>
-            <div className="text-8xl font-bold tracking-wider">
+
+            {/* Timer — center */}
+            <span
+              className={`font-mono font-black tabular-nums leading-none ${
+                timer.running ? "text-gray-900" : "text-gray-400"
+              }`}
+              style={{ fontSize: "clamp(3.5rem, 9vw, 8rem)" }}
+            >
               {formatTime(remaining)}
+            </span>
+
+            {/* Live indicator */}
+            <div className="flex items-center gap-3">
+              <span
+                className={`w-5 h-5 rounded-full shrink-0 ${
+                  timer.running ? "bg-green-500 animate-pulse" : "bg-gray-300"
+                }`}
+              />
+              <span
+                className={`text-2xl font-black tracking-widest uppercase ${
+                  timer.running ? "text-green-600" : "text-gray-400"
+                }`}
+              >
+                {timer.running ? "LIVE" : "PAUSED"}
+              </span>
             </div>
           </div>
 
-          {/* Teams Grid */}
-          <div
-            className={`grid gap-4 ${
-              teams.length === 2
-                ? "grid-cols-2"
-                : teams.length === 3
-                  ? "grid-cols-3"
-                  : teams.length === 4
-                    ? "grid-cols-2"
-                    : "grid-cols-3"
-            }`}
-          >
-            {teams.map((team, index) => {
+          {/* Teams grid */}
+          <div className={`grid ${gridCols} gap-3 p-3 flex-1 min-h-0`}>
+            {teams.map((team) => {
               const playerInfo = getCurrentPlayerInfo(team);
 
               return (
                 <div
                   key={team.key}
-                  className={`${getTeamColor(index)} rounded-xl p-6 flex flex-col items-center justify-center gap-4`}
+                  className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden border border-gray-200"
                 >
-                  {/* Team Logo */}
-                  {team.logo_url && (
-                    <div className="w-32 h-32 flex items-center justify-center">
-                      <img
-                        src={team.logo_url}
-                        alt={team.abbreviation}
-                        className="object-contain w-full h-full"
-                      />
+                  {/* Card body */}
+                  <div className="flex  flex-col flex-1 min-h-0 px-5 pt-4 pb-0">
+                    {/* Top row: logo + team name */}
+                    <div className="flex items-center justify-center gap-4 shrink-0 ">
+                      {team.logo_url && (
+                        <img
+                          src={team.logo_url}
+                          alt={team.abbreviation || team.name}
+                          className="object-contain shrink-0 rounded-lg"
+                          style={{
+                            width: "clamp(3.5rem, 6vw, 6rem)",
+                            height: "clamp(3.5rem, 6vw, 6rem)",
+                          }}
+                        />
+                      )}
+
+                      {/* Team name */}
+                      <h3
+                        className="font-black text-gray-900 tracking-wide leading-tight truncate flex-1"
+                        style={{ fontSize: "clamp(1.4rem, 2.8vw, 2.8rem)" }}
+                      >
+                        {team.name || team.key}
+                      </h3>
                     </div>
-                  )}
 
-                  {/* Team Name */}
-                  <h3 className="text-2xl font-bold text-center">
-                    {team.name || team.id}
-                  </h3>
+                    {/* Team score — fills remaining space */}
+                    <div className="flex-1 flex items-center justify-center min-h-0">
+                      <span
+                        className="font-black tabular-nums leading-none text-gray-900"
+                        style={{ fontSize: "clamp(5rem, 14vw, 13rem)" }}
+                      >
+                        {team.score || 0}
+                      </span>
+                    </div>
 
-                  {/* Score */}
-                  <div className="text-7xl font-extrabold">
-                    {team.score || 0}
+                    {/* Boulder label */}
+                    {team.current_boulder && (
+                      <div className="flex justify-center pb-2 shrink-0">
+                        <span
+                          className="font-bold uppercase tracking-widest text-gray-500"
+                          style={{ fontSize: "clamp(0.9rem, 1.4vw, 1.4rem)" }}
+                        >
+                          Boulder {team.current_boulder}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Player Info */}
-                  {playerInfo && (
-                    <div className="bg-black/60 rounded-full px-6 py-3 mt-2 flex items-center gap-3">
-                      <span className="text-xl font-medium">
-                        {playerInfo.name}
+                  {/* Player footer */}
+                  <div
+                    className="shrink-0 border-t-2 border-gray-100 bg-gray-50 px-5 flex flex-col justify-center"
+                    style={{ minHeight: "22%" }}
+                  >
+                    {playerInfo ? (
+                      <>
+                        <span
+                          className="text-gray-400 font-bold uppercase tracking-widest leading-none mb-1"
+                          style={{ fontSize: "clamp(0.6rem, 1vw, 0.9rem)" }}
+                        >
+                          Now Climbing
+                        </span>
+                        <div className="flex items-baseline gap-3 flex-wrap">
+                          <span
+                            className="font-black text-gray-900 leading-tight truncate flex-1"
+                            style={{ fontSize: "clamp(1.2rem, 2.2vw, 2.2rem)" }}
+                          >
+                            {playerInfo.name} #{playerInfo.jersey}
+                          </span>
+                          <span
+                            className="font-black px-3 py-0.5 rounded-lg bg-gray-200 text-gray-700 shrink-0"
+                            style={{ fontSize: "clamp(0.9rem, 1.6vw, 1.6rem)" }}
+                          >
+                            Zone: {playerInfo.currentZone}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <span
+                        className="text-gray-400 font-semibold uppercase tracking-wide"
+                        style={{ fontSize: "clamp(0.8rem, 1.2vw, 1.2rem)" }}
+                      >
+                        No active climber
                       </span>
-                      <span className="text-xl text-gray-300">
-                        #{playerInfo.jersey}
-                      </span>
-                      <span className="text-xl font-bold bg-white/20 px-3 py-1 rounded-full">
-                        {playerInfo.currentZone}
-                      </span>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               );
             })}

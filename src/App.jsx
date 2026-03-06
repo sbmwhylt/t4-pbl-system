@@ -90,7 +90,7 @@ function App() {
         />
 
         <Route
-          path="/admin/multi-team-scorer/demo"
+          path="/admin/multi-team-scorer"
           element={
             <PrivateRoute>
               <MultiTeamScorerPage />
@@ -120,7 +120,7 @@ function App() {
         <Route path="/broadcast-scoreboard" element={<Live />} />
         <Route path="/onsite-scoreboard" element={<Score />} />
         <Route
-          path="/multi-team-score/:matchId?"
+          path="/multi-match/:matchId?"
           element={<MultiTeamScorePage />}
         />
         <Route path="/" element={<Login />} />
