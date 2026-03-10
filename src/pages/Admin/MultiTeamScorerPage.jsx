@@ -182,33 +182,48 @@ export default function MultiTeamScorerPage() {
   // Add new team slot
   const handleAddTeam = async () => {
     const existingKeys = Object.keys(state?.teams || {});
-    const maxN = existingKeys
-      .map((k) => parseInt(k.replace("T", "")) || 0)
-      .reduce((a, b) => Math.max(a, b), 0);
-    const newTeamKey = `T${maxN + 1}`;
+    const newIndex = existingKeys.length + 1;
+    const newTeamKey = `T${newIndex}`;
 
     await setTeam(matchId, newTeamKey, {
       id: "",
-      name: `Team ${maxN + 1}`,
+      name: `Team ${newIndex}`,
       score: 0,
       current_boulder: "A",
     });
   };
 
-  // Remove team
+  // Remove team and renumber remaining teams sequentially
   const handleRemoveTeam = async (teamKey) => {
-    if (Object.keys(state?.teams || {}).length <= 2) {
+    const currentTeamsObj = state?.teams || {};
+    if (Object.keys(currentTeamsObj).length <= 2) {
       toast.error("Must have at least 2 teams");
       return;
     }
 
-    // Remove team by setting to null
-    const dbRef = ref(db, `scoreboard/${matchId}/teams/${teamKey}`);
-    await set(dbRef, null);
+    // Clear selection immediately to avoid render errors during the async renumber
+    setSelectedTeamKey(null);
+    setSelectedPlayer(null);
 
-    if (selectedTeamKey === teamKey) {
-      setSelectedTeamKey(null);
-      setSelectedPlayer(null);
+    // Sort remaining teams by their current numeric key
+    const remainingTeams = Object.entries(currentTeamsObj)
+      .filter(([k]) => k !== teamKey)
+      .sort((a, b) => {
+        const numA = parseInt(a[0].replace("T", "")) || 0;
+        const numB = parseInt(b[0].replace("T", "")) || 0;
+        return numA - numB;
+      });
+
+    // Null out all existing team keys
+    for (const k of Object.keys(currentTeamsObj)) {
+      await set(ref(db, `scoreboard/${matchId}/teams/${k}`), null);
+    }
+
+    // Re-add remaining teams under sequential keys T1, T2, T3...
+    for (let i = 0; i < remainingTeams.length; i++) {
+      const newKey = `T${i + 1}`;
+      const [, teamData] = remainingTeams[i];
+      await set(ref(db, `scoreboard/${matchId}/teams/${newKey}`), teamData);
     }
 
     toast.success("Team removed");
@@ -217,7 +232,7 @@ export default function MultiTeamScorerPage() {
   if (!state) return <div className="p-6">Loading…</div>;
 
   const currentTeams = Object.entries(state.teams || {});
-  const selectedTeam = selectedTeamKey ? state.teams[selectedTeamKey] : null;
+  const selectedTeam = selectedTeamKey ? state.teams?.[selectedTeamKey] ?? null : null;
   const selectedBoulder = selectedTeam?.current_boulder || "A";
 
   return (
