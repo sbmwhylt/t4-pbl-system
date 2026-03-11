@@ -1,23 +1,31 @@
 import { db } from "@/firebase";
-import { ref, push, set, get, update, remove } from "firebase/database";
+import { ref, set, get, update, remove } from "firebase/database";
 
 // --------------------------- Team References
 
 function teamsRef() {
   return ref(db, "t4_bouldering/teams");
-}
+} 
 
-// CREATE —----------------- add a team
+
+// CREATE —----------------- add a team with sequential T-key (T1, T2, T3...)
 
 export async function addTeam(teamData) {
-  const newRef = push(teamsRef());
-  await set(newRef, teamData);
-  return newRef.key;
+  const snapshot = await get(teamsRef());
+  const existing = snapshot.val() || {};
+
+  const maxNum = Object.keys(existing)
+    .filter((k) => /^T\d+$/.test(k))
+    .reduce((max, k) => Math.max(max, parseInt(k.slice(1), 10)), 0);
+
+  const newKey = `T${maxNum + 1}`;
+  await set(ref(db, `t4_bouldering/teams/${newKey}`), teamData);
+  return newKey;
 }
 
 // READ —------------------- get all teams
 
-export async function getTeams() {kw
+export async function getTeams() {
   const snapshot = await get(teamsRef());
   if (snapshot.exists()) {
     return snapshot.val();

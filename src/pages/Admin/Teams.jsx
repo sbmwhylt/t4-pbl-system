@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { db } from "@/firebase";
-import { ref, get, onValue } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 import AdminLayout from "@/components/layout/AdminLayout";
-import { Users, Swords, Star } from "lucide-react";
-import { getTeamWins, getTeamPlayersCount } from "@/services";
-import { getTeamMatches } from "@/services";
+import Button from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
+import TeamFormModal from "@/components/modals/teamFormModal";
+import { Users, Swords, Star, Settings, Trash2 } from "lucide-react";
+import { getTeamWins, getTeamPlayersCount, getTeamMatches } from "@/services";
+import { addTeam, updateTeam, deleteTeam } from "@/services";
+import { toast } from "react-hot-toast";
 
 export default function Teams() {
   const [teams, setTeams] = useState([]);
@@ -12,6 +16,11 @@ export default function Teams() {
   const [teamWins, setTeamWins] = useState({});
   const [teamPlayersCount, setTeamPlayersCount] = useState({});
   const [teamMatches, setTeamMatches] = useState({});
+
+  const [showModal, setShowModal] = useState(false);
+  const [editingTeam, setEditingTeam] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [teamToDelete, setTeamToDelete] = useState(null);
 
   // ---------------- get teams ----------------
 
@@ -34,7 +43,7 @@ export default function Teams() {
     return () => unsubscribe();
   }, []);
 
-  // ---------------- get wins + players ----------------
+  // ---------------- get wins + players + matches ----------------
 
   useEffect(() => {
     async function fetchData() {
@@ -48,9 +57,60 @@ export default function Teams() {
     fetchData();
   }, []);
 
+  // ---------------- handlers ----------------
+
+  const openCreateModal = () => {
+    setEditingTeam(null);
+    setShowModal(true);
+  };
+
+  const openEditModal = (team) => {
+    setEditingTeam(team);
+    setShowModal(true);
+  };
+
+  const openDeleteModal = (team) => {
+    setTeamToDelete(team);
+    setShowDeleteModal(true);
+  };
+
+  const handleSubmit = async (formData) => {
+    try {
+      if (editingTeam) {
+        await updateTeam(editingTeam.id, formData);
+        toast.success("Team updated successfully!");
+      } else {
+        await addTeam(formData);
+        toast.success("Team added successfully!");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong. Please try again.");
+      throw err;
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!teamToDelete) return;
+    try {
+      await deleteTeam(teamToDelete.id);
+      toast.success("Team deleted successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete team.");
+    } finally {
+      setShowDeleteModal(false);
+      setTeamToDelete(null);
+    }
+  };
+
   return (
     <AdminLayout>
-      <h2 className="text-2xl font-bold mb-4">Teams</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Teams</h2>
+        <Button onClick={openCreateModal}>Add Team</Button>
+      </div>
+
       {loading ? (
         <p>Loading...</p>
       ) : teams.length === 0 ? (
@@ -78,7 +138,7 @@ export default function Teams() {
                 <div className="relative flex flex-col items-start justify-center gap-4 z-10 pl-2">
                   <div>
                     <h3 className="text-2xl font-semibold">{team.name}</h3>
-                    <div className="flex gap-2 items-center ">
+                    <div className="flex gap-2 items-center">
                       <p className="text-gray-500">
                         ID: <span className="font-semibold">{team.id}</span>
                       </p>
@@ -111,12 +171,58 @@ export default function Teams() {
                       </p>
                     </div>
                   </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <button
+                      className="border border-gray-300 rounded p-2 hover:bg-gray-400 hover:text-white cursor-pointer transition-all"
+                      onClick={() => openEditModal(team)}
+                    >
+                      <Settings size={16} />
+                    </button>
+                    <button
+                      className="border border-gray-300 rounded p-2 hover:bg-red-500 hover:text-white cursor-pointer transition-all"
+                      onClick={() => openDeleteModal(team)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+
+      {/* Add / Edit Modal */}
+      <TeamFormModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        initialData={editingTeam || {}}
+        onSubmit={handleSubmit}
+        mode={editingTeam ? "update" : "create"}
+      />
+
+      {/* Delete Confirm Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        footer={
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </div>
+        }
+      >
+        <p>
+          Are you sure you want to delete{" "}
+          <span className="font-semibold">{teamToDelete?.name}</span>?
+        </p>
+      </Modal>
     </AdminLayout>
   );
 }
