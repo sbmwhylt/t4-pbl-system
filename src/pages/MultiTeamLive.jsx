@@ -36,11 +36,11 @@ function LiveBadge({ running }) {
   );
 }
 
-function TimerNotch({ period, remaining, isLow }) {
+function TimerNotch({ round, remaining, isLow }) {
   return (
     <div className="absolute left-1/2 -translate-x-1/2 bottom-full z-10 flex items-center justify-center gap-0 py-2 px-8 rounded-sm bg-black/60 mb-2">
-      <span className="text-3xl font-extrabold  uppercase text-white leading-none pr-4">
-        {period}
+      <span className="text-3xl font-extrabold uppercase text-white leading-none pr-4">
+        Round {round}
       </span>
 
       {/* Vertical red separator */}
@@ -180,7 +180,7 @@ export default function MultiTeamLive() {
   }, [state.timer?.running]);
 
   const timer = state.timer || { remaining: DEFAULT_DURATION, running: false };
-  const period = state.period || "1ST";
+  const round = state.round ?? 1;
 
   const remaining =
     timer.running && timer.endTime
@@ -223,7 +223,7 @@ export default function MultiTeamLive() {
       {!noTeamsSelected && (
         <div className="fixed bottom-0 left-0 right-0 z-40 px-4 py-1 flex items-center justify-center">
           <div className="relative w-full mb-3">
-            <TimerNotch period={period} remaining={remaining} isLow={isLow} />
+            <TimerNotch round={round} remaining={remaining} isLow={isLow} />
             <div className="flex items-stretch overflow-hidden rounded bg-[#5f8bbb]/80 backdrop-blur-md text-white">
               <div className="flex flex-1 overflow-x-auto">
                 {teams.map((team, i) => (

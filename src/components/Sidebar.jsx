@@ -29,6 +29,8 @@ export default function Sidebar() {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const isAdmin = user?.role === "admin";
+
   const navItems = [
     { label: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
     { label: "Teams", path: "/admin/teams", icon: Users },
@@ -46,6 +48,7 @@ export default function Sidebar() {
       path: "/admin/multi-team-scorer",
       icon: Gamepad2,
       external: true,
+      adminOnly: true,
     },
 
     {
@@ -81,7 +84,7 @@ export default function Sidebar() {
       icon: Tv,
       external: true,
     },
-  ];
+  ].filter((item) => !item.adminOnly || isAdmin);
 
   // Logout handler
   const handleLogout = async () => {

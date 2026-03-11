@@ -5,6 +5,22 @@ import { ChartNoAxesColumn } from "lucide-react";
 import Table from "@/components/ui/Table";
 import { matchesService, teamService } from "@/services";
 
+function isMultiTeamMatch(match) {
+  const teams = match.teams || {};
+  return !teams.left && !teams.right && Object.keys(teams).length > 0;
+}
+
+function formatTeams(match) {
+  const teams = match.teams || {};
+  if (teams.left && teams.right) {
+    return `${teams.left.name} vs ${teams.right.name}`;
+  }
+  const names = Object.values(teams)
+    .map((t) => t.name || t.id || "?")
+    .join(", ");
+  return names || "N/A";
+}
+
 export default function Matches() {
   const [setTeams] = useState({});
   const [matches, setMatches] = useState({});
@@ -47,11 +63,13 @@ export default function Matches() {
             columns={[
               { header: "Match ID", accessor: "id" },
               {
-                header: "Teams",
+                header: "Type",
                 accessor: (row) =>
-                  row.teams?.left && row.teams?.right
-                    ? `${row.teams.left.name} vs ${row.teams.right.name}`
-                    : "N/A",
+                  isMultiTeamMatch(row) ? "Multi-Team" : "Standard",
+              },
+              {
+                header: "Teams",
+                accessor: (row) => formatTeams(row),
               },
               {
                 header: "Date",
@@ -69,7 +87,11 @@ export default function Matches() {
               <div className="flex gap-2 justify-end items-center">
                 <button
                   className="cursor-pointer text-white bg-purple-600 hover:bg-purple-700 rounded p-2 flex gap-1 items-center"
-                  onClick={() => navigate(`/match-stats/${row.id}`)}
+                  onClick={() =>
+                    isMultiTeamMatch(row)
+                      ? navigate(`/admin/multi-match-stats/${row.id}`)
+                      : navigate(`/match-stats/${row.id}`)
+                  }
                 >
                   <ChartNoAxesColumn size={16} />
                 </button>

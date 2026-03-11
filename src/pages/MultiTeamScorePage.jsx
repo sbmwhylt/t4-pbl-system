@@ -57,7 +57,7 @@ export default function MultiTeamScorePage() {
   }, [state.timer?.running]);
 
   const timer = state.timer || { remaining: DEFAULT_DURATION, running: false };
-  const period = state.period || "1ST";
+  const round = state.round ?? 1;
 
   // Calculate current remaining time
   const remaining =
@@ -126,16 +126,16 @@ export default function MultiTeamScorePage() {
             className="flex items-center justify-between bg-white border-b-4 border-gray-200 px-10 shrink-0"
             style={{ height: "14%" }}
           >
-            {/* Period */}
+            {/* Round */}
             <div className="flex items-baseline gap-4">
               <span className="text-xl font-bold tracking-widest uppercase text-gray-400">
-                Period
+                Round
               </span>
               <span
-                className="font-black text-gray-900 uppercase leading-none"
+                className="font-black text-gray-900 leading-none"
                 style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}
               >
-                {period}
+                {round}
               </span>
             </div>
 

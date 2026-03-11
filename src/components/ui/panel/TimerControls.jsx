@@ -20,6 +20,8 @@ export default function TimerControls({
   period,
   onPeriodChange,
   panelSide = "left",
+  hideMeta = false,
+  hidePeriod = false,
 }) {
   // 👇 FIXED: Calculate remaining time directly using server time (same as Live.jsx)
   const remaining =
@@ -81,13 +83,15 @@ export default function TimerControls({
   return (
     <div className="p-4 bg-gray-50 rounded-lg">
       {/* Controller Indicator */}
-      <div className="text-sm text-center mb-2 font-medium">
-        {isController ? (
-          <span className="text-green-600">● Controlling</span>
-        ) : (
-          <span className="text-gray-500">● Viewing</span>
-        )}
-      </div>
+      {!hideMeta && (
+        <div className="text-sm text-center mb-2 font-medium">
+          {isController ? (
+            <span className="text-green-600">● Controlling</span>
+          ) : (
+            <span className="text-gray-500">● Viewing</span>
+          )}
+        </div>
+      )}
 
       {/* Timer + Status */}
       <div className="flex justify-between items-center">
@@ -97,25 +101,27 @@ export default function TimerControls({
         </div>
 
         {/* Period Controls */}
-        <div className="flex justify-center items-center gap-5 bg-gray-100 rounded-full p-2">
-          <button
-            onClick={prevPeriod}
-            disabled={currentPeriodIndex === 0}
-            className="px-2 py-2 rounded-full bg-gray-300 hover:bg-gray-400 disabled:opacity-50 cursor-pointer transition"
-          >
-            <ChevronLeft />
-          </button>
-          <div className="text-2xl font-bold text-gray-800">
-            {PERIODS[currentPeriodIndex]}
+        {!hidePeriod && (
+          <div className="flex justify-center items-center gap-5 bg-gray-100 rounded-full p-2">
+            <button
+              onClick={prevPeriod}
+              disabled={currentPeriodIndex === 0}
+              className="px-2 py-2 rounded-full bg-gray-300 hover:bg-gray-400 disabled:opacity-50 cursor-pointer transition"
+            >
+              <ChevronLeft />
+            </button>
+            <div className="text-2xl font-bold text-gray-800">
+              {PERIODS[currentPeriodIndex]}
+            </div>
+            <button
+              onClick={nextPeriod}
+              disabled={currentPeriodIndex === PERIODS.length - 1}
+              className="px-2 py-2 rounded-full bg-gray-300 hover:bg-gray-400 disabled:opacity-50 cursor-pointer transition"
+            >
+              <ChevronRight />
+            </button>
           </div>
-          <button
-            onClick={nextPeriod}
-            disabled={currentPeriodIndex === PERIODS.length - 1}
-            className="px-2 py-2 rounded-full bg-gray-300 hover:bg-gray-400 disabled:opacity-50 cursor-pointer transition"
-          >
-            <ChevronRight />
-          </button>
-        </div>
+        )}
 
         {/* Timer Controls */}
         <div className="flex justify-center gap-3">

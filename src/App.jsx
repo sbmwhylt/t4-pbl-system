@@ -16,6 +16,7 @@ import SelectionPage from "@/pages/Admin/SelectionPage";
 import MultiTeamScorePage from "@/pages/MultiTeamScorePage";
 import MultiTeamScorerPage from "@/pages/Admin/MultiTeamScorerPage";
 import MultiTeamLive from "@/pages/MultiTeamLive";
+import MultiTeamMatchStats from "@/pages/Admin/MultiTeamMatchStats";
 
 function App() {
   return (
@@ -113,6 +114,15 @@ function App() {
           element={
             <PrivateRoute>
               <User />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/multi-match-stats/:matchId"
+          element={
+            <PrivateRoute>
+              <MultiTeamMatchStats />
             </PrivateRoute>
           }
         />

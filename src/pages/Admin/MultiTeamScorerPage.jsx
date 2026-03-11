@@ -30,15 +30,6 @@ import {
   initMatchMultiTeam,
 } from "@/services";
 
-const TEAM_COLORS = [
-  "border-red-500",
-  "border-blue-500",
-  "border-green-500",
-  "border-yellow-500",
-  "border-purple-500",
-  "border-pink-500",
-];
-
 export default function MultiTeamScorerPage() {
   const { matchId = "multimatch" } = useParams();
 
@@ -48,7 +39,17 @@ export default function MultiTeamScorerPage() {
   const [selectedTeamKey, setSelectedTeamKey] = useState(null);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [playerBoulderData, setPlayerBoulderData] = useState({});
+  const [lockedTeams, setLockedTeams] = useState({});
   const [, forceUpdate] = useState(0);
+
+  const toggleLock = (teamKey) =>
+    setLockedTeams((prev) => ({ ...prev, [teamKey]: !prev[teamKey] }));
+
+  const updateRound = (delta) => {
+    const current = state?.round ?? 1;
+    const next = Math.max(1, current + delta);
+    set(ref(db, `scoreboard/${matchId}/round`), next);
+  };
 
   useEffect(() => {
     document.title = "Multi-Team Scorer Panel";
@@ -232,35 +233,35 @@ export default function MultiTeamScorerPage() {
   if (!state) return <div className="p-6">Loading…</div>;
 
   const currentTeams = Object.entries(state.teams || {});
-  const selectedTeam = selectedTeamKey ? state.teams?.[selectedTeamKey] ?? null : null;
+  const selectedTeam = selectedTeamKey
+    ? (state.teams?.[selectedTeamKey] ?? null)
+    : null;
   const selectedBoulder = selectedTeam?.current_boulder || "A";
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h2 className="text-2xl font-bold">Multi-Team Scorer</h2>
-
         <div className="flex gap-2">
           <button
             onClick={handleAddTeam}
-            className="flex items-center gap-1 px-3 py-1.5 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
           >
-            <Plus size={20} /> Add Team
+            <Plus size={16} /> Add Team
           </button>
-
           <button
             onClick={async () => {
               try {
-                const savedMatchId = await finishMatchMultiTeam();
+                const savedMatchId = await finishMatchMultiTeam(matchId);
                 toast.success(`Match ${savedMatchId} saved!`);
               } catch (err) {
                 toast.error(`Error: ${err.message}`);
               }
             }}
-            className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
           >
-            <Save size={20} /> Save Match
+            <Save size={16} /> Save Match
           </button>
         </div>
       </div>
@@ -279,77 +280,123 @@ export default function MultiTeamScorerPage() {
           onReset={handleResetTimer}
           onPeriodChange={(p) => updatePeriod(matchId, p)}
           panelSide={selectedTeamKey || "panel"}
+          hideMeta
+          hidePeriod
         />
+
+        {/* Round Controls */}
+        <div className="flex items-center justify-center gap-4 mt-3">
+          <button
+            onClick={() => updateRound(-1)}
+            className="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 text-lg font-bold transition-colors flex items-center justify-center"
+          >
+            −
+          </button>
+          <span className="text-base font-semibold text-gray-700 w-24 text-center">
+            Round {state.round ?? 1}
+          </span>
+          <button
+            onClick={() => updateRound(1)}
+            className="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 text-lg font-bold transition-colors flex items-center justify-center"
+          >
+            +
+          </button>
+        </div>
       </div>
 
       {/* Teams Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-        {currentTeams.map(([teamKey, team], index) => (
-          <div
-            key={teamKey}
-            className={`border-4 rounded-lg p-4 cursor-pointer transition-all ${
-              selectedTeamKey === teamKey
-                ? `${TEAM_COLORS[index % TEAM_COLORS.length]} bg-gray-100`
-                : "border-gray-300 hover:border-gray-400"
-            }`}
-            onClick={() => {
-              setSelectedTeamKey(teamKey);
-              setSelectedPlayer(null);
-            }}
-          >
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-bold text-lg">{team.name || teamKey}</h3>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveTeam(teamKey);
-                }}
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mt-6">
+        {currentTeams.map(([teamKey, team]) => {
+          const isSelected = selectedTeamKey === teamKey;
+          const isLocked = !!lockedTeams[teamKey];
+          return (
+            <div
+              key={teamKey}
+              onClick={() => {
+                setSelectedTeamKey(teamKey);
+                setSelectedPlayer(null);
+              }}
+              className={`rounded-xl border-2 p-4 cursor-pointer transition-all ${
+                isSelected
+                  ? "border-purple-300 shadow-md bg-white"
+                  : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
+              }`}
+            >
+              {/* Card header row */}
+              <div className="flex items-center justify-between mb-2 gap-1">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="bg-purple-600 text-white text-sm font-bold px-2.5 py-0.5 rounded-full flex-shrink-0">
+                    {teamKey}
+                  </span>
+                  <span className="font-semibold text-base truncate text-gray-800">
+                    {team.name || teamKey}
+                  </span>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isLocked) handleRemoveTeam(teamKey);
+                  }}
+                  disabled={isLocked}
+                  className={`flex-shrink-0 transition-colors ${
+                    isLocked
+                      ? "text-gray-300 cursor-not-allowed"
+                      : "text-red-400 hover:text-red-600"
+                  }`}
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
 
-            <TeamSelector
-              value={team}
-              teams={teams}
-              onChange={(t) => setTeam(matchId, teamKey, t)}
-              onClick={(e) => e.stopPropagation()}
-            />
+              {/* Team dropdown + lock */}
+              <TeamSelector
+                value={team}
+                teams={teams}
+                onChange={(t) => setTeam(matchId, teamKey, t)}
+                locked={isLocked}
+                onLockToggle={() => toggleLock(teamKey)}
+              />
 
-            <div className="mt-3 text-center">
-              <p className="text-sm text-gray-600">Score</p>
-              <p className="text-4xl font-bold">{team.score || 0}</p>
+              {/* Score */}
+              <div className="mt-3 flex items-center justify-between px-1">
+                <span className="text-sm text-gray-400 uppercase tracking-wide font-medium">
+                  Score
+                </span>
+                <span className="text-4xl font-bold text-gray-800">
+                  {team.score || 0}
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Selected Team Control Panel */}
       {selectedTeamKey && selectedTeam && (
-        <div className="mt-8 border-2 border-gray-300 rounded-lg p-6">
-          <h3 className="text-xl font-bold mb-4">
-            Controlling: {selectedTeam.name || selectedTeamKey}
+        <div className="mt-6 border-2 border-gray-200 rounded-xl p-4 sm:p-6 bg-white">
+          <h3 className="text-lg font-bold mb-4 text-gray-800">
+            Controlling:{" "}
+            <span className="text-gray-500">
+              {selectedTeam.name || selectedTeamKey}
+            </span>
           </h3>
 
           {/* Boulder Selection */}
-          <div className="flex items-center justify-between gap-1 mb-6">
-            <div className="flex gap-2 items-center">
-              <p className="text-lg font-medium mr-3">Boulders:</p>
-              {boulders.map((b) => (
-                <button
-                  key={b}
-                  onClick={() => handleBoulderChange(b)}
-                  className={`px-4 py-2 rounded-lg text-lg ${
-                    selectedBoulder === b
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-300 text-gray-700"
-                  }`}
-                >
-                  {b}
-                </button>
-              ))}
-            </div>
+          <div className="flex flex-wrap items-center gap-2 mb-6">
+            <p className="text-sm font-semibold text-gray-600 mr-1">Boulder:</p>
+            {boulders.map((b) => (
+              <button
+                key={b}
+                onClick={() => handleBoulderChange(b)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                  selectedBoulder === b
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {b}
+              </button>
+            ))}
           </div>
 
           {/* Players */}
