@@ -73,7 +73,7 @@ export default function Live() {
     if (!current_player || !current_boulder) return null;
 
     const player = Object.values(players || {}).find(
-      (p) => p.name === current_player
+      (p) => p.name === current_player,
     );
     if (!player) return null;
 
@@ -115,9 +115,9 @@ export default function Live() {
     timer.running && timer.endTime
       ? Math.max(
           0,
-          Math.floor((timer.endTime - timerService.serverNow()) / 1000)
+          Math.floor((timer.endTime - timerService.serverNow()) / 1000),
         )
-      : timer.remaining ?? timer.duration ?? DEFAULT_DURATION;
+      : (timer.remaining ?? timer.duration ?? DEFAULT_DURATION);
 
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
 

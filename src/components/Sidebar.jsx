@@ -74,6 +74,13 @@ export default function Sidebar() {
       icon: Cast,
       external: true,
     },
+
+    {
+      label: "Multi-Team Scoreboard",
+      path: "/multi-live",
+      icon: Tv,
+      external: true,
+    },
   ];
 
   // Logout handler

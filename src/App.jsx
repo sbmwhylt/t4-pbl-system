@@ -15,6 +15,7 @@ import ScorerPage from "@/pages/Admin/ScorerPage";
 import SelectionPage from "@/pages/Admin/SelectionPage";
 import MultiTeamScorePage from "@/pages/MultiTeamScorePage";
 import MultiTeamScorerPage from "@/pages/Admin/MultiTeamScorerPage";
+import MultiTeamLive from "@/pages/MultiTeamLive";
 
 function App() {
   return (
@@ -117,6 +118,7 @@ function App() {
         />
 
         {/* Public Routes */}
+        <Route path="/multi-live/:matchId?" element={<MultiTeamLive />} />
         <Route path="/broadcast-scoreboard" element={<Live />} />
         <Route path="/onsite-scoreboard" element={<Score />} />
         <Route
