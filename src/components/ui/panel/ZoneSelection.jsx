@@ -1,4 +1,4 @@
-import { zones } from "@/services";
+import { zones, zonesPoints, getZonePoints } from "@/services";
 
 export default function ZoneSelection({
   playerId,
@@ -6,7 +6,8 @@ export default function ZoneSelection({
   selectedBoulder,
   playerBoulderData,
   onZoneClick,
-  onZoneReset, // Add this prop for reset functionality
+  onZoneReset,
+  isAnchor = false,
 }) {
   if (!playerId) return null;
 
@@ -22,6 +23,9 @@ export default function ZoneSelection({
         {zones.map((zone, idx) => {
           const isCompleted = idx < currentZoneIndex;
           const isCurrent = idx === currentZoneIndex;
+          const pts = getZonePoints(zone, isAnchor);
+          const hasBonus = isAnchor && pts !== zonesPoints[zone];
+          const label = hasBonus ? `${zone} (${pts})` : zone;
 
           return (
             <button
@@ -29,13 +33,13 @@ export default function ZoneSelection({
               disabled={isCompleted}
               onClick={() => !isCompleted && onZoneClick(teamSide, playerId, zone)}
               className={`
-                px-4 py-2 rounded font-medium transition-colors w-full 
+                px-4 py-2 rounded font-medium transition-colors w-full
                 ${isCompleted ? "bg-gray-200 text-gray-400 cursor-not-allowed" : ""}
                 ${isCurrent ? "bg-blue-500 text-white" : ""}
                 ${!isCompleted && !isCurrent ? "bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer" : ""}
               `}
             >
-              {isCompleted ? "✔" : zone}
+              {isCompleted ? "✔" : label}
             </button>
           );
         })}

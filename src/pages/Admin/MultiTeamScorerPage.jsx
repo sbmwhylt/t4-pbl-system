@@ -40,6 +40,7 @@ export default function MultiTeamScorerPage() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [playerBoulderData, setPlayerBoulderData] = useState({});
   const [lockedTeams, setLockedTeams] = useState({});
+  const [isAnchor, setIsAnchor] = useState(false);
   const [, forceUpdate] = useState(0);
 
   const toggleLock = (teamKey) =>
@@ -119,7 +120,7 @@ export default function MultiTeamScorerPage() {
   // Handle zone click
   const handleZoneClick = async (teamKey, playerId, zone) => {
     const selectedBoulder = state?.teams?.[teamKey]?.current_boulder || "A";
-    await setPlayerZone(matchId, teamKey, playerId, selectedBoulder, zone);
+    await setPlayerZone(matchId, teamKey, playerId, selectedBoulder, zone, isAnchor);
     await loadPlayerBoulderData();
   };
 
@@ -381,22 +382,34 @@ export default function MultiTeamScorerPage() {
             </span>
           </h3>
 
-          {/* Boulder Selection */}
-          <div className="flex flex-wrap items-center gap-2 mb-6">
-            <p className="text-sm font-semibold text-gray-600 mr-1">Boulder:</p>
-            {boulders.map((b) => (
-              <button
-                key={b}
-                onClick={() => handleBoulderChange(b)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                  selectedBoulder === b
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {b}
-              </button>
-            ))}
+          {/* Boulder Selection + Anchor Toggle */}
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-semibold text-gray-600 mr-1">Boulder:</p>
+              {boulders.map((b) => (
+                <button
+                  key={b}
+                  onClick={() => handleBoulderChange(b)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                    selectedBoulder === b
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  {b}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setIsAnchor((v) => !v)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                isAnchor
+                  ? "bg-amber-500 text-white"
+                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+              }`}
+            >
+              Anchor {isAnchor ? "ON" : "OFF"}
+            </button>
           </div>
 
           {/* Players */}
@@ -424,6 +437,7 @@ export default function MultiTeamScorerPage() {
                 playerBoulderData={playerBoulderData}
                 onZoneClick={handleZoneClick}
                 onZoneReset={handleZoneReset}
+                isAnchor={isAnchor}
               />
             </div>
           )}

@@ -40,6 +40,7 @@ export default function ScorerPage() {
   const [allPlayers, setAllPlayers] = useState([]);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [playerBoulderData, setPlayerBoulderData] = useState({});
+  const [isAnchor, setIsAnchor] = useState(false);
   const [, forceUpdate] = useState(0); // 👈 Just to force re-renders
 
   useEffect(() => {
@@ -107,7 +108,7 @@ export default function ScorerPage() {
   // Handle zone click
   const handleZoneClick = async (teamSide, playerId, zone) => {
     const selectedBoulder = state?.teams?.[teamSide]?.current_boulder || "A";
-    await setPlayerZone(matchId, teamSide, playerId, selectedBoulder, zone);
+    await setPlayerZone(matchId, teamSide, playerId, selectedBoulder, zone, isAnchor);
     await loadPlayerBoulderData();
   };
 
@@ -241,9 +242,21 @@ export default function ScorerPage() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
-            <p className="text-lg font-medium">Total Score:</p>
-            <p className="text-6xl font-semibold">{team.score}</p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsAnchor((v) => !v)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
+                isAnchor
+                  ? "bg-amber-500 text-white"
+                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+              }`}
+            >
+              Anchor {isAnchor ? "ON" : "OFF"}
+            </button>
+            <div className="flex items-center gap-2">
+              <p className="text-lg font-medium">Total Score:</p>
+              <p className="text-6xl font-semibold">{team.score}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -272,6 +285,7 @@ export default function ScorerPage() {
             playerBoulderData={playerBoulderData}
             onZoneClick={handleZoneClick}
             onZoneReset={handleZoneReset}
+            isAnchor={isAnchor}
           />
         )}
 

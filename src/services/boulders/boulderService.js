@@ -5,8 +5,16 @@ export const boulders = ["A", "B", "C", "D"];
 export const zones = ["Z1", "Z2", "Top", "Top2", "Flash"];
 export const maxPoints = 6;
 
-// Map zone -> 
-const zonesPoints = { Z1: 1, Z2: 2, Top: 4, Top2: 5, Flash: 6 };
+// Map zone -> base points
+export const zonesPoints = { Z1: 1, Z2: 2, Top: 4, Top2: 5, Flash: 6 };
+
+// Anchor bonus: applied to Flash and Top2 when climber is anchor (last climber)
+const anchorBonus = { Top2: 1, Flash: 1 };
+
+export function getZonePoints(zone, isAnchor = false) {
+  const base = zonesPoints[zone] || 0;
+  return isAnchor ? base + (anchorBonus[zone] || 0) : base;
+}
 
 // Refs - Works for both demo (left/right) and multimatch (T1, T2, T3)
 function playerBouldersRef(matchId, teamSide, playerId) {
@@ -36,8 +44,8 @@ export async function resetBoulder(matchId, teamSide, playerId, boulder) {
 }
 
 // Set a zone for a player on a boulder (does NOT affect attempts)
-export async function setPlayerZone(matchId, teamSide, playerId, boulder, zone) {
-  const points = zonesPoints[zone] || 0;
+export async function setPlayerZone(matchId, teamSide, playerId, boulder, zone, isAnchor = false) {
+  const points = getZonePoints(zone, isAnchor);
 
   await runTransaction(playerBouldersRef(matchId, teamSide, playerId), (current) => {
     if (!current) return current;
