@@ -11,7 +11,7 @@ import TimerControls from "@/components/ui/panel/TimerControls";
 import ZoneSelection from "@/components/ui/panel/ZoneSelection";
 import AttemptButtons from "@/components/ui/panel/AttemptButtons";
 
-import { Save, Plus, Trash2 } from "lucide-react";
+import { Save, Plus, Trash2, ArrowLeftRight } from "lucide-react";
 
 import {
   subscribeScoreboard,
@@ -28,6 +28,7 @@ import {
   timerService,
   setCurrentBoulder,
   initMatchMultiTeam,
+  setOverlayTeams,
 } from "@/services";
 
 export default function MultiTeamScorerPage() {
@@ -120,7 +121,14 @@ export default function MultiTeamScorerPage() {
   // Handle zone click
   const handleZoneClick = async (teamKey, playerId, zone) => {
     const selectedBoulder = state?.teams?.[teamKey]?.current_boulder || "A";
-    await setPlayerZone(matchId, teamKey, playerId, selectedBoulder, zone, isAnchor);
+    await setPlayerZone(
+      matchId,
+      teamKey,
+      playerId,
+      selectedBoulder,
+      zone,
+      isAnchor,
+    );
     await loadPlayerBoulderData();
   };
 
@@ -372,6 +380,78 @@ export default function MultiTeamScorerPage() {
         })}
       </div>
 
+      {/* Overlay Control */}
+      <div className="mt-4 p-4 rounded-lg border border-gray-200 bg-white">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-semibold text-gray-700">
+            Overlay Display
+          </span>
+          <span
+            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+              !!(state.overlay?.left && state.overlay?.right)
+                ? "bg-green-100 text-green-700"
+                : "bg-gray-100 text-gray-400"
+            }`}
+          >
+            {!!(state.overlay?.left && state.overlay?.right)
+              ? "Active"
+              : "Not set"}
+          </span>
+        </div>
+        <div className="flex items-center gap-10">
+          <select
+            value={state.overlay?.left ?? ""}
+            onChange={(e) =>
+              setOverlayTeams(
+                matchId,
+                e.target.value || null,
+                state.overlay?.right ?? null,
+              )
+            }
+            className="flex-1 border border-gray-300 rounded px-2 py-2 text-md"
+          >
+            <option value="">Left team</option>
+            {currentTeams.map(([key, t]) => (
+              <option key={key} value={key}>
+                {key}: {t.name || key}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() =>
+              setOverlayTeams(
+                matchId,
+                state.overlay?.right ?? null,
+                state.overlay?.left ?? null,
+              )
+            }
+            disabled={!(state.overlay?.left && state.overlay?.right)}
+            title="Swap"
+            className=" text-gray-400 hover:text-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-full cursor-pointer"
+          >
+            <ArrowLeftRight size={24} />
+          </button>
+          <select
+            value={state.overlay?.right ?? ""}
+            onChange={(e) =>
+              setOverlayTeams(
+                matchId,
+                state.overlay?.left ?? null,
+                e.target.value || null,
+              )
+            }
+            className="flex-1 border border-gray-300 rounded px-2 py-2 text-md"
+          >
+            <option value="">Right team</option>
+            {currentTeams.map(([key, t]) => (
+              <option key={key} value={key}>
+                {key}: {t.name || key}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       {/* Selected Team Control Panel */}
       {selectedTeamKey && selectedTeam && (
         <div className="mt-6 border-2 border-gray-200 rounded-xl p-4 sm:p-6 bg-white">
@@ -385,7 +465,9 @@ export default function MultiTeamScorerPage() {
           {/* Boulder Selection + Anchor Toggle */}
           <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-semibold text-gray-600 mr-1">Boulder:</p>
+              <p className="text-sm font-semibold text-gray-600 mr-1">
+                Boulder:
+              </p>
               {boulders.map((b) => (
                 <button
                   key={b}

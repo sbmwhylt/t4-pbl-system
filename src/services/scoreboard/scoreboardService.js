@@ -122,6 +122,12 @@ export async function finishMatch(matchId = "singlematch") {
   return newMatchId;
 }
 
+// -------------------------- Overlay Team Selection
+
+export function setOverlayTeams(matchId, left, right) {
+  return set(ref(db, `scoreboard/${matchId}/overlay`), { left, right });
+}
+
 // -------------------------- Finish Match (NEW - Multiple Teams)
 
 export async function finishMatchMultiTeam(matchId = "singlematch") {

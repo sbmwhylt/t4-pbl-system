@@ -68,7 +68,7 @@ export default function MultiTeamScorePage() {
         )
       : (timer.remaining ?? timer.duration ?? DEFAULT_DURATION);
 
-  const teams = Object.entries(state.teams || {}).map(([key, team]) => {
+  const allTeams = Object.entries(state.teams || {}).map(([key, team]) => {
     const teamMeta = teamsData[team.id] || {};
     return {
       key,
@@ -78,7 +78,17 @@ export default function MultiTeamScorePage() {
     };
   });
 
-  const noTeamsSelected = teams.length === 0 || teams.every((t) => !t.id);
+  // Respect overlay config: show only the two selected teams in left/right order
+  const overlay = state.overlay;
+  const teams = (() => {
+    if (overlay?.left && overlay?.right) {
+      const teamsMap = Object.fromEntries(allTeams.map((t) => [t.key, t]));
+      return [teamsMap[overlay.left], teamsMap[overlay.right]].filter(Boolean);
+    }
+    return allTeams;
+  })();
+
+  const noTeamsSelected = allTeams.length === 0 || allTeams.every((t) => !t.id);
 
   const getCurrentPlayerInfo = (team) => {
     if (!team.current_player) return null;

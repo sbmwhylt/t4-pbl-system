@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase"; // adjust path
 
-const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 minutes
+const INACTIVITY_LIMIT = 3 * 60 * 60 * 1000; // 3 hours
 const CHECK_INTERVAL_MS = 1000;
 
 export default function useAutoLogout({

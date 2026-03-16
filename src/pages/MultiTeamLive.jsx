@@ -190,7 +190,7 @@ export default function MultiTeamLive() {
         )
       : (timer.remaining ?? timer.duration ?? DEFAULT_DURATION);
 
-  const teams = Object.entries(state.teams || {}).map(([key, team]) => {
+  const allTeams = Object.entries(state.teams || {}).map(([key, team]) => {
     const meta = teamsData[team.id] || {};
     return {
       key,
@@ -200,7 +200,17 @@ export default function MultiTeamLive() {
     };
   });
 
-  const noTeamsSelected = teams.length === 0 || teams.every((t) => !t.id);
+  // Respect overlay config: show only the two selected teams in left/right order
+  const overlay = state.overlay;
+  const teams = (() => {
+    if (overlay?.left && overlay?.right) {
+      const teamsMap = Object.fromEntries(allTeams.map((t) => [t.key, t]));
+      return [teamsMap[overlay.left], teamsMap[overlay.right]].filter(Boolean);
+    }
+    return allTeams;
+  })();
+
+  const noTeamsSelected = allTeams.length === 0 || allTeams.every((t) => !t.id);
   const isLow = remaining <= 30 && timer.running;
 
   return (
