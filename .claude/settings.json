@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find c:/Development/t4-pbl-web-app -name *.css -o -name *.scss)",
+      "Bash(grep -r color c:/Development/t4-pbl-web-app/src/services --include=*.js)"
+    ]
+  }
+}

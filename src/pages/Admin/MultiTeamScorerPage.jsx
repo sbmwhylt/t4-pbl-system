@@ -12,6 +12,7 @@ import ZoneSelection from "@/components/ui/panel/ZoneSelection";
 import AttemptButtons from "@/components/ui/panel/AttemptButtons";
 
 import { Save, Plus, Trash2, ArrowLeftRight } from "lucide-react";
+import { getGradientById } from "@/constants/teamColors";
 
 import {
   subscribeScoreboard,
@@ -314,10 +315,12 @@ export default function MultiTeamScorerPage() {
       </div>
 
       {/* Teams Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 mt-6">
         {currentTeams.map(([teamKey, team]) => {
           const isSelected = selectedTeamKey === teamKey;
           const isLocked = !!lockedTeams[teamKey];
+          const teamMeta = teams.find((t) => t.id === team.id);
+          const teamGradient = teamMeta?.color ? getGradientById(teamMeta.color) : null;
           return (
             <div
               key={teamKey}
@@ -325,16 +328,23 @@ export default function MultiTeamScorerPage() {
                 setSelectedTeamKey(teamKey);
                 setSelectedPlayer(null);
               }}
-              className={`rounded-xl border-2 p-4 cursor-pointer transition-all ${
+              className={`rounded-xl border-2 p-4 cursor-pointer transition-all overflow-hidden relative ${
                 isSelected
                   ? "border-purple-300 shadow-md bg-white"
                   : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
               }`}
             >
+              {/* Color bar */}
+              {teamGradient && (
+                <div className={`absolute top-0 left-0 w-full h-1.5 ${teamGradient.gradient}`} />
+              )}
+
               {/* Card header row */}
               <div className="flex items-center justify-between mb-2 gap-1">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="bg-purple-600 text-white text-sm font-bold px-2.5 py-0.5 rounded-full flex-shrink-0">
+                  <span className={`text-white text-sm font-bold px-2.5 py-0.5 rounded-full flex-shrink-0 ${
+                    teamGradient ? teamGradient.badge : "bg-purple-600"
+                  }`}>
                     {teamKey}
                   </span>
                   <span className="font-semibold text-base truncate text-gray-800">

@@ -17,6 +17,7 @@ export function subscribeTeams(callback) {
       name: t.name || id,
       abbreviation: t.abbreviation || "",
       logo_url: t.logo_url || "",
+      color: t.color || "",
       wins: t.wins || 0,
       matches: t.matches || 0,
       players: t.players || 0,

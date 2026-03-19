@@ -6,6 +6,7 @@ import {
   subscribeTeams,
   timerService,
 } from "@/services";
+import { getGradientById } from "@/constants/teamColors";
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -75,6 +76,7 @@ export default function MultiTeamScorePage() {
       ...team,
       logo_url: teamMeta.logo_url || "",
       abbreviation: teamMeta.abbreviation || "",
+      color: teamMeta.color || "",
     };
   });
 
@@ -180,16 +182,22 @@ export default function MultiTeamScorePage() {
           <div className={`grid ${gridCols} gap-3 p-3 flex-1 min-h-0`}>
             {teams.map((team) => {
               const playerInfo = getCurrentPlayerInfo(team);
+              const teamGradient = team.color ? getGradientById(team.color) : null;
+              const hasColor = !!teamGradient;
 
               return (
                 <div
                   key={team.key}
-                  className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden border border-gray-200"
+                  className={`rounded-2xl shadow-lg flex flex-col overflow-hidden ${
+                    hasColor
+                      ? `${teamGradient.gradient} border border-white/20`
+                      : "bg-white border border-gray-200"
+                  }`}
                 >
                   {/* Card body */}
-                  <div className="flex  flex-col flex-1 min-h-0 px-5 pt-4 pb-0">
+                  <div className="flex flex-col flex-1 min-h-0 px-5 pt-4 pb-0">
                     {/* Top row: logo + team name */}
-                    <div className="flex items-center justify-center gap-4 shrink-0 ">
+                    <div className="flex items-center justify-center gap-4 shrink-0">
                       {team.logo_url && (
                         <img
                           src={team.logo_url}
@@ -204,7 +212,9 @@ export default function MultiTeamScorePage() {
 
                       {/* Team name */}
                       <h3
-                        className="font-black text-gray-900 tracking-wide leading-tight truncate flex-1"
+                        className={`font-black tracking-wide leading-tight truncate flex-1 ${
+                          hasColor ? "text-white" : "text-gray-900"
+                        }`}
                         style={{ fontSize: "clamp(1.4rem, 2.8vw, 2.8rem)" }}
                       >
                         {team.name || team.key}
@@ -214,7 +224,9 @@ export default function MultiTeamScorePage() {
                     {/* Team score — fills remaining space */}
                     <div className="flex-1 flex items-center justify-center min-h-0">
                       <span
-                        className="font-black tabular-nums leading-none text-gray-900"
+                        className={`font-black tabular-nums leading-none ${
+                          hasColor ? "text-white" : "text-gray-900"
+                        }`}
                         style={{ fontSize: "clamp(5rem, 14vw, 13rem)" }}
                       >
                         {team.score || 0}
@@ -225,7 +237,9 @@ export default function MultiTeamScorePage() {
                     {team.current_boulder && (
                       <div className="flex justify-center pb-2 shrink-0">
                         <span
-                          className="font-bold uppercase tracking-widest text-gray-500"
+                          className={`font-bold uppercase tracking-widest ${
+                            hasColor ? "text-white/60" : "text-gray-500"
+                          }`}
                           style={{ fontSize: "clamp(0.9rem, 1.4vw, 1.4rem)" }}
                         >
                           Boulder {team.current_boulder}
@@ -236,38 +250,57 @@ export default function MultiTeamScorePage() {
 
                   {/* Player footer */}
                   <div
-                    className="shrink-0 border-t-2 border-gray-100 bg-gray-50 px-5 flex flex-col justify-center"
+                    className={`shrink-0 px-5 flex flex-col justify-center ${
+                      hasColor
+                        ? "border-t-2 border-white/15 bg-black/20"
+                        : "border-t-2 border-gray-100 bg-gray-50"
+                    }`}
                     style={{ minHeight: "22%" }}
                   >
                     {playerInfo ? (
                       <>
                         <span
-                          className="text-gray-400 font-bold uppercase tracking-widest leading-none mb-1"
+                          className={`font-bold uppercase tracking-widest leading-none mb-1 ${
+                            hasColor ? "text-white/50" : "text-gray-400"
+                          }`}
                           style={{ fontSize: "clamp(0.6rem, 1vw, 0.9rem)" }}
                         >
-                          Now Climbing
+                          On The Wall
                         </span>
                         <div className="flex items-baseline gap-3 flex-wrap">
                           <span
-                            className="font-black text-gray-900 leading-tight truncate flex-1"
+                            className={`font-black leading-tight truncate flex-1 ${
+                              hasColor ? "text-white" : "text-gray-900"
+                            }`}
                             style={{ fontSize: "clamp(1.2rem, 2.2vw, 2.2rem)" }}
                           >
                             {playerInfo.name} #{playerInfo.jersey}
                           </span>
                           <span
-                            className="font-black px-3 py-0.5 rounded-lg bg-gray-200 text-gray-700 shrink-0"
-                            style={{ fontSize: "clamp(0.9rem, 1.6vw, 1.6rem)" }}
+                            className="inline-flex items-center gap-2 px-1 py-1 rounded-full shrink-0"
+                            style={{
+                              fontSize: "clamp(0.75rem, 1.3vw, 1.1rem)",
+                            }}
                           >
-                            Zone: {playerInfo.currentZone}
+                            <span className={`font-medium uppercase text-xl ${
+                              hasColor ? "text-white/70" : "text-gray-600"
+                            }`}>
+                              Current :
+                            </span>
+                            <span className="text-xl uppercase tracking-widest font-semibold px-4 py-1.5 rounded-full bg-gray-800 text-white text-center w-35">
+                              {playerInfo.currentZone}
+                            </span>
                           </span>
                         </div>
                       </>
                     ) : (
                       <span
-                        className="text-gray-400 font-semibold uppercase tracking-wide"
+                        className={`font-semibold uppercase tracking-wide ${
+                          hasColor ? "text-white/40" : "text-gray-400"
+                        }`}
                         style={{ fontSize: "clamp(0.8rem, 1.2vw, 1.2rem)" }}
                       >
-                        No active climber
+                        No active player
                       </span>
                     )}
                   </div>

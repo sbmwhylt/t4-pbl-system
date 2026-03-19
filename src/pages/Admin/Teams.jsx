@@ -9,6 +9,7 @@ import { Users, Swords, Star, Settings, Trash2 } from "lucide-react";
 import { getTeamWins, getTeamPlayersCount, getTeamMatches } from "@/services";
 import { addTeam, updateTeam, deleteTeam } from "@/services";
 import { toast } from "react-hot-toast";
+import { getGradientById } from "@/constants/teamColors";
 
 export default function Teams() {
   const [teams, setTeams] = useState([]);
@@ -116,7 +117,7 @@ export default function Teams() {
       ) : teams.length === 0 ? (
         <p>No teams found</p>
       ) : (
-        <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4">
           {teams.map((team) => {
             const wins = teamWins[team.id] || 0;
             const playerCount = teamPlayersCount[team.id] || 0;
@@ -127,6 +128,10 @@ export default function Teams() {
                 key={team.id}
                 className="relative bg-white shadow-md rounded-lg p-6 grid grid-cols-2 items-center overflow-hidden"
               >
+                {/* Color bar */}
+                {team.color && (
+                  <div className={`absolute top-0 left-0 w-full h-1.5 ${getGradientById(team.color).gradient}`} />
+                )}
                 {/* Background logo */}
                 <img
                   src={team.logo_url}

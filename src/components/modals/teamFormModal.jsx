@@ -3,7 +3,8 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { useState, useEffect, useRef } from "react";
 import { uploadImage } from "@/services/imagekit/imageUpload";
-import { ImagePlus, X, Loader2 } from "lucide-react";
+import { ImagePlus, X, Loader2, Check } from "lucide-react";
+import TEAM_GRADIENTS from "@/constants/teamColors";
 
 export default function TeamFormModal({
   isOpen,
@@ -12,7 +13,7 @@ export default function TeamFormModal({
   onSubmit,
   mode = "create",
 }) {
-  const [formData, setFormData] = useState({ name: "", logo_url: "" });
+  const [formData, setFormData] = useState({ name: "", logo_url: "", color: "" });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -21,10 +22,10 @@ export default function TeamFormModal({
 
   useEffect(() => {
     if (mode === "update" && initialData) {
-      setFormData({ name: initialData.name || "", logo_url: initialData.logo_url || "" });
+      setFormData({ name: initialData.name || "", logo_url: initialData.logo_url || "", color: initialData.color || "" });
       setImagePreview(initialData.logo_url || null);
     } else if (mode === "create") {
-      setFormData({ name: "", logo_url: "" });
+      setFormData({ name: "", logo_url: "", color: "" });
       setImagePreview(null);
     }
     setImageFile(null);
@@ -102,6 +103,30 @@ export default function TeamFormModal({
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
         />
+
+        {/* Color Picker */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Team Color</label>
+          <div className="grid grid-cols-8 gap-2">
+            {TEAM_GRADIENTS.map((color) => (
+              <button
+                key={color.id}
+                type="button"
+                onClick={() => setFormData({ ...formData, color: color.id })}
+                className={`w-full aspect-square rounded-lg ${color.gradient} transition-all cursor-pointer flex items-center justify-center ${
+                  formData.color === color.id
+                    ? `ring-2 ${color.ring} ring-offset-2 scale-110`
+                    : "hover:scale-105"
+                }`}
+                title={color.name}
+              >
+                {formData.color === color.id && (
+                  <Check size={14} className="text-white drop-shadow" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Image Upload */}
         <div className="flex flex-col gap-1">

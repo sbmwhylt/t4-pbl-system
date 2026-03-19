@@ -8,7 +8,7 @@ export const maxPoints = 6;
 // Map zone -> base points
 export const zonesPoints = { Z1: 1, Z2: 2, Top: 4, Top2: 5, Flash: 6 };
 
-// Anchor bonus: applied to Flash and Top2 when climber is anchor (last climber)
+// Anchor bonus: applied to Flash and Top2 when player is anchor (last on the wall)
 const anchorBonus = { Top2: 1, Flash: 1 };
 
 export function getZonePoints(zone, isAnchor = false) {
