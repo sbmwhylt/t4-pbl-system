@@ -131,7 +131,7 @@ export default function MultiTeamMatchStats() {
                                     {p.name}
                                   </p>
                                   <p className="text-xs text-gray-500">
-                                    #{p.jersey_number}
+                                    {p.jersey_number ? `#${p.jersey_number}` : ""}
                                   </p>
                                 </div>
                               </div>

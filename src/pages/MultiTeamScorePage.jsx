@@ -274,7 +274,7 @@ export default function MultiTeamScorePage() {
                             }`}
                             style={{ fontSize: "clamp(1.2rem, 2.2vw, 2.2rem)" }}
                           >
-                            {playerInfo.name} #{playerInfo.jersey}
+                            {playerInfo.name}{playerInfo.jersey ? ` #${playerInfo.jersey}` : ""}
                           </span>
                           <span
                             className="inline-flex items-center gap-2 px-1 py-1 rounded-full shrink-0"

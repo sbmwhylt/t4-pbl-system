@@ -91,7 +91,7 @@ export default function ScorePage() {
 
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
 
-  // Function to get current player's boulder + zone + jersey
+  // Function to get current player's boulder + zone + player number
   const getCurrentPlayerBoulder = (teamSide) => {
     const team = state.teams?.[teamSide];
     if (!team) return null;
@@ -166,12 +166,12 @@ export default function ScorePage() {
 
             {/* Player Info Card */}
             <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6 w-110">
-              {/* Player Name + Jersey */}
+              {/* Player Name + Player Number */}
               <div className="flex-1 text-center px-6 flex items-center justify-center gap-2">
                 <h2 className="text-3xl font-medium text-white tracking-wide truncate">
                   {leftScoreboard.current_player || "-"}
                 </h2>
-                <span className="text-3xl">{leftScoreboard.jersey || "-"}</span>
+                <span className="text-3xl">{leftScoreboard.jersey || ""}</span>
               </div>
 
               {/* Boulder & Zone Info */}
@@ -217,13 +217,13 @@ export default function ScorePage() {
 
             {/* Player Info Card */}
             <div className="bg-black/60 rounded-full p-4 flex items-center justify-between mt-6 w-110">
-              {/* Player Name + Jersey */}
+              {/* Player Name + Player Number */}
               <div className="flex-1 text-center px-6 flex items-center justify-center gap-2">
                 <h2 className="text-3xl font-medium text-white tracking-wide truncate">
                   {rightScoreboard.current_player || "-"}
                 </h2>
                 <span className="text-3xl">
-                  {rightScoreboard.jersey || "-"}
+                  {rightScoreboard.jersey || ""}
                 </span>
               </div>
 

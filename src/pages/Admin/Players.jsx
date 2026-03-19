@@ -112,8 +112,8 @@ export default function Players() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.jersey_number || !formData.team_id) {
-      toast.error("Please fill in all fields.");
+    if (!formData.name || !formData.team_id) {
+      toast.error("Please fill in all required fields.");
       return;
     }
     try {
@@ -191,7 +191,7 @@ export default function Players() {
             columns={[
               { header: "ID", accessor: "id", sortable: true },
               { header: "Name", accessor: "name", sortable: true },
-              { header: "Jersey", accessor: "jersey_number", sortable: true },
+              { header: "Player Number", accessor: "jersey_number", sortable: true },
               {
                 header: "Team",
                 accessor: (row) => {
@@ -337,7 +337,7 @@ export default function Players() {
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
           <Input
-            label="Jersey Number"
+            label="Player Number"
             type="number"
             value={formData.jersey_number}
             onChange={(e) =>

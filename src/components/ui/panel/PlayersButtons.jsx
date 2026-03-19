@@ -32,7 +32,7 @@ export default function PlayerButtons({
                   : "bg-gray-300 text-gray-800 hover:bg-gray-300"
               }`}
             >
-              {player.name} #{player.jersey_number}
+              {player.name}{player.jersey_number ? ` #${player.jersey_number}` : ""}
             </button>
           );
         })}

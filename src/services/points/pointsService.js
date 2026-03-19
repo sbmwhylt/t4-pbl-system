@@ -12,7 +12,7 @@ function scoreboardRef(matchId) {
 
 export async function setTeam(matchId, side, team) {
   if (team && typeof team === "object" && "current_player" in team) {
-    // Update current player + jersey + preserve current_boulder
+    // Update current player + player number + preserve current_boulder
     const updates = {
       [`teams/${side}/current_player`]: team.current_player || null,
       [`teams/${side}/jersey`]: team.jersey || null,
