@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(find c:/Development/t4-pbl-web-app -name *.css -o -name *.scss)",
-      "Bash(grep -r color c:/Development/t4-pbl-web-app/src/services --include=*.js)"
+      "Bash(grep -r color c:/Development/t4-pbl-web-app/src/services --include=*.js)",
+      "Bash(find /c/Development/t4-pbl-web-app -type f -name *.ts -o -name *.tsx -o -name *.js -o -name *.jsx -o -name *.vue -o -name *.svelte -o -name *.html -o -name *.css -o -name *.json)"
     ]
   }
 }

@@ -5,6 +5,7 @@ import {
   DEFAULT_DURATION,
   subscribeTeams,
   timerService,
+  getPossibleScore,
 } from "@/services";
 
 function formatTime(seconds) {
@@ -83,11 +84,20 @@ export default function Live() {
     return {
       label: current_boulder,
       currentZone: boulderData.zone || boulderData.currentZone || "—",
+      attempts: boulderData.attempts || 0,
+      points: boulderData.points || 0,
     };
   };
 
   const leftCurrentBoulder = getCurrentPlayerBoulder("left");
   const rightCurrentBoulder = getCurrentPlayerBoulder("right");
+
+  const leftPossible = leftCurrentBoulder
+    ? getPossibleScore(leftCurrentBoulder.attempts, leftCurrentBoulder.points)
+    : null;
+  const rightPossible = rightCurrentBoulder
+    ? getPossibleScore(rightCurrentBoulder.attempts, rightCurrentBoulder.points)
+    : null;
 
   const leftScoreboard = {
     ...BLANK_TEAM,
@@ -95,6 +105,7 @@ export default function Live() {
     current_player: state.teams?.left?.current_player || null,
     jersey: state.teams?.left?.jersey || null,
     current_zone: leftCurrentBoulder?.currentZone || null,
+    possibleScore: leftPossible,
   };
 
   const rightScoreboard = {
@@ -103,6 +114,7 @@ export default function Live() {
     current_player: state.teams?.right?.current_player || null,
     jersey: state.teams?.right?.jersey || null,
     current_zone: rightCurrentBoulder?.currentZone || null,
+    possibleScore: rightPossible,
   };
 
   const left = teams[leftScoreboard.id] || leftScoreboard;
@@ -152,6 +164,13 @@ export default function Live() {
                 {leftScoreboard.current_zone || "-"}
               </div>
 
+              {/* Possible score */}
+              {leftScoreboard.possibleScore != null && leftScoreboard.possibleScore > 0 && (
+                <div className="flex items-center justify-center w-16 h-22 bg-green-500/80 text-white text-2xl font-bold">
+                  +{leftScoreboard.possibleScore}
+                </div>
+              )}
+
               {left.logo_url && (
                 <img
                   src={left.logo_url}
@@ -190,6 +209,13 @@ export default function Live() {
                   alt={right.abbreviation}
                   className="w-20 h-20 ml-5 mr-4"
                 />
+              )}
+
+              {/* Possible score */}
+              {rightScoreboard.possibleScore != null && rightScoreboard.possibleScore > 0 && (
+                <div className="flex items-center justify-center w-16 h-22 bg-green-500/80 text-white text-2xl font-bold">
+                  +{rightScoreboard.possibleScore}
+                </div>
               )}
 
               {/* Show current zone */}

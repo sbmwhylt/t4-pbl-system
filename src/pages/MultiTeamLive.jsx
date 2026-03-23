@@ -5,6 +5,7 @@ import {
   DEFAULT_DURATION,
   subscribeTeams,
   timerService,
+  getPossibleScore,
 } from "@/services";
 
 function formatTime(seconds) {
@@ -106,6 +107,7 @@ function TeamCard({ team, index }) {
       name: team.current_player,
       jersey: team.jersey,
       currentZone: boulderData?.currentZone || "—",
+      possibleScore: getPossibleScore(boulderData?.attempts || 0, boulderData?.points || 0),
     };
   })();
 
@@ -125,8 +127,15 @@ function TeamCard({ team, index }) {
             <PlayerRow playerInfo={playerInfo} />
           </div>
           {playerInfo && (
-            <div className="self-start text-2xl font-bold uppercase tracking-wide px-2 py-1 rounded bg-blue-100 text-gray-900">
-              {playerInfo.currentZone}
+            <div className="flex items-center gap-1 self-start">
+              <div className="text-2xl font-bold uppercase tracking-wide px-2 py-1 rounded bg-blue-100 text-gray-900">
+                {playerInfo.currentZone}
+              </div>
+              {playerInfo.possibleScore != null && playerInfo.possibleScore > 0 && (
+                <div className="text-2xl font-bold px-2 py-1 rounded bg-green-500/80 text-white">
+                  +{playerInfo.possibleScore}
+                </div>
+              )}
             </div>
           )}
         </div>

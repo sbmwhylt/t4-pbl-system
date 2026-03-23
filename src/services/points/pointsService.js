@@ -56,11 +56,11 @@ export async function setTeam(matchId, side, team) {
           jersey_number: p.jersey_number || "",
           points: 0,
           boulders: {
-            A: { attempts: 0, points: 0 },
-            B: { attempts: 0, points: 0 },
-            C: { attempts: 0, points: 0 },
-            D: { attempts: 0, points: 0 },
-          }, 
+            A: { currentZone: "", attempts: 0, points: 0 },
+            B: { currentZone: "", attempts: 0, points: 0 },
+            C: { currentZone: "", attempts: 0, points: 0 },
+            D: { currentZone: "", attempts: 0, points: 0 },
+          },
         };
         return acc;
       }, {});

@@ -5,6 +5,20 @@ export const boulders = ["A", "B", "C", "D"];
 export const zones = ["Z1", "Z2", "Top", "Top2", "Flash"];
 export const maxPoints = 6;
 
+// Get possible additional score based on attempt number and current points
+// 1st attempt: max achievable = 6 (Flash)
+// 2nd attempt: max achievable = 5 (Top2)
+// 3rd+ attempt: max achievable = 4 (Top)
+export function getPossibleScore(attempts, currentPoints) {
+  // If no attempt started and no zone reached, nothing to show
+  if (attempts <= 0 && (currentPoints || 0) <= 0) return null;
+  // If zone reached but attempts not yet incremented, treat as attempt 1
+  const effectiveAttempts = attempts > 0 ? attempts : 1;
+  const maxForAttempt = effectiveAttempts <= 1 ? 6 : effectiveAttempts === 2 ? 5 : 4;
+  const possible = maxForAttempt - (currentPoints || 0);
+  return possible > 0 ? possible : 0;
+}
+
 // Map zone -> base points
 export const zonesPoints = { Z1: 1, Z2: 2, Top: 4, Top2: 5, Flash: 6 };
 

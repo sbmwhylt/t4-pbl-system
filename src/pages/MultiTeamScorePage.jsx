@@ -5,6 +5,7 @@ import {
   DEFAULT_DURATION,
   subscribeTeams,
   timerService,
+  getPossibleScore,
 } from "@/services";
 import { getGradientById } from "@/constants/teamColors";
 
@@ -104,6 +105,7 @@ export default function MultiTeamScorePage() {
       jersey: team.jersey,
       currentZone: boulderData?.currentZone || "—",
       points: player.points || 0,
+      possibleScore: getPossibleScore(boulderData?.attempts || 0, boulderData?.points || 0),
     };
   };
 
@@ -290,6 +292,18 @@ export default function MultiTeamScorePage() {
                             <span className="text-xl uppercase tracking-widest font-semibold px-4 py-1.5 rounded-full bg-gray-800 text-white text-center w-35">
                               {playerInfo.currentZone}
                             </span>
+                            {playerInfo.possibleScore != null && playerInfo.possibleScore > 0 && (
+                              <>
+                                <span className={`font-medium uppercase text-xl ${
+                                  hasColor ? "text-white/70" : "text-gray-600"
+                                }`}>
+                                  Possible :
+                                </span>
+                                <span className="text-xl uppercase tracking-widest font-semibold px-4 py-1.5 rounded-full bg-green-600 text-white text-center w-35">
+                                  +{playerInfo.possibleScore}
+                                </span>
+                              </>
+                            )}
                           </span>
                         </div>
                       </>

@@ -29,6 +29,7 @@ import {
   timerService,
   setCurrentBoulder,
   initMatch,
+  getPossibleScore,
 } from "@/services";
 
 export default function ScorerPage() {
@@ -256,6 +257,17 @@ export default function ScorerPage() {
             <div className="flex items-center gap-2">
               <p className="text-lg font-medium">Total Score:</p>
               <p className="text-6xl font-semibold">{team.score}</p>
+              {(() => {
+                if (!selectedPlayer?.id) return null;
+                const bd = playerBoulderData?.[side]?.[selectedPlayer.id]?.[selectedBoulder];
+                const ps = bd ? getPossibleScore(bd.attempts || 0, bd.points || 0) : null;
+                if (ps == null || ps <= 0) return null;
+                return (
+                  <span className="text-2xl font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">
+                    +{ps}
+                  </span>
+                );
+              })()}
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ import {
   DEFAULT_DURATION,
   subscribeTeams,
   timerService,
+  getPossibleScore,
 } from "@/services";
 
 const BLANK_TEAM = {
@@ -110,7 +111,8 @@ export default function ScorePage() {
     return {
       label: current_boulder,
       currentZone: boulderData.currentZone || "—",
-      player, // include full player object
+      player,
+      possibleScore: getPossibleScore(boulderData.attempts || 0, boulderData.points || 0),
     };
   };
 
@@ -175,10 +177,19 @@ export default function ScorePage() {
               </div>
 
               {/* Boulder & Zone Info */}
-              <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-1 divide-x divide-gray-500 min-w-[110px] text-center">
-                <div className="text-2xl font-bold text-white">
-                  {leftCurrentBoulder?.currentZone || "-"}
+              <div className="flex items-center gap-2">
+                <div className="bg-black/80 rounded-full px-3 py-3 min-w-[110px] text-center">
+                  <div className="text-2xl font-bold text-white">
+                    {leftCurrentBoulder?.currentZone || "-"}
+                  </div>
                 </div>
+                {leftCurrentBoulder?.possibleScore != null && leftCurrentBoulder.possibleScore > 0 && (
+                  <div className="bg-green-500/80 rounded-full px-3 py-3 min-w-[70px] text-center">
+                    <div className="text-2xl font-bold text-white">
+                      +{leftCurrentBoulder.possibleScore}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -228,10 +239,19 @@ export default function ScorePage() {
               </div>
 
               {/* Boulder & Zone Info */}
-              <div className="bg-black/80 rounded-full px-3 py-3 grid grid-cols-1 divide-x divide-gray-500 min-w-[110px] text-center">
-                <div className="text-2xl font-bold text-white">
-                  {rightCurrentBoulder?.currentZone || "-"}
+              <div className="flex items-center gap-2">
+                <div className="bg-black/80 rounded-full px-3 py-3 min-w-[110px] text-center">
+                  <div className="text-2xl font-bold text-white">
+                    {rightCurrentBoulder?.currentZone || "-"}
+                  </div>
                 </div>
+                {rightCurrentBoulder?.possibleScore != null && rightCurrentBoulder.possibleScore > 0 && (
+                  <div className="bg-green-500/80 rounded-full px-3 py-3 min-w-[70px] text-center">
+                    <div className="text-2xl font-bold text-white">
+                      +{rightCurrentBoulder.possibleScore}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -30,6 +30,7 @@ import {
   setCurrentBoulder,
   initMatchMultiTeam,
   setOverlayTeams,
+  getPossibleScore,
 } from "@/services";
 
 export default function MultiTeamScorerPage() {
@@ -381,9 +382,22 @@ export default function MultiTeamScorerPage() {
                 <span className="text-sm text-gray-400 uppercase tracking-wide font-medium">
                   Score
                 </span>
-                <span className="text-4xl font-bold text-gray-800">
-                  {team.score || 0}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-4xl font-bold text-gray-800">
+                    {team.score || 0}
+                  </span>
+                  {(() => {
+                    if (!selectedPlayer?.id || selectedTeamKey !== teamKey) return null;
+                    const bd = playerBoulderData?.[teamKey]?.[selectedPlayer.id]?.[team.current_boulder || "A"];
+                    const ps = bd ? getPossibleScore(bd.attempts || 0, bd.points || 0) : null;
+                    if (ps == null || ps <= 0) return null;
+                    return (
+                      <span className="text-lg font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                        +{ps}
+                      </span>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
           );
