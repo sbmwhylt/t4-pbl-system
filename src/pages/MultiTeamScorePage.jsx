@@ -105,7 +105,10 @@ export default function MultiTeamScorePage() {
       jersey: team.jersey,
       currentZone: boulderData?.currentZone || "—",
       points: player.points || 0,
-      possibleScore: getPossibleScore(boulderData?.attempts || 0, boulderData?.points || 0),
+      possibleScore: getPossibleScore(
+        boulderData?.attempts || 0,
+        boulderData?.points || 0,
+      ),
     };
   };
 
@@ -184,7 +187,9 @@ export default function MultiTeamScorePage() {
           <div className={`grid ${gridCols} gap-3 p-3 flex-1 min-h-0`}>
             {teams.map((team) => {
               const playerInfo = getCurrentPlayerInfo(team);
-              const teamGradient = team.color ? getGradientById(team.color) : null;
+              const teamGradient = team.color
+                ? getGradientById(team.color)
+                : null;
               const hasColor = !!teamGradient;
 
               return (
@@ -276,35 +281,30 @@ export default function MultiTeamScorePage() {
                             }`}
                             style={{ fontSize: "clamp(1.2rem, 2.2vw, 2.2rem)" }}
                           >
-                            {playerInfo.name}{playerInfo.jersey ? ` #${playerInfo.jersey}` : ""}
+                            {playerInfo.name}
+                            {playerInfo.jersey ? ` #${playerInfo.jersey}` : ""}
                           </span>
-                          <span
-                            className="inline-flex items-center gap-2 px-1 py-1 rounded-full shrink-0"
-                            style={{
-                              fontSize: "clamp(0.75rem, 1.3vw, 1.1rem)",
-                            }}
-                          >
-                            <span className={`font-medium uppercase text-xl ${
-                              hasColor ? "text-white/70" : "text-gray-600"
-                            }`}>
-                              Current :
-                            </span>
-                            <span className="text-xl uppercase tracking-widest font-semibold px-4 py-1.5 rounded-full bg-gray-800 text-white text-center w-35">
-                              {playerInfo.currentZone}
-                            </span>
-                            {playerInfo.possibleScore != null && playerInfo.possibleScore > 0 && (
-                              <>
-                                <span className={`font-medium uppercase text-xl ${
-                                  hasColor ? "text-white/70" : "text-gray-600"
-                                }`}>
-                                  Possible :
-                                </span>
-                                <span className="text-xl uppercase tracking-widest font-semibold px-4 py-1.5 rounded-full bg-green-600 text-white text-center w-35">
+
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className={`text-lg font-semibold uppercase tracking-wider ${
+                                  hasColor ? "text-white/50" : "text-gray-400"
+                                }`}
+                              >
+                                Current :
+                              </span>
+                              <span className="text-2xl font-bold tabular-nums px-2.5 py-0.5 rounded-sm bg-gray-700 text-white">
+                                {playerInfo.currentZone}
+                              </span>
+                            </div>
+                            {playerInfo.possibleScore != null &&
+                              playerInfo.possibleScore > 0 && (
+                                <span className="text-2xl font-bold tabular-nums px-2.5 py-0.5 rounded-sm bg-green-600 text-white">
                                   +{playerInfo.possibleScore}
                                 </span>
-                              </>
-                            )}
-                          </span>
+                              )}
+                          </div>
                         </div>
                       </>
                     ) : (
