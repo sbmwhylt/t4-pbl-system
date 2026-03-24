@@ -4,7 +4,7 @@ import Button from "@/components/ui/Button";
 import { useState, useEffect, useRef } from "react";
 import { uploadImage } from "@/services/imagekit/imageUpload";
 import { ImagePlus, X, Loader2, Check } from "lucide-react";
-import TEAM_GRADIENTS from "@/constants/teamColors";
+import TEAM_COLORS from "@/constants/teamColors";
 
 export default function TeamFormModal({
   isOpen,
@@ -108,7 +108,7 @@ export default function TeamFormModal({
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">Team Color</label>
           <div className="grid grid-cols-8 gap-2">
-            {TEAM_GRADIENTS.map((color) => (
+            {TEAM_COLORS.map((color) => (
               <button
                 key={color.id}
                 type="button"

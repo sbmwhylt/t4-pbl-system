@@ -140,11 +140,11 @@ export default function MultiTeamScorePage() {
         <div className="flex flex-col h-full">
           {/* Header bar */}
           <div
-            className="flex items-center justify-between bg-white border-b-4 border-gray-200 px-10 shrink-0"
+            className="flex items-center justify-between bg-white border-b-4 border-gray-200 px-10 "
             style={{ height: "14%" }}
           >
             {/* Round */}
-            <div className="flex items-baseline gap-4">
+            {/* <div className="flex items-baseline gap-4">
               <span className="text-xl font-bold tracking-widest uppercase text-gray-400">
                 Round
               </span>
@@ -154,20 +154,18 @@ export default function MultiTeamScorePage() {
               >
                 {round}
               </span>
-            </div>
+            </div> */}
 
             {/* Timer — center */}
-            <span
-              className={`font-mono font-black tabular-nums leading-none ${
-                timer.running ? "text-gray-900" : "text-gray-400"
-              }`}
+            <div
+              className="font-bold font-mono text-gray-900 leading-none mx-auto"
               style={{ fontSize: "clamp(3.5rem, 9vw, 8rem)" }}
             >
               {formatTime(remaining)}
-            </span>
+            </div>
 
             {/* Live indicator */}
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <span
                 className={`w-5 h-5 rounded-full shrink-0 ${
                   timer.running ? "bg-green-500 animate-pulse" : "bg-gray-300"
@@ -180,7 +178,7 @@ export default function MultiTeamScorePage() {
               >
                 {timer.running ? "LIVE" : "PAUSED"}
               </span>
-            </div>
+            </div> */}
           </div>
 
           {/* Teams grid */}
@@ -219,7 +217,7 @@ export default function MultiTeamScorePage() {
 
                       {/* Team name */}
                       <h3
-                        className={`font-black tracking-wide leading-tight truncate flex-1 ${
+                        className={`font-medium leading-tight truncate flex-1 ${
                           hasColor ? "text-white" : "text-gray-900"
                         }`}
                         style={{ fontSize: "clamp(1.4rem, 2.8vw, 2.8rem)" }}
@@ -231,17 +229,17 @@ export default function MultiTeamScorePage() {
                     {/* Team score — fills remaining space */}
                     <div className="flex-1 flex items-center justify-center min-h-0">
                       <span
-                        className={`font-black tabular-nums leading-none ${
+                        className={`font-semibold tabular-nums leading-none ${
                           hasColor ? "text-white" : "text-gray-900"
                         }`}
-                        style={{ fontSize: "clamp(5rem, 14vw, 13rem)" }}
+                        style={{ fontSize: "clamp(5rem, 14vw, 17rem)" }}
                       >
                         {team.score || 0}
                       </span>
                     </div>
 
                     {/* Boulder label */}
-                    {team.current_boulder && (
+                    {/* {team.current_boulder && (
                       <div className="flex justify-center pb-2 shrink-0">
                         <span
                           className={`font-bold uppercase tracking-widest ${
@@ -252,7 +250,7 @@ export default function MultiTeamScorePage() {
                           Boulder {team.current_boulder}
                         </span>
                       </div>
-                    )}
+                    )} */}
                   </div>
 
                   {/* Player footer */}
@@ -266,17 +264,9 @@ export default function MultiTeamScorePage() {
                   >
                     {playerInfo ? (
                       <>
-                        <span
-                          className={`font-bold uppercase tracking-widest leading-none mb-1 ${
-                            hasColor ? "text-white/50" : "text-gray-400"
-                          }`}
-                          style={{ fontSize: "clamp(0.6rem, 1vw, 0.9rem)" }}
-                        >
-                          On The Wall
-                        </span>
                         <div className="flex items-baseline gap-3 flex-wrap">
                           <span
-                            className={`font-black leading-tight truncate flex-1 ${
+                            className={`f leading-tight truncate flex-1 ${
                               hasColor ? "text-white" : "text-gray-900"
                             }`}
                             style={{ fontSize: "clamp(1.2rem, 2.2vw, 2.2rem)" }}
@@ -285,24 +275,21 @@ export default function MultiTeamScorePage() {
                             {playerInfo.jersey ? ` #${playerInfo.jersey}` : ""}
                           </span>
 
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <div className="flex items-center gap-1.5">
-                              <span
-                                className={`text-lg font-semibold uppercase tracking-wider ${
-                                  hasColor ? "text-white/50" : "text-gray-400"
-                                }`}
-                              >
-                                Current :
-                              </span>
-                              <span className="text-2xl font-bold tabular-nums px-2.5 py-0.5 rounded-sm bg-gray-700 text-white">
+                          <div className="flex items-center flex-shrink-0 rounded-full overflow-hidden ">
+                            <div className="text-sm font-medium uppercase tracking-wider tabular-nums px-4 py-1 bg-black text-white flex items-center gap-3">
+                              Current
+                              <span className="text-2xl">
                                 {playerInfo.currentZone}
                               </span>
                             </div>
                             {playerInfo.possibleScore != null &&
                               playerInfo.possibleScore > 0 && (
-                                <span className="text-2xl font-bold tabular-nums px-2.5 py-0.5 rounded-sm bg-green-600 text-white">
-                                  +{playerInfo.possibleScore}
-                                </span>
+                                <div className="text-sm font-semibold uppercase tracking-wider tabular-nums px-4 py-1 bg-white text-black flex items-center gap-3">
+                                  Possible{" "}
+                                  <span className="text-2xl ">
+                                    +{playerInfo.possibleScore}
+                                  </span>
+                                </div>
                               )}
                           </div>
                         </div>
