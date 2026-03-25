@@ -137,6 +137,21 @@ export async function resetTimer(
   });
 }
 
+// ------------------------------ Duration Change (only when stopped)
+
+export async function setDuration(matchId, newDuration, controller = "panel") {
+  const now = serverNow();
+
+  await setTimer(matchId, {
+    duration: newDuration,
+    remaining: newDuration,
+    running: false,
+    endTime: null,
+    lastAction: now,
+    lastController: controller,
+  });
+}
+
 // ------------------------------ Real-time Listener
 
 export function subscribeToTimer(matchId, callback) {
@@ -167,6 +182,7 @@ export const timerService = {
   pauseTimer,
   resumeTimer,
   resetTimer,
+  setDuration,
   getRemaining,
   subscribeToTimer,
   serverNow,

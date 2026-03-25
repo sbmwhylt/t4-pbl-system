@@ -164,6 +164,10 @@ export default function ScorerPage() {
     await timerService.resetTimer(matchId, state?.timer?.duration, side);
   };
 
+  const handleDurationChange = async (newDuration) => {
+    await timerService.setDuration(matchId, newDuration, side);
+  };
+
   if (!state) return <div className="p-6">Loading…</div>;
 
   const team = state.teams?.[side] || { id: "", name: side, score: 0 };
@@ -220,6 +224,7 @@ export default function ScorerPage() {
           onPause={handlePauseTimer}
           onResume={handleResumeTimer}
           onReset={handleResetTimer}
+          onDurationChange={handleDurationChange}
           onPeriodChange={(p) => updatePeriod(matchId, p)}
           panelSide={side}
         />

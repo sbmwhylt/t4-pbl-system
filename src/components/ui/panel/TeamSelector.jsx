@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
-import { Lock, Unlock } from "lucide-react";
+import { Lock, Unlock, ChevronDown } from "lucide-react";
 
-export default function TeamSelector({ label, teams, value, onChange, locked, onLockToggle }) {
+export default function TeamSelector({
+  label,
+  teams,
+  value,
+  onChange,
+  locked,
+  onLockToggle,
+}) {
   const [selectedTeamId, setSelectedTeamId] = useState(value?.id || "");
 
   useEffect(() => {
     setSelectedTeamId(value?.id || "");
-  }, [value]); // Update internal state when parent changes `value`
+  }, [value]);
 
   const handleChange = (e) => {
     if (locked) return;
@@ -19,43 +26,58 @@ export default function TeamSelector({ label, teams, value, onChange, locked, on
 
   return (
     <div>
-      <label className="block text-sm font-medium mb-1">{label}</label>
+      {label && (
+        <label className="block text-xs font-medium text-gray-500 mb-1">
+          {label}
+        </label>
+      )}
       <div className="flex items-center gap-2">
-        <select
-          className={`flex-1 rounded-lg border px-3 py-2 text-base ${
-            locked
-              ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-gray-100 border-gray-300"
-          }`}
-          value={selectedTeamId}
-          onChange={handleChange}
-          disabled={locked}
-        >
-          <option value="">-</option>
-          {teams.map((team) => (
-            <option key={team.id} value={team.id}>
-              {team.name}
-            </option>
-          ))}
-        </select>
+        <div className="relative flex-1">
+          <select
+            className={`w-full appearance-none rounded-lg border pl-3 pr-8 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+              locked
+                ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 cursor-pointer"
+            }`}
+            value={selectedTeamId}
+            onChange={handleChange}
+            disabled={locked}
+          >
+            <option value="">Select team...</option>
+            {teams.map((team) => (
+              <option key={team.id} value={team.id}>
+                {team.name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            size={14}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+          />
+        </div>
 
-        <button
-          onClick={(e) => { e.stopPropagation(); onLockToggle?.(); }}
-          className={`p-1.5 rounded transition-colors ${
-            locked
-              ? "text-orange-500 hover:text-orange-700"
-              : "text-gray-400 hover:text-gray-600"
-          }`}
-          title={locked ? "Unlock team" : "Lock team"}
-        >
-          {locked ? <Lock size={18} /> : <Unlock size={18} />}
-        </button>
+        {onLockToggle && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onLockToggle?.();
+            }}
+            className={`p-2 rounded-lg transition-colors ${
+              locked
+                ? "bg-orange-50 text-orange-500 hover:bg-orange-100"
+                : "bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            }`}
+            title={locked ? "Unlock team" : "Lock team"}
+          >
+            {locked ? <Lock size={16} /> : <Unlock size={16} />}
+          </button>
+        )}
 
         {selectedTeam?.logo_url && (
           <img
             src={selectedTeam.logo_url}
             alt={selectedTeam.name}
-            className="w-10 h-10 rounded ml-1"
+            className="w-12 h-12 rounded-lg object-cover "
           />
         )}
       </div>

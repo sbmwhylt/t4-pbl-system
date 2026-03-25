@@ -191,6 +191,14 @@ export default function MultiTeamScorerPage() {
     );
   };
 
+  const handleDurationChange = async (newDuration) => {
+    await timerService.setDuration(
+      matchId,
+      newDuration,
+      selectedTeamKey || "panel",
+    );
+  };
+
   // Add new team slot
   const handleAddTeam = async () => {
     const existingKeys = Object.keys(state?.teams || {});
@@ -289,6 +297,7 @@ export default function MultiTeamScorerPage() {
           onPause={handlePauseTimer}
           onResume={handleResumeTimer}
           onReset={handleResetTimer}
+          onDurationChange={handleDurationChange}
           onPeriodChange={(p) => updatePeriod(matchId, p)}
           panelSide={selectedTeamKey || "panel"}
           hideMeta
@@ -316,12 +325,14 @@ export default function MultiTeamScorerPage() {
       </div>
 
       {/* Teams Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-6">
         {currentTeams.map(([teamKey, team]) => {
           const isSelected = selectedTeamKey === teamKey;
           const isLocked = !!lockedTeams[teamKey];
           const teamMeta = teams.find((t) => t.id === team.id);
-          const teamGradient = teamMeta?.color ? getGradientById(teamMeta.color) : null;
+          const teamGradient = teamMeta?.color
+            ? getGradientById(teamMeta.color)
+            : null;
           return (
             <div
               key={teamKey}
@@ -329,74 +340,87 @@ export default function MultiTeamScorerPage() {
                 setSelectedTeamKey(teamKey);
                 setSelectedPlayer(null);
               }}
-              className={`rounded-xl border-2 p-4 cursor-pointer transition-all overflow-hidden relative ${
+              className={`rounded-xl overflow-hidden cursor-pointer transition-all ${
                 isSelected
-                  ? "border-purple-300 shadow-md bg-white"
-                  : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
+                  ? "ring-2 ring-purple-400 shadow-lg"
+                  : "ring-1 ring-gray-200 hover:ring-gray-300 hover:shadow-md"
               }`}
             >
               {/* Color bar */}
-              {teamGradient && (
-                <div className={`absolute top-0 left-0 w-full h-1.5 ${teamGradient.gradient}`} />
-              )}
-
-              {/* Card header row */}
-              <div className="flex items-center justify-between mb-2 gap-1">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className={`text-white text-sm font-bold px-2.5 py-0.5 rounded-full flex-shrink-0 ${
-                    teamGradient ? teamGradient.badge : "bg-purple-600"
-                  }`}>
-                    {teamKey}
-                  </span>
-                  <span className="font-semibold text-base truncate text-gray-800">
-                    {team.name || teamKey}
-                  </span>
-                </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!isLocked) handleRemoveTeam(teamKey);
-                  }}
-                  disabled={isLocked}
-                  className={`flex-shrink-0 transition-colors ${
-                    isLocked
-                      ? "text-gray-300 cursor-not-allowed"
-                      : "text-red-400 hover:text-red-600"
-                  }`}
-                >
-                  <Trash2 size={15} />
-                </button>
-              </div>
-
-              {/* Team dropdown + lock */}
-              <TeamSelector
-                value={team}
-                teams={teams}
-                onChange={(t) => setTeam(matchId, teamKey, t)}
-                locked={isLocked}
-                onLockToggle={() => toggleLock(teamKey)}
+              <div
+                className={`h-2 w-full ${teamGradient ? teamGradient.gradient : "bg-gray-300"}`}
               />
 
-              {/* Score */}
-              <div className="mt-3 flex items-center justify-between px-1">
-                <span className="text-sm text-gray-400 uppercase tracking-wide font-medium">
-                  Score
-                </span>
-                <div className="flex items-center gap-2">
-                  <span className="text-4xl font-bold text-gray-800">
-                    {team.score || 0}
+              <div className="p-4 bg-white">
+                {/* Card header: badge + name + delete */}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span
+                      className={`text-white text-xs font-bold px-2 py-1 rounded-md flex-shrink-0 ${
+                        teamGradient ? teamGradient.badge : "bg-purple-600"
+                      }`}
+                    >
+                      {teamKey}
+                    </span>
+                    <span className="font-semibold text-sm truncate text-gray-800">
+                      {team.name || teamKey}
+                    </span>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isLocked) handleRemoveTeam(teamKey);
+                    }}
+                    disabled={isLocked}
+                    className={`flex-shrink-0 p-1.5 rounded-lg transition-colors ${
+                      isLocked
+                        ? "text-gray-300 cursor-not-allowed"
+                        : "text-red-400 hover:text-red-600 hover:bg-red-50"
+                    }`}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+
+                {/* Team dropdown + lock */}
+                <TeamSelector
+                  value={team}
+                  teams={teams}
+                  onChange={(t) => setTeam(matchId, teamKey, t)}
+                  locked={isLocked}
+                  onLockToggle={() => toggleLock(teamKey)}
+                />
+
+                {/* Score */}
+                <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                  <span className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
+                    Score
                   </span>
-                  {(() => {
-                    if (!selectedPlayer?.id || selectedTeamKey !== teamKey) return null;
-                    const bd = playerBoulderData?.[teamKey]?.[selectedPlayer.id]?.[team.current_boulder || "A"];
-                    const ps = bd ? getPossibleScore(bd.attempts || 0, bd.points || 0) : null;
-                    if (ps == null || ps <= 0) return null;
-                    return (
-                      <span className="text-lg font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
-                        +{ps}
-                      </span>
-                    );
-                  })()}
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl sm:text-4xl font-bold tabular-nums text-gray-800">
+                      {team.score || 0}
+                    </span>
+                    {(() => {
+                      if (
+                        !selectedPlayer?.id ||
+                        selectedTeamKey !== teamKey
+                      )
+                        return null;
+                      const bd =
+                        playerBoulderData?.[teamKey]?.[selectedPlayer.id]?.[
+                          team.current_boulder || "A"
+                        ];
+                      const ps = bd
+                        ? getPossibleScore(bd.attempts || 0, bd.points || 0)
+                        : null;
+                      if (ps == null || ps <= 0) return null;
+                      return (
+                        <span className="text-base font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                          +{ps}
+                        </span>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
             </div>
