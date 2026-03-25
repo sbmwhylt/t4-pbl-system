@@ -1,4 +1,3 @@
-// Sidebar.jsx
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
@@ -17,6 +16,7 @@ import {
   LogOut,
   User2,
   Cast,
+  ExternalLink,
 } from "lucide-react";
 import Spinner from "./ui/Spinner";
 import Modal from "@/components/ui/Modal";
@@ -31,62 +31,66 @@ export default function Sidebar() {
 
   const isAdmin = user?.role === "admin";
 
-  const navItems = [
-    { label: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
-    { label: "Teams", path: "/admin/teams", icon: Users },
-    { label: "Players", path: "/admin/players", icon: UserRound },
-    { label: "Boulders", path: "/admin/boulders", icon: Mountain },
-    { label: "Games", path: "/admin/games", icon: CalendarDays },
+  const navSections = [
     {
-      label: "Users",
-      path: "/admin/users",
-      icon: User2,
+      label: "Management",
+      items: [
+        { label: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
+        { label: "Teams", path: "/admin/teams", icon: Users },
+        { label: "Players", path: "/admin/players", icon: UserRound },
+        { label: "Boulders", path: "/admin/boulders", icon: Mountain },
+        { label: "Matches", path: "/admin/matches", icon: CalendarDays },
+        { label: "Users", path: "/admin/users", icon: User2 },
+      ],
     },
-
     {
-      label: "Multi-Team Scorer",
-      path: "/admin/multi-team-scorer",
-      icon: Gamepad2,
-      external: true,
-      adminOnly: true,
+      label: "Scoring",
+      items: [
+        {
+          label: "Multi-Team Scorer",
+          path: "/admin/multi-team-scorer",
+          icon: Gamepad2,
+          external: true,
+          adminOnly: true,
+        },
+        {
+          label: "Scorer Panel",
+          icon: Gamepad2,
+          onClick: () => setIsModalOpen(true),
+        },
+      ].filter((item) => !item.adminOnly || isAdmin),
     },
-
     {
-      label: "Scorer Panel",
-      icon: Gamepad2,
-      onClick: () => setIsModalOpen(true),
+      label: "Displays",
+      items: [
+        {
+          label: "Broadcast Scoreboard",
+          path: "/broadcast-scoreboard",
+          icon: Tv,
+          external: true,
+        },
+        {
+          label: "Onsite Scoreboard",
+          path: "/onsite-scoreboard",
+          icon: Cast,
+          external: true,
+        },
+        {
+          label: "Multi-Team Onsite",
+          path: "/multi-team-onsite",
+          icon: Cast,
+          external: true,
+        },
+        {
+          label: "Multi-Team Broadcast",
+          path: "/multi-team-broadcast",
+          icon: Tv,
+          external: true,
+        },
+      ],
     },
+  ];
 
-    {
-      label: "Broadcast Scoreboard",
-      path: "/broadcast-scoreboard",
-      icon: Tv,
-      external: true,
-    },
-
-    {
-      label: "Onsite Scoreboard",
-      path: "/onsite-scoreboard",
-      icon: Cast,
-      external: true,
-    },
-
-    {
-      label: "Multi-Team Display",
-      path: "/multi-match",
-      icon: Cast,
-      external: true,
-    },
-
-    {
-      label: "Multi-Team Scoreboard",
-      path: "/multi-live",
-      icon: Tv,
-      external: true,
-    },
-  ].filter((item) => !item.adminOnly || isAdmin);
-
-  // Logout handler
   const handleLogout = async () => {
     setLoading(true);
     try {
@@ -97,111 +101,160 @@ export default function Sidebar() {
     }
   };
 
+  const NavItem = ({ label, path, external, icon: Icon, onClick }) => {
+    const isActive = pathname === path;
+    const baseClasses =
+      "group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 w-full text-left";
+    const activeClasses =
+      "bg-purple-50 text-purple-700";
+    const inactiveClasses =
+      "text-gray-500 hover:bg-gray-100 hover:text-gray-700";
+
+    const content = (
+      <>
+        {isActive && (
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-purple-600 rounded-r-full" />
+        )}
+        <Icon
+          size={18}
+          className={`shrink-0 transition-colors duration-200 ${
+            isActive ? "text-purple-600" : "text-gray-400 group-hover:text-gray-600"
+          }`}
+        />
+        <span className="flex-1 truncate">{label}</span>
+        {external && (
+          <ExternalLink
+            size={13}
+            className="text-gray-300 group-hover:text-gray-400 shrink-0"
+          />
+        )}
+      </>
+    );
+
+    if (onClick) {
+      return (
+        <button
+          onClick={onClick}
+          className={`${baseClasses} ${inactiveClasses}`}
+        >
+          {content}
+        </button>
+      );
+    }
+
+    if (external) {
+      return (
+        <a
+          href={path}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${baseClasses} ${inactiveClasses}`}
+        >
+          {content}
+        </a>
+      );
+    }
+
+    return (
+      <Link
+        to={path}
+        onClick={() => setOpen(false)}
+        className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
+      >
+        {content}
+      </Link>
+    );
+  };
+
   return (
     <>
-      {/* Mobile Toggle */}
-      {/* Mobile/Tablet Toggle */}
-      <button
-        onClick={() => setOpen(true)}
-        className="lg:hidden p-2 text-gray-600 fixed top-4 left-4 z-50 bg-white rounded-md border border-gray-200"
-      >
-        <Menu size={24} />
-      </button>
+      {/* Mobile Top Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 h-14 bg-white border-b border-gray-200 flex items-center px-4 gap-3">
+        <button
+          onClick={() => setOpen(true)}
+          className="p-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <Menu size={20} />
+        </button>
+        <img src="/T4-logo.png" alt="T4 Logo" className="h-7" />
+        <span className="text-sm font-semibold text-gray-800">Admin Panel</span>
+      </div>
 
-      {/* Overlay (mobile only) */}
+      {/* Overlay */}
       <div
         onClick={() => setOpen(false)}
-        className={`fixed inset-0 bg-black/40 z-40 lg:hidden transition-opacity ${
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
 
       {/* Sidebar */}
-      {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-md z-50 transform transition-transform duration-300 lg:translate-x-0 flex flex-col justify-between ${
+        className={`fixed top-0 left-0 h-full w-64 bg-white z-50 transform transition-transform duration-300 ease-out lg:translate-x-0 flex flex-col border-r border-gray-200 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div>
-          <div className="flex items-center justify-between h-16 px-4 ">
-            <div className="flex gap-2 items-center justify-center ml-2">
-              <img src="/T4-logo.png" alt="T4 Logo" className="h-8" />
-              <h1 className="text-lg font-medium">Admin Panel</h1>
-            </div>
-            <button className="md:hidden" onClick={() => setOpen(false)}>
-              <X size={24} />
-            </button>
-          </div>
-
-          {/* Nav Items */}
-          <nav className="flex flex-col gap-2 px-4 py-6">
-            {navItems.map(({ label, path, external, icon: Icon, onClick }) =>
-              external ? (
-                <a
-                  key={path}
-                  href={path}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-purple-100"
-                >
-                  <Icon size={18} />
-                  <span>{label}</span>
-                </a>
-              ) : onClick ? (
-                <button
-                  key={label}
-                  onClick={onClick}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-purple-100 w-full text-left"
-                >
-                  <Icon size={18} />
-                  <span>{label}</span>
-                </button>
-              ) : (
-                <Link
-                  key={path}
-                  to={path}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-md hover:bg-purple-100 ${
-                    pathname === path ? "bg-purple-200" : ""
-                  }`}
-                >
-                  <Icon size={18} />
-                  <span>{label}</span>
-                </Link>
-              ),
-            )}
-          </nav>
-        </div>
         {/* Header */}
+        <div className="flex items-center justify-between h-16 px-5 border-b border-gray-200">
+          <div className="flex items-center gap-2.5">
+            <img src="/T4-logo.png" alt="T4 Logo" className="h-8" />
+            <h1 className="text-base font-semibold text-gray-900 tracking-tight">
+              Admin Panel
+            </h1>
+          </div>
+          <button
+            className="lg:hidden p-1.5 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => setOpen(false)}
+          >
+            <X size={18} />
+          </button>
+        </div>
 
-        <div className="flex gap-4 justify-between items-center bg-purple-300 m-3 rounded-full">
-          <div className="flex items-center justify-center gap-2.5 rounded-full p-2 bg-black-300 cursor-pointer hover:text-purple-500 transition-colors">
-            <User2
-              size={16}
-              color={"black"}
-              className="p-4 bg-white rounded-full text-purple-400"
-            />
-            <div className="flex flex-col leading-tight">
-              <p className="text-sm font-medium text-gray-900">
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {navSections.map((section) => (
+            <div key={section.label}>
+              <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                {section.label}
+              </p>
+              <div className="space-y-0.5">
+                {section.items.map((item) => (
+                  <NavItem key={item.path || item.label} {...item} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        {/* User Profile */}
+        <div className="p-3 border-t border-gray-200">
+          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50">
+            <div className="flex items-center justify-center w-9 h-9 rounded-full bg-purple-100 shrink-0">
+              <User2 size={16} className="text-purple-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-800 truncate">
                 {user ? user.fullname : "Current Admin"}
               </p>
-              <p className="text-xs text-gray-600">{user ? user.role : ""}</p>
+              <p className="text-xs text-gray-400 capitalize">
+                {user ? user.role : ""}
+              </p>
             </div>
+            <button
+              onClick={handleLogout}
+              disabled={loading}
+              className={`p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all duration-200 shrink-0 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              title="Sign out"
+            >
+              {loading ? (
+                <Spinner size={4} color="gray-400" />
+              ) : (
+                <LogOut size={16} />
+              )}
+            </button>
           </div>
-
-          <button
-            onClick={handleLogout}
-            disabled={loading} // Optional: disable button while loading
-            className={`hover:bg-gray-800 hover:text-gray-100 bg-gray-100 p-2 flex items-center justify-center rounded-full cursor-pointer transition-colors mr-2 ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {loading ? (
-              <Spinner size={5} color="gray-500" />
-            ) : (
-              <LogOut size={16} />
-            )}
-          </button>
         </div>
       </aside>
 
@@ -215,12 +268,10 @@ export default function Sidebar() {
             <button
               key={side}
               onClick={() => {
-                console.log(side); // for testing
                 setIsModalOpen(false);
-                // Open scoring page in new tab
-                window.open(`/scorer/singlematch/${side}`, "_blank");
+                window.open(`/admin/scorer/singlematch/${side}`, "_blank");
               }}
-              className={`flex-1 h-32  bg-gray-100 hover:bg-gray-200 font-medium rounded-lg flex flex-col items-center justify-center text-2xl cursor-pointer transition-all ${
+              className={`flex-1 h-32 bg-gray-100 hover:bg-gray-200 font-medium rounded-lg flex flex-col items-center justify-center text-2xl cursor-pointer transition-all ${
                 side === "left" ? "text-red-500" : "text-blue-500"
               }`}
             >

@@ -5,14 +5,18 @@ export default function AdminLayout({ children }) {
   useAutoLogout();
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar (fixed on desktop, toggleable on mobile/tablet portrait) */}
+    <div className="flex min-h-screen bg-white">
       <Sidebar />
 
-      {/* Main section */}
-      <div className="flex flex-1 flex-col mt-16 sm:mt-16 md:mt-16 lg:ml-64 lg:mt-0">
-        {/* Main content */}
-        <main className="flex-1 p-5 overflow-y-auto">{children}</main>
+      {/* Main content area */}
+      <div className="flex flex-1 flex-col min-h-screen lg:ml-64">
+        {/* Mobile top bar spacer */}
+        <div className="h-14 lg:hidden shrink-0" />
+
+        {/* Page content */}
+        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">{children}</div>
+        </main>
       </div>
     </div>
   );

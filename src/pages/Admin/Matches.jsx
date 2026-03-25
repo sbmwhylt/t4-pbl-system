@@ -90,7 +90,7 @@ export default function Matches() {
                   onClick={() =>
                     isMultiTeamMatch(row)
                       ? navigate(`/admin/multi-match-stats/${row.id}`)
-                      : navigate(`/match-stats/${row.id}`)
+                      : navigate(`/admin/match-stats/${row.id}`)
                   }
                 >
                   <ChartNoAxesColumn size={16} />

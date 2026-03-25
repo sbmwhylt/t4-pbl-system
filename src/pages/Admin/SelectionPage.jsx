@@ -33,7 +33,7 @@ export default function SelectionPage() {
       });
     }
 
-    navigate(`/scorer/${matchId}/${side}`);
+    navigate(`/admin/scorer/${matchId}/${side}`);
   };
 
   return (

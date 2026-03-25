@@ -4,7 +4,6 @@ import { auth } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
 import { toast } from "react-hot-toast";
 import Spinner from "../../components/ui/Spinner";
 
@@ -41,54 +40,63 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-white">
-      <form onSubmit={handleLogin} className="bg-white px-8 pt-6 pb-8 w-84">
-        <div className="flex flex-col items-center justify-center gap-4">
-          <img src="/T4-logo.png" alt="" className="w-18" />
-          <h2 className="text-xl font-bold tracking-tight">
-            Sign in to T4 Admin
-          </h2>
-        </div>
-
-        <div className="space-y-3 pb-4 mt-8">
-          <Input
-            label="Your Email"
-            name="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            required
-            className="border rounded-full px-3 py-3 border-gray-300 focus:border-purple-500 focus:ring-purple-500 outline-none"
-          />
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            value={password}
-            placeholder="Enter your password"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="border rounded-full px-3 py-3 border-gray-300 focus:border-purple-500 focus:ring-purple-500 outline-none"
-          />
-
-          <div></div>
-          <a
-            href=""
-            className="flex justify-end border-gray-300 text-sm text-gray-600 hover:text-gray-800"
-          >
-            forgot password?
-          </a>
-        </div>
-
-        <Button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-full bg-purple-600 text-white font-medium hover:bg-purple-800 transition-colors py-3 flex justify-center items-center cursor-pointer"
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-sm">
+        <form
+          onSubmit={handleLogin}
+          className="bg-white rounded-2xl shadow-sm border border-gray-200 px-8 py-10"
         >
-          {loading ? <Spinner /> : "Sign In"}
-        </Button>
-      </form>
+          {/* Logo & Title */}
+          <div className="flex flex-col items-center gap-3 mb-8">
+            <img src="/T4-logo.png" alt="T4 Logo" className="w-16" />
+            <div className="text-center">
+              <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+                Welcome back
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Sign in to T4 Admin Panel
+              </p>
+            </div>
+          </div>
+
+          {/* Fields */}
+          <div className="space-y-4">
+            <Input
+              label="Email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+              className="w-full rounded-lg px-3.5 py-2.5 border border-gray-300 text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-colors"
+            />
+            <Input
+              label="Password"
+              name="password"
+              type="password"
+              value={password}
+              placeholder="Enter your password"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full rounded-lg px-3.5 py-2.5 border border-gray-300 text-sm focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-colors"
+            />
+          </div>
+
+          {/* Sign In Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`mt-6 w-full rounded-lg bg-purple-600 text-white font-medium py-2.5 text-sm transition-colors flex justify-center items-center ${
+              loading
+                ? "opacity-60 cursor-not-allowed"
+                : "hover:bg-purple-700 cursor-pointer"
+            }`}
+          >
+            {loading ? <Spinner /> : "Sign In"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
