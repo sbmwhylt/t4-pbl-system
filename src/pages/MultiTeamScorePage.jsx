@@ -244,14 +244,12 @@ export default function MultiTeamScorePage() {
                       <>
                         <div className="flex flex-col mx-auto items-center gap-5 ">
                           <span
-                            className={`leading-tight truncate w-full flex items-center gap-8 ${
-                              hasColor ? "text-white" : "text-gray-900"
-                            }`}
+                            className="leading-tight truncate w-full flex items-center gap-8 text-white "
                             style={{ fontSize: "clamp(1.2rem, 2.2vw, 3.2rem)" }}
                           >
                             {playerInfo.name}
                             {playerInfo.jersey && (
-                              <span className="inline-flex items-center gap-1.5 opacity-70">
+                              <span className="inline-flex items-center gap-1.5  ">
                                 <Shirt size={22} />
                                 {playerInfo.jersey}
                               </span>
@@ -279,7 +277,7 @@ export default function MultiTeamScorePage() {
                     ) : (
                       <span
                         className={`font-semibold text-3xl uppercase tracking-wide  mx-auto ${
-                          hasColor ? "text-white/40" : "text-gray-400"
+                          hasColor ? "text-gray-300" : "text-gray-400"
                         }`}
                         style={{ fontSize: "clamp(0.8rem, 1.2vw, 1.rem)" }}
                       >
