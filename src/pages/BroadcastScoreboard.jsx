@@ -240,7 +240,7 @@ export default function BroadcastScoreboard() {
               </div>
 
               <div className="text-center font-medium text-xl tracking-wide h-full w-60 p-2 rounded-sm ml-12 bg-black/65">
-                {rightScoreboard.current_player} {rightScoreboard.jersey || "-"}
+                {rightScoreboard.current_player} {rightScoreboard.jersey || ""}
               </div>
             </div>
           </div>

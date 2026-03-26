@@ -139,7 +139,10 @@ export default function TeamRankings() {
     <div className="w-full">
       <div className="mb-5">
         <h2 className="text-lg font-bold text-gray-800">Team Rankings</h2>
-        <p className="text-sm text-gray-500 mt-1"> Top 3 teams by total points</p>
+        <p className="text-sm text-gray-500 mt-1">
+          {" "}
+          Top 3 teams by total points
+        </p>
       </div>
 
       {top3.length === 0 ? (

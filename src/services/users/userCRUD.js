@@ -27,6 +27,12 @@ export async function deleteUser(uid) {
   await remove(ref(db, `t4_bouldering/users/${uid}`));
 }
 
+// FORCE LOGOUT ----------------------------- set forceLogout flag
+
+export async function forceLogoutUser(uid) {
+  await update(ref(db, `t4_bouldering/users/${uid}`), { forceLogout: true, online: false });
+}
+
 // Change user password --------------------------- in database (not Auth)
 
 export async function changeUserPassword(uid, newPassword) {

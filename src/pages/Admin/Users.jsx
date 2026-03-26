@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/components/layout/AdminLayout";
 import UserFormModal from "@/components/modals/userFormModal";
-import { getUsers, createUser, updateUser, deleteUser } from "@/services";
+import { getUsers, createUser, updateUser, deleteUser, forceLogoutUser } from "@/services";
 import Table from "@/components/ui/Table";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal"; // use your existing modal wrapper
 import { toast } from "react-hot-toast";
-import { Settings, Trash2 } from "lucide-react";
+import { Settings, Trash2, LogOut } from "lucide-react";
 import { auth, db } from "@/firebase";
 import { createAuthUser } from "@/services"; // secondary auth service
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -88,6 +88,19 @@ export default function Users() {
     setDeleteTarget(uid); // open confirmation modal
   };
 
+  const handleForceLogout = async (uid) => {
+    if (currentUser?.uid === uid) {
+      toast.error("You cannot force logout yourself.");
+      return;
+    }
+    try {
+      await forceLogoutUser(uid);
+      toast.success("User has been logged out.");
+    } catch {
+      toast.error("Failed to logout user.");
+    }
+  };
+
   const handleDeleteConfirmed = async () => {
     if (!deleteTarget) return;
     try {
@@ -146,12 +159,23 @@ export default function Users() {
                     <Settings size={16} />
                   </button>
                   {currentUser?.uid !== row.uid && (
-                    <button
-                      onClick={() => confirmDelete(row.uid)}
-                      className="border border-gray-300 rounded p-2 hover:bg-gray-400 hover:text-white cursor-pointer transition-all"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    <>
+                      {onlineStatus[row.uid] && (
+                        <button
+                          onClick={() => handleForceLogout(row.uid)}
+                          className="border border-gray-300 rounded p-2 hover:bg-red-500 hover:text-white cursor-pointer transition-all"
+                          title="Force logout"
+                        >
+                          <LogOut size={16} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => confirmDelete(row.uid)}
+                        className="border border-gray-300 rounded p-2 hover:bg-gray-400 hover:text-white cursor-pointer transition-all"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </>
                   )}
                 </div>
               ),

@@ -40,8 +40,7 @@ export default function Sidebar() {
         { label: "Players", path: "/admin/players", icon: UserRound },
         { label: "Boulders", path: "/admin/boulders", icon: Mountain },
         { label: "Matches", path: "/admin/matches", icon: CalendarDays },
-        { label: "Player Rankings", path: "/admin/player-rankings", icon: BarChart3 },
-        { label: "Team Rankings", path: "/admin/team-rankings", icon: BarChart3 },
+
         { label: "Users", path: "/admin/users", icon: User2 },
       ],
     },
