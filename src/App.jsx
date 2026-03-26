@@ -12,7 +12,6 @@ import ScorerPanel from "@/pages/Admin/ScorerPanel";
 import OnsiteScoreboard from "@/pages/OnsiteScoreboard";
 import BroadcastScoreboard from "@/pages/BroadcastScoreboard";
 import MatchStats from "@/pages/Admin/MatchStats";
-import MultiTeamMatchStats from "@/pages/Admin/MultiTeamMatchStats";
 
 function App() {
   return (
@@ -92,15 +91,6 @@ function App() {
           element={
             <PrivateRoute>
               <MatchStats />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/admin/multi-match-stats/:matchId"
-          element={
-            <PrivateRoute>
-              <MultiTeamMatchStats />
             </PrivateRoute>
           }
         />

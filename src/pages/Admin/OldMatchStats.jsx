@@ -4,16 +4,7 @@ import AdminLayout from "@/components/layout/AdminLayout";
 import { ref, get } from "firebase/database";
 import { db } from "@/firebase";
 
-const TEAM_COLORS = [
-  "bg-red-500",
-  "bg-blue-500",
-  "bg-green-500",
-  "bg-yellow-500",
-  "bg-purple-500",
-  "bg-pink-500",
-];
-
-export default function MultiTeamMatchStats() {
+export default function MatchStats() {
   const { matchId } = useParams();
   const [match, setMatch] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +29,6 @@ export default function MultiTeamMatchStats() {
   if (!match) return <AdminLayout>No match found</AdminLayout>;
 
   const { teams, start_time, status } = match;
-  const teamEntries = Object.entries(teams || {});
 
   const getPointColor = (points) => {
     if (points === 0) return "text-red-400";
@@ -50,7 +40,7 @@ export default function MultiTeamMatchStats() {
     <AdminLayout>
       <div className="mb-6">
         <h2 className="text-3xl font-bold mb-2 text-gray-800">
-          Multi-Team Match Statistics
+          Match Statistics
         </h2>
         <div className="flex justify-between items-center text-gray-700 text-lg">
           <span>
@@ -65,20 +55,19 @@ export default function MultiTeamMatchStats() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-        {teamEntries.map(([teamKey, team], index) => {
+        {["left", "right"].map((side) => {
+          const team = teams?.[side];
           if (!team) return null;
-
-          const avatarColor = TEAM_COLORS[index % TEAM_COLORS.length];
 
           return (
             <div
-              key={teamKey}
+              key={side}
               className="p-6 bg-white rounded-xl border border-gray-100"
             >
               {/* Team Header */}
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-2xl font-bold text-gray-800">
-                  {team.name || teamKey}
+                  {team.name}
                 </h3>
                 <div className="text-right">
                   <p className="text-gray-400 text-sm">Total Score</p>
@@ -111,27 +100,34 @@ export default function MultiTeamMatchStats() {
                     <tbody className="divide-y divide-gray-200">
                       {Object.entries(team.players).map(([id, p]) => {
                         const totalPoints = Object.values(
-                          p.boulders || {}
+                          p.boulders || {},
                         ).reduce((sum, b) => sum + (b.points || 0), 0);
                         const totalAttempts = Object.values(
-                          p.boulders || {}
+                          p.boulders || {},
                         ).reduce((sum, b) => sum + (b.attempts || 0), 0);
 
                         return (
-                          <tr key={id}>
+                          <tr key={id} className="">
                             <td className="px-2 py-4">
                               <div className="flex items-center gap-3">
                                 <div
-                                  className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${avatarColor}`}
+                                  className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold 
+                                  ${
+                                    side === "left"
+                                      ? "bg-red-500"
+                                      : "bg-blue-500"
+                                  }`}
                                 >
-                                  {p.name?.charAt(0)}
+                                  {p.name.charAt(0)}
                                 </div>
                                 <div>
                                   <p className="font-semibold text-gray-800">
                                     {p.name}
                                   </p>
                                   <p className="text-xs text-gray-500">
-                                    {p.jersey_number ? `#${p.jersey_number}` : ""}
+                                    {p.jersey_number
+                                      ? `#${p.jersey_number}`
+                                      : ""}
                                   </p>
                                 </div>
                               </div>
@@ -156,7 +152,7 @@ export default function MultiTeamMatchStats() {
                                       <div className="block">
                                         <div
                                           className={`font-bold ${getPointColor(
-                                            b.points || 0
+                                            b.points || 0,
                                           )}`}
                                         >
                                           {b.points || 0} P
@@ -169,7 +165,7 @@ export default function MultiTeamMatchStats() {
                                         </div>
                                       </div>
                                     </div>
-                                  )
+                                  ),
                                 )}
                               </div>
                             </td>

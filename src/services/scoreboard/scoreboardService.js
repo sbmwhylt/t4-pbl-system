@@ -161,12 +161,35 @@ export async function finishMatchMultiTeam(matchId = "singlematch") {
     throw new Error("At least one team must have scored");
   }
 
+  // Clean up ghost players: remove players who no longer belong to each team
+  const playersSnap = await get(ref(db, "t4_bouldering/players"));
+  const allPlayers = playersSnap.val() || {};
+
+  const cleanedTeams = {};
+  for (const [teamKey, team] of Object.entries(teams)) {
+    const players = team.players || {};
+    const cleanedPlayers = {};
+    for (const [playerId, playerData] of Object.entries(players)) {
+      const masterPlayer = allPlayers[playerId];
+      // Keep only players that still belong to this team and have a name
+      if (
+        masterPlayer &&
+        (masterPlayer.team_id || masterPlayer.team) === team.id &&
+        playerData.name
+      ) {
+        cleanedPlayers[playerId] = playerData;
+      }
+    }
+    cleanedTeams[teamKey] = { ...team, players: cleanedPlayers };
+  }
+
   const nextCode = await getNextSequence();
   const newMatchId = generateMatchId(nextCode);
 
   await set(ref(db, `t4_bouldering/matches/${newMatchId}`), {
     id: newMatchId,
     ...demoData,
+    teams: cleanedTeams,
     status: "finished",
     saved_at: Date.now().toString().slice(0, 13),
     start_time: Date.now(),

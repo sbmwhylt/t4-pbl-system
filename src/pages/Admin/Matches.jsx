@@ -87,11 +87,7 @@ export default function Matches() {
               <div className="flex gap-2 justify-end items-center">
                 <button
                   className="cursor-pointer text-white bg-purple-600 hover:bg-purple-700 rounded p-2 flex gap-1 items-center"
-                  onClick={() =>
-                    isMultiTeamMatch(row)
-                      ? navigate(`/admin/multi-match-stats/${row.id}`)
-                      : navigate(`/admin/match-stats/${row.id}`)
-                  }
+                  onClick={() => navigate(`/admin/match-stats/${row.id}`)}
                 >
                   <ChartNoAxesColumn size={16} />
                 </button>
