@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { onValue, ref, set } from "firebase/database";
+import { onValue, ref, set, update } from "firebase/database";
 import { db } from "@/firebase";
 import { toast } from "react-hot-toast";
 
@@ -159,6 +159,38 @@ export default function MultiTeamScorerPage() {
 
     setSelectedPlayer(player);
     const currentTeam = state?.teams?.[selectedTeamKey] || {};
+
+    // Ensure the player exists in the scoreboard roster (handles transfers & renames)
+    const teamPlayers = currentTeam.players || {};
+    const existing = teamPlayers[player.id];
+
+    if (!existing) {
+      // Player was transferred after the team was loaded — add them
+      await set(
+        ref(db, `scoreboard/${matchId}/teams/${selectedTeamKey}/players/${player.id}`),
+        {
+          name: player.name,
+          jersey_number: player.jersey_number || "",
+          points: 0,
+          boulders: {
+            A: { currentZone: "", attempts: 0, points: 0 },
+            B: { currentZone: "", attempts: 0, points: 0 },
+            C: { currentZone: "", attempts: 0, points: 0 },
+            D: { currentZone: "", attempts: 0, points: 0 },
+          },
+        },
+      );
+    } else if (
+      existing.name !== player.name ||
+      existing.jersey_number !== player.jersey_number
+    ) {
+      // Player was renamed — sync the scoreboard
+      await update(
+        ref(db, `scoreboard/${matchId}/teams/${selectedTeamKey}/players/${player.id}`),
+        { name: player.name, jersey_number: player.jersey_number || "" },
+      );
+    }
+
     await setTeam(matchId, selectedTeamKey, {
       current_player: player.name,
       jersey: player.jersey_number,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   subscribeScoreboard,
@@ -8,6 +8,7 @@ import {
   getPossibleScore,
 } from "@/services";
 import { getGradientById } from "@/constants/teamColors";
+import { Shirt } from "lucide-react";
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -32,6 +33,7 @@ export default function MultiTeamScorePage() {
 
   const [teamsData, setTeamsData] = useState({});
   const [, forceUpdate] = useState(0);
+  const wasRunning = useRef(false);
 
   // Subscribe to scoreboard
   useEffect(() => {
@@ -50,6 +52,25 @@ export default function MultiTeamScorePage() {
     });
     return () => unsub();
   }, []);
+
+  // Play a long beep when the timer starts
+  useEffect(() => {
+    const running = !!state.timer?.running;
+    if (running && !wasRunning.current) {
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = 880;
+      gain.gain.value = 0.5;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 1.2);
+      osc.onended = () => ctx.close();
+    }
+    wasRunning.current = running;
+  }, [state.timer?.running]);
 
   // Update timer every 100ms when running
   useEffect(() => {
@@ -138,49 +159,6 @@ export default function MultiTeamScorePage() {
         </div>
       ) : (
         <div className="flex flex-col h-full">
-          {/* Header bar */}
-          <div
-            className="flex items-center justify-between bg-white border-b-4 border-gray-200 px-10 "
-            style={{ height: "14%" }}
-          >
-            {/* Round */}
-            {/* <div className="flex items-baseline gap-4">
-              <span className="text-xl font-bold tracking-widest uppercase text-gray-400">
-                Round
-              </span>
-              <span
-                className="font-black text-gray-900 leading-none"
-                style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}
-              >
-                {round}
-              </span>
-            </div> */}
-
-            {/* Timer — center */}
-            <div
-              className="font-bold font-mono text-gray-900 leading-none mx-auto"
-              style={{ fontSize: "clamp(3.5rem, 9vw, 8rem)" }}
-            >
-              {formatTime(remaining)}
-            </div>
-
-            {/* Live indicator */}
-            {/* <div className="flex items-center gap-3">
-              <span
-                className={`w-5 h-5 rounded-full shrink-0 ${
-                  timer.running ? "bg-green-500 animate-pulse" : "bg-gray-300"
-                }`}
-              />
-              <span
-                className={`text-2xl font-black tracking-widest uppercase ${
-                  timer.running ? "text-green-600" : "text-gray-400"
-                }`}
-              >
-                {timer.running ? "LIVE" : "PAUSED"}
-              </span>
-            </div> */}
-          </div>
-
           {/* Teams grid */}
           <div className={`grid ${gridCols} gap-3 p-3 flex-1 min-h-0`}>
             {teams.map((team) => {
@@ -260,33 +238,37 @@ export default function MultiTeamScorePage() {
                         ? "border-t-2 border-white/15 bg-black/20"
                         : "border-t-2 border-gray-100 bg-gray-50"
                     }`}
-                    style={{ minHeight: "22%" }}
+                    style={{ minHeight: "30%" }}
                   >
                     {playerInfo ? (
                       <>
-                        <div className="flex items-baseline gap-3 flex-wrap">
+                        <div className="flex flex-col mx-auto items-center gap-5 ">
                           <span
-                            className={`f leading-tight truncate flex-1 ${
+                            className={`leading-tight truncate w-full flex items-center gap-8 ${
                               hasColor ? "text-white" : "text-gray-900"
                             }`}
-                            style={{ fontSize: "clamp(1.2rem, 2.2vw, 2.2rem)" }}
+                            style={{ fontSize: "clamp(1.2rem, 2.2vw, 3.2rem)" }}
                           >
                             {playerInfo.name}
-                            {playerInfo.jersey ? ` #${playerInfo.jersey}` : ""}
+                            {playerInfo.jersey && (
+                              <span className="inline-flex items-center gap-1.5 opacity-70">
+                                <Shirt size={22} />
+                                {playerInfo.jersey}
+                              </span>
+                            )}
                           </span>
 
                           <div className="flex items-center flex-shrink-0 rounded-full overflow-hidden ">
-                            <div className="text-sm font-medium uppercase tracking-wider tabular-nums px-4 py-1 bg-black text-white flex items-center gap-3">
-                              Current
-                              <span className="text-2xl">
+                            <div className="text-sm font-medium uppercase tracking-wider tabular-nums px-6 py-2 bg-black text-white flex items-center gap-3">
+                              <span className="text-3xl">
                                 {playerInfo.currentZone}
                               </span>
                             </div>
                             {playerInfo.possibleScore != null &&
                               playerInfo.possibleScore > 0 && (
-                                <div className="text-sm font-semibold uppercase tracking-wider tabular-nums px-4 py-1 bg-white text-black flex items-center gap-3">
-                                  Possible{" "}
-                                  <span className="text-2xl ">
+                                <div className="text-sm font-semibold uppercase tracking-wider tabular-nums px-6 py-2 bg-white text-black flex items-center gap-3">
+                                  {" "}
+                                  <span className="text-3xl ">
                                     +{playerInfo.possibleScore}
                                   </span>
                                 </div>
@@ -296,10 +278,10 @@ export default function MultiTeamScorePage() {
                       </>
                     ) : (
                       <span
-                        className={`font-semibold uppercase tracking-wide ${
+                        className={`font-semibold text-3xl uppercase tracking-wide  mx-auto ${
                           hasColor ? "text-white/40" : "text-gray-400"
                         }`}
-                        style={{ fontSize: "clamp(0.8rem, 1.2vw, 1.2rem)" }}
+                        style={{ fontSize: "clamp(0.8rem, 1.2vw, 1.rem)" }}
                       >
                         No active player
                       </span>
@@ -308,6 +290,19 @@ export default function MultiTeamScorePage() {
                 </div>
               );
             })}
+          </div>
+
+          {/* Timer bar */}
+          <div
+            className="flex items-center justify-center bg-white border-t-4 border-gray-200 px-10"
+            style={{ height: "16%" }}
+          >
+            <div
+              className="font-bold  text-gray-900 leading-none"
+              style={{ fontSize: "clamp(3.5rem, 9vw, 6rem)" }}
+            >
+              {formatTime(remaining)}
+            </div>
           </div>
         </div>
       )}
