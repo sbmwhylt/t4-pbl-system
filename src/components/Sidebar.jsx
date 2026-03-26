@@ -19,7 +19,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import Spinner from "./ui/Spinner";
-import Modal from "@/components/ui/Modal";
+
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -27,7 +27,6 @@ export default function Sidebar() {
   const user = useUser();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isAdmin = user?.role === "admin";
 
@@ -47,16 +46,11 @@ export default function Sidebar() {
       label: "Scoring",
       items: [
         {
-          label: "Multi-Team Scorer",
-          path: "/admin/multi-team-scorer",
+          label: "Scorer Panel",
+          path: "/admin/scorer-panel",
           icon: Gamepad2,
           external: true,
           adminOnly: true,
-        },
-        {
-          label: "Scorer Panel",
-          icon: Gamepad2,
-          onClick: () => setIsModalOpen(true),
         },
       ].filter((item) => !item.adminOnly || isAdmin),
     },
@@ -64,26 +58,14 @@ export default function Sidebar() {
       label: "Displays",
       items: [
         {
-          label: "Broadcast Scoreboard",
-          path: "/broadcast-scoreboard",
-          icon: Tv,
-          external: true,
-        },
-        {
-          label: "Onsite Scoreboard",
+          label: "On-Site Scoreboard",
           path: "/onsite-scoreboard",
           icon: Cast,
           external: true,
         },
         {
-          label: "Multi-Team Onsite",
-          path: "/multi-team-onsite",
-          icon: Cast,
-          external: true,
-        },
-        {
-          label: "Multi-Team Broadcast",
-          path: "/multi-team-broadcast",
+          label: "Broadcast Scoreboard",
+          path: "/broadcast-scoreboard",
           icon: Tv,
           external: true,
         },
@@ -258,28 +240,6 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Choose Team"
-      >
-        <div className="flex gap-4 mt-4">
-          {["left", "right"].map((side) => (
-            <button
-              key={side}
-              onClick={() => {
-                setIsModalOpen(false);
-                window.open(`/admin/scorer/singlematch/${side}`, "_blank");
-              }}
-              className={`flex-1 h-32 bg-gray-100 hover:bg-gray-200 font-medium rounded-lg flex flex-col items-center justify-center text-2xl cursor-pointer transition-all ${
-                side === "left" ? "text-red-500" : "text-blue-500"
-              }`}
-            >
-              {side === "left" ? "Team 1" : "Team 2"}
-            </button>
-          ))}
-        </div>
-      </Modal>
     </>
   );
 }

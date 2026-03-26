@@ -33,7 +33,7 @@ import {
   getPossibleScore,
 } from "@/services";
 
-export default function MultiTeamScorerPage() {
+export default function ScorerPanel() {
   const { matchId = "multimatch" } = useParams();
 
   const [state, setState] = useState(null);
@@ -56,7 +56,7 @@ export default function MultiTeamScorerPage() {
   };
 
   useEffect(() => {
-    document.title = "Multi-Team Scorer Panel";
+    document.title = "Scorer Panel";
   }, []);
 
   // Subscriptions
@@ -293,7 +293,7 @@ export default function MultiTeamScorerPage() {
     <div className="p-4 sm:p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <h2 className="text-2xl font-bold">Multi-Team Scorer</h2>
+        <h2 className="text-2xl font-bold">Scorer Panel</h2>
         <div className="flex gap-2">
           <button
             onClick={handleAddTeam}

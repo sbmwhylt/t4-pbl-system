@@ -7,15 +7,11 @@ import Matches from "@/pages/Admin/Matches";
 import Login from "@/pages/Admin/Login";
 import PrivateRoute from "@/PrivateRoute";
 import NotFound from "@/pages/404";
-import MatchStats from "@/pages/Admin/MatchStats";
-import BroadcastScoreboard from "@/pages/Live";
-import OnsiteScoreboard from "@/pages/ScorePage";
 import Users from "@/pages/Admin/Users";
-import ScorerPage from "@/pages/Admin/ScorerPage";
-import SelectionPage from "@/pages/Admin/SelectionPage";
-import MultiTeamScorePage from "@/pages/MultiTeamScorePage";
-import MultiTeamScorerPage from "@/pages/Admin/MultiTeamScorerPage";
-import MultiTeamLive from "@/pages/MultiTeamLive";
+import ScorerPanel from "@/pages/Admin/ScorerPanel";
+import OnsiteScoreboard from "@/pages/OnsiteScoreboard";
+import BroadcastScoreboard from "@/pages/BroadcastScoreboard";
+import MatchStats from "@/pages/Admin/MatchStats";
 import MultiTeamMatchStats from "@/pages/Admin/MultiTeamMatchStats";
 
 function App() {
@@ -65,46 +61,19 @@ function App() {
         />
 
         <Route
-          path="/admin/match-stats/:matchId"
+          path="/admin/scorer-panel/:matchId/:teamId"
           element={
             <PrivateRoute>
-              <MatchStats />
+              <ScorerPanel />
             </PrivateRoute>
           }
         />
 
         <Route
-          path="/admin/scorer/:matchId/:side"
+          path="/admin/scorer-panel"
           element={
             <PrivateRoute>
-              <ScorerPage />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/admin/scorer-multi/:matchId/:teamId"
-          element={
-            <PrivateRoute>
-              <MultiTeamScorerPage />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/admin/multi-team-scorer"
-          element={
-            <PrivateRoute>
-              <MultiTeamScorerPage />
-            </PrivateRoute>
-          }
-        />
-
-        <Route
-          path="/admin/team-selection"
-          element={
-            <PrivateRoute>
-              <SelectionPage />
+              <ScorerPanel />
             </PrivateRoute>
           }
         />
@@ -119,6 +88,15 @@ function App() {
         />
 
         <Route
+          path="/admin/match-stats/:matchId"
+          element={
+            <PrivateRoute>
+              <MatchStats />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
           path="/admin/multi-match-stats/:matchId"
           element={
             <PrivateRoute>
@@ -128,13 +106,8 @@ function App() {
         />
 
         {/* Public Routes */}
-        <Route path="/multi-team-broadcast/:matchId?" element={<MultiTeamLive />} />
-        <Route path="/broadcast-scoreboard" element={<BroadcastScoreboard />} />
-        <Route path="/onsite-scoreboard" element={<OnsiteScoreboard />} />
-        <Route
-          path="/multi-team-onsite/:matchId?"
-          element={<MultiTeamScorePage />}
-        />
+        <Route path="/broadcast-scoreboard/:matchId?" element={<BroadcastScoreboard />} />
+        <Route path="/onsite-scoreboard/:matchId?" element={<OnsiteScoreboard />} />
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="*" element={<NotFound />} />

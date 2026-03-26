@@ -18,9 +18,9 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
-export default function MultiTeamScorePage() {
+export default function OnsiteScoreboard() {
   useEffect(() => {
-    document.title = "Multi-Team Score View";
+    document.title = "On-Site Scoreboard";
   }, []);
 
   const { matchId = "multimatch" } = useParams();
@@ -244,28 +244,28 @@ export default function MultiTeamScorePage() {
                       <>
                         <div className="flex flex-col mx-auto items-center gap-5 ">
                           <span
-                            className="leading-tight truncate w-full flex items-center gap-8 text-white "
+                            className="leading-tight truncate w-full flex items-center justify-center gap-6 text-white mx-auto"
                             style={{ fontSize: "clamp(1.2rem, 2.2vw, 3.2rem)" }}
                           >
                             {playerInfo.name}
                             {playerInfo.jersey && (
-                              <span className="inline-flex items-center gap-1.5  ">
-                                <Shirt size={22} />
+                              <span className="inline-flex items-center gap-1  ">
                                 {playerInfo.jersey}
                               </span>
                             )}
                           </span>
 
                           <div className="flex items-center flex-shrink-0 rounded-full overflow-hidden ">
-                            <div className="text-sm font-medium uppercase tracking-wider tabular-nums px-6 py-2 bg-black text-white flex items-center gap-3">
+                            <div className="text-md font-medium uppercase tracking-wider tabular-nums px-6 py-2 bg-black text-white flex items-center gap-3">
+                              Current
                               <span className="text-3xl">
                                 {playerInfo.currentZone}
                               </span>
                             </div>
                             {playerInfo.possibleScore != null &&
                               playerInfo.possibleScore > 0 && (
-                                <div className="text-sm font-semibold uppercase tracking-wider tabular-nums px-6 py-2 bg-white text-black flex items-center gap-3">
-                                  {" "}
+                                <div className="text-md font-semibold uppercase tracking-wider tabular-nums px-6 py-2 bg-white text-black flex items-center gap-3">
+                                  Possible{" "}
                                   <span className="text-3xl ">
                                     +{playerInfo.possibleScore}
                                   </span>

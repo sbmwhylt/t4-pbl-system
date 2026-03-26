@@ -7,9 +7,10 @@ import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal"; // use your existing modal wrapper
 import { toast } from "react-hot-toast";
 import { Settings, Trash2 } from "lucide-react";
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
 import { createAuthUser } from "@/services"; // secondary auth service
 import { useAuthState } from "react-firebase-hooks/auth";
+import { ref, onValue } from "firebase/database";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -17,6 +18,7 @@ export default function Users() {
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null); // track user to delete
+  const [onlineStatus, setOnlineStatus] = useState({});
   const [currentUser] = useAuthState(auth);
 
   const fetchUsers = async () => {
@@ -28,6 +30,22 @@ export default function Users() {
 
   useEffect(() => {
     fetchUsers();
+  }, []);
+
+  // Real-time presence listener
+  useEffect(() => {
+    const usersRef = ref(db, "t4_bouldering/users");
+    const unsub = onValue(usersRef, (snap) => {
+      if (snap.exists()) {
+        const data = snap.val();
+        const statuses = {};
+        for (const [uid, user] of Object.entries(data)) {
+          statuses[uid] = !!user.online;
+        }
+        setOnlineStatus(statuses);
+      }
+    });
+    return () => unsub();
   }, []);
 
   const handleSubmit = async (formData) => {
@@ -85,7 +103,7 @@ export default function Users() {
 
   return (
     <AdminLayout>
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Users</h2>
         <Button onClick={openCreateModal}>Add User</Button>
       </div>
@@ -98,6 +116,25 @@ export default function Users() {
             { header: "Full Name", accessor: "fullname" },
             { header: "Email", accessor: "email" },
             { header: "Role", accessor: "role" },
+            {
+              header: "Status",
+              accessor: (row) => (
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      onlineStatus[row.uid]
+                        ? "bg-green-500"
+                        : "bg-gray-300"
+                    }`}
+                  />
+                  <span className={`text-xs font-medium ${
+                    onlineStatus[row.uid] ? "text-green-600" : "text-gray-400"
+                  }`}>
+                    {onlineStatus[row.uid] ? "Online" : "Offline"}
+                  </span>
+                </span>
+              ),
+            },
             {
               header: "Actions",
               accessor: (row) => (

@@ -25,9 +25,9 @@ const BLANK_TEAM = {
 };
 const BLANK_TIMER = { remaining: DEFAULT_DURATION, running: false };
 
-export default function MultiTeamLive() {
+export default function BroadcastScoreboard() {
   useEffect(() => {
-    document.title = "Multi-Team Live ScoreView";
+    document.title = "Broadcast Scoreboard";
   }, []);
 
   const { matchId = "multimatch" } = useParams();

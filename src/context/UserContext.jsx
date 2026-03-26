@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { auth, db } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { ref, get } from "firebase/database";
+import { ref, get, set, onDisconnect, onValue } from "firebase/database";
 
 const UserContext = createContext(null);
 
@@ -14,10 +14,12 @@ export function UserProvider({ children }) {
 
   useEffect(() => {
     let sessionTimeout;
+    let presenceUnsub;
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      // Clear any previous timeout
+      // Clear any previous timeout and presence listener
       if (sessionTimeout) clearTimeout(sessionTimeout);
+      if (presenceUnsub) presenceUnsub();
 
       if (currentUser) {
         // Set login timestamp
@@ -30,6 +32,16 @@ export function UserProvider({ children }) {
           setUser(null);
           localStorage.removeItem("loginTime");
         }, SESSION_DURATION);
+
+        // Set up presence tracking
+        const userOnlineRef = ref(db, `t4_bouldering/users/${currentUser.uid}/online`);
+        const connectedRef = ref(db, ".info/connected");
+        presenceUnsub = onValue(connectedRef, (snap) => {
+          if (snap.val() === true) {
+            onDisconnect(userOnlineRef).set(false);
+            set(userOnlineRef, true);
+          }
+        });
 
         // Fetch user data from DB
         try {
@@ -49,6 +61,7 @@ export function UserProvider({ children }) {
     return () => {
       unsubscribe();
       if (sessionTimeout) clearTimeout(sessionTimeout);
+      if (presenceUnsub) presenceUnsub();
     };
   }, []);
 
