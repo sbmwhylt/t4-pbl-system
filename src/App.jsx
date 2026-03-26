@@ -12,6 +12,8 @@ import ScorerPanel from "@/pages/Admin/ScorerPanel";
 import OnsiteScoreboard from "@/pages/OnsiteScoreboard";
 import BroadcastScoreboard from "@/pages/BroadcastScoreboard";
 import MatchStats from "@/pages/Admin/MatchStats";
+import PlayerRankings from "@/pages/Admin/components/playerRankings";
+import TeamRankings from "@/pages/Admin/components/teamRankings";
 
 function App() {
   return (
@@ -91,6 +93,24 @@ function App() {
           element={
             <PrivateRoute>
               <MatchStats />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/player-rankings"
+          element={
+            <PrivateRoute>
+              <PlayerRankings />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/team-rankings"
+          element={
+            <PrivateRoute>
+              <TeamRankings />
             </PrivateRoute>
           }
         />

@@ -1,10 +1,21 @@
 import AdminLayout from "./../../components/layout/AdminLayout";
+import PlayerRankings from "./components/playerRankings";
+import TeamRankings from "./components/teamRankings";
 
 export default function Dashboard() {
   return (
     <AdminLayout>
-      <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
-      <p>Welcome to the admin panel.</p>
+      <div className="grid grid-cols-2 gap-6">
+        <div className=" p-6 rounded-lg border border-gray-200">
+          <TeamRankings />
+        </div>
+        <div className=" p-6 rounded-lg border border-gray-200"></div>
+      </div>
+      <div className="mt-6">
+        <div className="p-6 rounded-lg border border-gray-200">
+          <PlayerRankings />
+        </div>
+      </div>
     </AdminLayout>
   );
 }
