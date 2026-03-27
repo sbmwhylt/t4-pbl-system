@@ -14,7 +14,7 @@ export function useSyncedCountdown(timer) {
       }
 
       const now = serverNow();
-      const secs = Math.max(0, Math.round((timer.endTime - now) / 1000));
+      const secs = Math.max(0, Math.floor((timer.endTime - now) / 1000));
       setRemaining(secs);
     };
 

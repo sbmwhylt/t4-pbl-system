@@ -1,5 +1,5 @@
 import { db } from "@/firebase";
-import { ref, update, runTransaction, onValue } from "firebase/database";
+import { ref, runTransaction, onValue } from "firebase/database";
 import { DEFAULT_DURATION } from "@/services/constant";
 
 // ------------------------------ Server Time Sync
@@ -19,22 +19,11 @@ export function serverNow() {
 
 // ------------------------------ Timer References
 
-function scoreboardRef(matchId) {
-  return ref(db, `scoreboard/${matchId}`);
-}
-
 function timerRef(matchId) {
   return ref(db, `scoreboard/${matchId}/timer`);
 }
 
 // ------------------------------ Timer Updates
-
-async function setTimer(matchId, patch) {
-  await update(
-    scoreboardRef(matchId),
-    Object.fromEntries(Object.entries(patch).map(([k, v]) => [`timer/${k}`, v]))
-  );
-}
 
 // Start fresh or from current remaining
 export async function startTimer(
@@ -42,16 +31,28 @@ export async function startTimer(
   duration = DEFAULT_DURATION,
   controller = "panel"
 ) {
-  const now = serverNow();
+  const r = timerRef(matchId);
 
-  await setTimer(matchId, {
-    running: true,
-    controller,
-    duration,
-    endTime: now + duration * 1000,
-    remaining: duration,
-    lastAction: now,
-    lastController: controller,
+  await runTransaction(r, (current) => {
+    if (!current) return current;
+
+    const now = serverNow();
+
+    // Guard: ignore if already running (another device won the race)
+    if (current.running) {
+      return current;
+    }
+
+    return {
+      ...current,
+      running: true,
+      controller,
+      duration,
+      endTime: now + duration * 1000,
+      remaining: duration,
+      lastAction: now,
+      lastController: controller,
+    };
   });
 }
 
@@ -124,31 +125,48 @@ export async function resetTimer(
   duration = DEFAULT_DURATION,
   controller = "panel"
 ) {
-  const now = serverNow();
+  const r = timerRef(matchId);
 
-  await setTimer(matchId, {
-    duration,
-    remaining: duration,
-    running: false,
-    controller,
-    endTime: null,
-    lastAction: now,
-    lastController: controller,
+  await runTransaction(r, (current) => {
+    if (!current) return current;
+
+    const now = serverNow();
+
+    return {
+      ...current,
+      duration,
+      remaining: duration,
+      running: false,
+      controller,
+      endTime: null,
+      lastAction: now,
+      lastController: controller,
+    };
   });
 }
 
 // ------------------------------ Duration Change (only when stopped)
 
 export async function setDuration(matchId, newDuration, controller = "panel") {
-  const now = serverNow();
+  const r = timerRef(matchId);
 
-  await setTimer(matchId, {
-    duration: newDuration,
-    remaining: newDuration,
-    running: false,
-    endTime: null,
-    lastAction: now,
-    lastController: controller,
+  await runTransaction(r, (current) => {
+    if (!current) return current;
+
+    const now = serverNow();
+
+    // Only allow duration change when timer is stopped
+    if (current.running) return current;
+
+    return {
+      ...current,
+      duration: newDuration,
+      remaining: newDuration,
+      running: false,
+      endTime: null,
+      lastAction: now,
+      lastController: controller,
+    };
   });
 }
 
