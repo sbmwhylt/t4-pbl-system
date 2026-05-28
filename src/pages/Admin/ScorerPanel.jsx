@@ -165,12 +165,20 @@ export default function ScorerPanel() {
     const teamPlayers = currentTeam.players || {};
     const existing = teamPlayers[player.id];
 
+    const displayName = player.last_name || player.name;
+    const fullName = player.first_name
+      ? `${player.first_name} ${player.last_name || ""}`.trim()
+      : (player.last_name || player.name);
+
     if (!existing) {
       // Player was transferred after the team was loaded — add them
       await set(
         ref(db, `scoreboard/${matchId}/teams/${selectedTeamKey}/players/${player.id}`),
         {
-          name: player.name,
+          first_name: player.first_name || "",
+          last_name: player.last_name || player.name || "",
+          name: fullName,
+          display_name: displayName,
           jersey_number: player.jersey_number || "",
           points: 0,
           boulders: {
@@ -182,18 +190,25 @@ export default function ScorerPanel() {
         },
       );
     } else if (
-      existing.name !== player.name ||
+      existing.name !== fullName ||
       existing.jersey_number !== player.jersey_number
     ) {
       // Player was renamed — sync the scoreboard
       await update(
         ref(db, `scoreboard/${matchId}/teams/${selectedTeamKey}/players/${player.id}`),
-        { name: player.name, jersey_number: player.jersey_number || "" },
+        {
+          first_name: player.first_name || "",
+          last_name: player.last_name || player.name || "",
+          name: fullName,
+          display_name: displayName,
+          jersey_number: player.jersey_number || "",
+        },
       );
     }
 
     await setTeam(matchId, selectedTeamKey, {
-      current_player: player.name,
+      // current_player stores display_name so public screens show last name only
+      current_player: displayName,
       jersey: player.jersey_number,
       current_boulder: currentTeam.current_boulder || "A",
     });

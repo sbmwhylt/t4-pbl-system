@@ -26,7 +26,8 @@ export default function Players() {
   const [playerToDelete, setPlayerToDelete] = useState(null);
 
   const [formData, setFormData] = useState({
-    name: "",
+    first_name: "",
+    last_name: "",
     jersey_number: "",
     team_id: "",
   });
@@ -46,11 +47,15 @@ export default function Players() {
     let teamsData = {};
     let playersData = [];
 
+    let teamsLoaded = false;
+    let playersLoaded = false;
+
     const unsubscribeTeams = onValue(teamsRef, (snapshot) => {
       const data = snapshot.val() || {};
       teamsData = data;
       setTeams(data);
-      if (playersData.length) setLoading(false);
+      teamsLoaded = true;
+      if (playersLoaded) setLoading(false);
     });
 
     const unsubscribePlayers = onValue(playersRef, (snapshot) => {
@@ -60,7 +65,8 @@ export default function Players() {
         ...player,
       }));
       setPlayers(playersData);
-      if (Object.keys(teamsData).length) setLoading(false);
+      playersLoaded = true;
+      if (teamsLoaded) setLoading(false);
     });
 
     return () => {
@@ -71,9 +77,10 @@ export default function Players() {
 
   // Filtered & sorted players
   const filteredPlayers = players
-    .filter((player) =>
-      player.name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    .filter((player) => {
+      const full = `${player.first_name || ""} ${player.last_name || player.name || ""}`.toLowerCase();
+      return full.includes(searchTerm.toLowerCase());
+    })
     .filter((player) => (teamFilter ? player.team_id === teamFilter : true))
     .sort((a, b) => b.id.localeCompare(a.id)); // latest first
 
@@ -92,14 +99,15 @@ export default function Players() {
   // Modal handlers
   const openCreateModal = () => {
     setEditingPlayer(null);
-    setFormData({ name: "", jersey_number: "", team_id: "" });
+    setFormData({ first_name: "", last_name: "", jersey_number: "", team_id: "" });
     setShowModal(true);
   };
 
   const openEditModal = (player) => {
     setEditingPlayer(player.id);
     setFormData({
-      name: player.name,
+      first_name: player.first_name || "",
+      last_name: player.last_name || player.name || "",
       jersey_number: player.jersey_number,
       team_id: player.team_id,
     });
@@ -112,7 +120,7 @@ export default function Players() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.team_id) {
+    if (!formData.last_name || !formData.team_id) {
       toast.error("Please fill in all required fields.");
       return;
     }
@@ -190,7 +198,16 @@ export default function Players() {
           <Table
             columns={[
               { header: "ID", accessor: "id", sortable: true },
-              { header: "Name", accessor: "name", sortable: true },
+              {
+                header: "Name",
+                accessor: (row) => {
+                  const full = row.first_name
+                    ? `${row.first_name} ${row.last_name || ""}`
+                    : (row.last_name || row.name || "");
+                  return <span>{full.trim()}</span>;
+                },
+                sortable: true,
+              },
               { header: "Player Number", accessor: "jersey_number", sortable: true },
               {
                 header: "Team",
@@ -332,9 +349,14 @@ export default function Players() {
       >
         <div className="flex flex-col gap-4">
           <Input
-            label="Name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            label="First Name"
+            value={formData.first_name}
+            onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+          />
+          <Input
+            label="Last Name"
+            value={formData.last_name}
+            onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
           />
           <Input
             label="Player Number"

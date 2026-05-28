@@ -61,7 +61,10 @@ export default function PlayerRankings() {
       if (!data?.players) return;
 
       Object.entries(data.players).forEach(([playerId, player]) => {
-        if (!player.name) return;
+        if (!player.last_name && !player.name) return;
+        const fullName = player.first_name
+          ? `${player.first_name} ${player.last_name || ""}`.trim()
+          : (player.last_name || player.name || "");
 
         const boulders = player.boulders || {};
         const matchPoints = Object.values(boulders).reduce(
@@ -82,7 +85,7 @@ export default function PlayerRankings() {
         if (!playerStats[playerId]) {
           playerStats[playerId] = {
             id: playerId,
-            name: player.name,
+            name: fullName,
             jersey_number: player.jersey_number || "",
             teamId,
             totalPoints: 0,

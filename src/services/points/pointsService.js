@@ -51,8 +51,15 @@ export async function setTeam(matchId, side, team) {
         ([_, p]) => (p.team_id || p.team) === team.id && p.status === "active"
       )
       .reduce((acc, [id, p]) => {
+        const firstName = p.first_name || "";
+        const lastName = p.last_name || p.name || "";
         acc[id] = {
-          name: p.name || "",
+          first_name: firstName,
+          last_name: lastName,
+          // full name retained for internal lookups
+          name: firstName ? `${firstName} ${lastName}` : lastName,
+          // last name only, used by public displays
+          display_name: lastName,
           jersey_number: p.jersey_number || "",
           points: 0,
           boulders: {

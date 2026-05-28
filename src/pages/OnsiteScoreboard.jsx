@@ -117,11 +117,12 @@ export default function OnsiteScoreboard() {
   const getCurrentPlayerInfo = (team) => {
     if (!team.current_player) return null;
     const player = Object.values(team.players || {}).find(
-      (p) => p.name === team.current_player,
+      (p) => (p.display_name || p.name) === team.current_player,
     );
     if (!player) return null;
     const boulderData = player.boulders?.[team.current_boulder];
     return {
+      // current_player is already the display_name (last name)
       name: team.current_player,
       jersey: team.jersey,
       currentZone: boulderData?.currentZone || "—",

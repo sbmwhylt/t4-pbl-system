@@ -86,7 +86,7 @@ export default function BroadcastScoreboard() {
     const { current_player, current_boulder, players } = team;
     if (!current_player || !current_boulder) return null;
     const player = Object.values(players || {}).find(
-      (p) => p.name === current_player,
+      (p) => (p.display_name || p.name) === current_player,
     );
     if (!player) return null;
     const boulderData = player.boulders?.[current_boulder];

@@ -109,7 +109,10 @@ export default function MultiTeamMatchStats() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {Object.entries(team.players).filter(([, p]) => p.name).map(([id, p]) => {
+                      {Object.entries(team.players).filter(([, p]) => p.last_name || p.name).map(([id, p]) => {
+                        const fullName = p.first_name
+                          ? `${p.first_name} ${p.last_name || ""}`.trim()
+                          : (p.last_name || p.name || "");
                         const totalPoints = Object.values(
                           p.boulders || {}
                         ).reduce((sum, b) => sum + (b.points || 0), 0);
@@ -124,11 +127,11 @@ export default function MultiTeamMatchStats() {
                                 <div
                                   className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${avatarColor}`}
                                 >
-                                  {p.name?.charAt(0)}
+                                  {fullName.charAt(0)}
                                 </div>
                                 <div>
                                   <p className="font-semibold text-gray-800">
-                                    {p.name}
+                                    {fullName}
                                   </p>
                                   <p className="text-xs text-gray-500">
                                     {p.jersey_number ? `#${p.jersey_number}` : ""}
