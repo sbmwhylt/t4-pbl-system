@@ -45,6 +45,7 @@ export default function ScorerPanel() {
   const [lockedTeams, setLockedTeams] = useState({});
   const [isAnchor, setIsAnchor] = useState(false);
   const [, forceUpdate] = useState(0);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   const toggleLock = (teamKey) =>
     setLockedTeams((prev) => ({ ...prev, [teamKey]: !prev[teamKey] }));
@@ -302,14 +303,7 @@ export default function ScorerPanel() {
             <Plus size={16} /> Add Team
           </button>
           <button
-            onClick={async () => {
-              try {
-                const savedMatchId = await finishMatchMultiTeam(matchId);
-                toast.success(`Match ${savedMatchId} saved!`);
-              } catch (err) {
-                toast.error(`Error: ${err.message}`);
-              }
-            }}
+            onClick={() => setShowSaveDialog(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
           >
             <Save size={16} /> Save Match
@@ -617,6 +611,39 @@ export default function ScorerPanel() {
               />
             </div>
           )}
+        </div>
+      )}
+      {/* Save Match Confirmation Dialog */}
+      {showSaveDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">Save Match?</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              This will finalize the match and save all scores. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowSaveDialog(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  setShowSaveDialog(false);
+                  try {
+                    const savedMatchId = await finishMatchMultiTeam(matchId);
+                    toast.success(`Match ${savedMatchId} saved!`);
+                  } catch (err) {
+                    toast.error(`Error: ${err.message}`);
+                  }
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Save Match
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
