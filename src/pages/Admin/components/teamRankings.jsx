@@ -136,7 +136,7 @@ export default function TeamRankings() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full @container">
       <div className="mb-5">
         <h2 className="text-lg font-bold text-gray-800">Team Rankings</h2>
         <p className="text-sm text-gray-500 mt-1">
@@ -151,7 +151,7 @@ export default function TeamRankings() {
           <p className="mt-2 text-sm font-medium">No team data found</p>
         </div>
       ) : (
-        <div className="flex gap-3">
+        <div className="grid grid-cols-1 @[440px]:grid-cols-3 gap-3">
           {top3.map((team, i) => {
             const config = rankConfig[i];
             const info = getTeamInfo(team.id);
@@ -163,7 +163,7 @@ export default function TeamRankings() {
             return (
               <div
                 key={team.id}
-                className={`flex-1 ${config.bg} rounded-xl border ${config.border} p-4 flex flex-col items-center`}
+                className={`min-w-0 ${config.bg} rounded-xl border ${config.border} p-4 flex flex-col items-center`}
               >
                 {/* Rank badge */}
                 <span className={`text-xs font-black ${config.medal} mb-2`}>

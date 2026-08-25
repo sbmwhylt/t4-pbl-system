@@ -217,19 +217,6 @@ export default function OnsiteScoreboard() {
                       </span>
                     </div>
 
-                    {/* Boulder label */}
-                    {/* {team.current_boulder && (
-                      <div className="flex justify-center pb-2 shrink-0">
-                        <span
-                          className={`font-bold uppercase tracking-widest ${
-                            hasColor ? "text-white/60" : "text-gray-500"
-                          }`}
-                          style={{ fontSize: "clamp(0.9rem, 1.4vw, 1.4rem)" }}
-                        >
-                          Boulder {team.current_boulder}
-                        </span>
-                      </div>
-                    )} */}
                   </div>
 
                   {/* Player footer */}
@@ -256,22 +243,42 @@ export default function OnsiteScoreboard() {
                             )}
                           </span>
 
-                          <div className="flex items-center flex-shrink-0 rounded-full overflow-hidden ">
-                            <div className="text-md font-medium uppercase tracking-wider tabular-nums px-6 py-2 bg-black text-white flex items-center gap-3">
-                              Current
-                              <span className="text-3xl">
-                                {playerInfo.currentZone}
+                          <div className="flex items-center justify-center gap-3 flex-shrink-0">
+                            {/* Boulder label — small, non-dominant, beside the zone/score indicator */}
+                            {team.current_boulder && (
+                              <span
+                                className={`inline-flex items-center justify-center rounded-full font-bold shrink-0 ${
+                                  hasColor
+                                    ? "bg-white/15 text-white/70"
+                                    : "bg-gray-100 text-gray-500"
+                                }`}
+                                style={{
+                                  fontSize: "clamp(0.8rem, 1.3vw, 1.3rem)",
+                                  width: "clamp(1.6rem, 2.6vw, 2.6rem)",
+                                  height: "clamp(1.6rem, 2.6vw, 2.6rem)",
+                                }}
+                              >
+                                {team.current_boulder}
                               </span>
+                            )}
+
+                            <div className="flex items-center flex-shrink-0 rounded-full overflow-hidden">
+                              <div className="text-md font-medium uppercase tracking-wider tabular-nums px-6 py-2 bg-black text-white flex items-center gap-3">
+                                Current
+                                <span className="text-3xl">
+                                  {playerInfo.currentZone}
+                                </span>
+                              </div>
+                              {playerInfo.possibleScore != null &&
+                                playerInfo.possibleScore > 0 && (
+                                  <div className="text-md font-semibold uppercase tracking-wider tabular-nums px-6 py-2 bg-white text-black flex items-center gap-3">
+                                    Possible{" "}
+                                    <span className="text-3xl ">
+                                      +{playerInfo.possibleScore}
+                                    </span>
+                                  </div>
+                                )}
                             </div>
-                            {playerInfo.possibleScore != null &&
-                              playerInfo.possibleScore > 0 && (
-                                <div className="text-md font-semibold uppercase tracking-wider tabular-nums px-6 py-2 bg-white text-black flex items-center gap-3">
-                                  Possible{" "}
-                                  <span className="text-3xl ">
-                                    +{playerInfo.possibleScore}
-                                  </span>
-                                </div>
-                              )}
                           </div>
                         </div>
                       </>

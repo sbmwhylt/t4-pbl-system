@@ -116,6 +116,7 @@ export default function BroadcastScoreboard() {
     jersey: leftTeamData?.jersey || null,
     current_zone: leftCurrentBoulder?.currentZone || null,
     possibleScore: leftPossible,
+    boulder: leftTeamData?.current_boulder || null,
   };
 
   const rightScoreboard = {
@@ -125,6 +126,7 @@ export default function BroadcastScoreboard() {
     jersey: rightTeamData?.jersey || null,
     current_zone: rightCurrentBoulder?.currentZone || null,
     possibleScore: rightPossible,
+    boulder: rightTeamData?.current_boulder || null,
   };
 
   const left = teamsData[leftScoreboard.id] || leftScoreboard;
@@ -160,86 +162,100 @@ export default function BroadcastScoreboard() {
 
       {/* Main scoreboard */}
       {!noTeamsSelected && (
-        <div className="fixed bottom-0 left-0 w-full px-4 py-2 flex items-center justify-center pointer-events-none z-40">
-          <div className="flex items-center justify-center w-full bg-[#5f8bbb]/80 backdrop-blur-md rounded text-white px-4 gap-3 mb-3">
+        <div className="fixed bottom-0 left-0 w-full px-2 xl:px-4 py-2 flex items-center justify-center pointer-events-none z-40">
+          <div className="flex flex-col xl:flex-row items-center justify-center w-full max-w-full bg-[#5f8bbb]/80 backdrop-blur-md rounded text-white px-2 xl:px-4 gap-2 xl:gap-3 mb-3">
             {/* Left Team */}
-            <div className="flex items-center gap-2">
-              <div className="text-center font-medium text-xl tracking-wide h-full w-60 p-2 rounded-sm mr-12 bg-black/65">
+            <div className="flex items-center gap-1 xl:gap-2 min-w-0 max-w-full">
+              <div className="text-center font-medium text-sm xl:text-xl tracking-wide h-full w-24 xl:w-60 p-1 xl:p-2 rounded-sm mr-2 xl:mr-12 bg-black/65 truncate">
                 {leftScoreboard.current_player} {leftScoreboard.jersey || ""}
               </div>
 
-              <div className="grid cols-2 w-24 h-22">
-                <div className="flex items-center justify-center bg-white text-black text-2xl font-bold">
+              <div className="grid grid-cols-1 w-12 xl:w-24 h-12 xl:h-22 shrink-0">
+                <div className="flex items-center justify-center bg-white text-black text-sm xl:text-2xl font-bold">
                   {leftScoreboard.current_zone || "-"}
                 </div>
 
                 {/* Possible score */}
                 {leftScoreboard.possibleScore != null &&
                   leftScoreboard.possibleScore > 0 && (
-                    <div className="flex items-center justify-center bg-black text-white text-2xl font-medium">
+                    <div className="flex items-center justify-center bg-black text-white text-sm xl:text-2xl font-medium">
                       + {leftScoreboard.possibleScore}
                     </div>
                   )}
               </div>
 
-              {/* Show current zone */}
+              {/* Logo + current boulder (A/B/C/D), small and non-dominant */}
+              <div className="flex items-center gap-1 xl:gap-1.5 mr-1 ml-1 xl:mr-5 xl:ml-4 shrink-0">
+                {leftScoreboard.boulder && (
+                  <span className="w-5 h-5 xl:w-7 xl:h-7 rounded-full bg-black/80 border border-white/40 text-white text-[10px] xl:text-sm font-bold leading-none flex items-center justify-center shrink-0">
+                    {leftScoreboard.boulder}
+                  </span>
+                )}
+                {left.logo_url && (
+                  <img
+                    src={left.logo_url}
+                    alt={left.abbreviation}
+                    className="w-8 h-8 xl:w-20 xl:h-20 shrink-0"
+                  />
+                )}
+              </div>
 
-              {left.logo_url && (
-                <img
-                  src={left.logo_url}
-                  alt={left.abbreviation}
-                  className="w-20 h-20 mr-5 ml-4"
-                />
-              )}
-
-              <div className="flex justify-center items-center w-16">
-                <span className="text-7xl font-medium text-white">
+              <div className="flex justify-center items-center w-8 xl:w-16 shrink-0">
+                <span className="text-2xl xl:text-7xl font-medium text-white">
                   {leftScoreboard.score || 0}
                 </span>
               </div>
             </div>
 
             {/* Period / Clock */}
-            <div className="flex flex-col items-center justify-center w-28 mx-6 h-22 bg-black/50 rounded">
-              <div className="text-lg font-semibold uppercase">{period}</div>
-              <div className="w-22 border-t-3 border-red-600 my-1 opacity-50"></div>
-              <div className="text-4xl tracking-wider font-semibold mt-1">
+            <div className="flex flex-col items-center justify-center w-20 xl:w-28 mx-1 xl:mx-6 h-14 xl:h-22 bg-black/50 rounded shrink-0">
+              <div className="text-xs xl:text-lg font-semibold uppercase">{period}</div>
+              <div className="w-14 xl:w-22 border-t-3 border-red-600 my-1 opacity-50"></div>
+              <div className="text-lg xl:text-4xl tracking-wider font-semibold mt-1">
                 {formatTime(remaining)}
               </div>
             </div>
 
             {/* Right Team - Mirrored layout */}
-            <div className="flex items-center gap-2">
-              <div className="flex justify-center items-center w-16">
-                <span className="text-7xl font-medium text-white">
+            <div className="flex items-center gap-1 xl:gap-2 min-w-0 max-w-full">
+              <div className="flex justify-center items-center w-8 xl:w-16 shrink-0">
+                <span className="text-2xl xl:text-7xl font-medium text-white">
                   {rightScoreboard.score || 0}
                 </span>
               </div>
 
-              {right.logo_url && (
-                <img
-                  src={right.logo_url}
-                  alt={right.abbreviation}
-                  className="w-20 h-20 ml-5 mr-4"
-                />
-              )}
+              {/* Logo + current boulder (A/B/C/D), small and non-dominant */}
+              <div className="flex items-center gap-1 xl:gap-1.5 ml-1 mr-1 xl:ml-5 xl:mr-4 shrink-0">
+                {right.logo_url && (
+                  <img
+                    src={right.logo_url}
+                    alt={right.abbreviation}
+                    className="w-8 h-8 xl:w-20 xl:h-20 shrink-0"
+                  />
+                )}
+                {rightScoreboard.boulder && (
+                  <span className="w-5 h-5 xl:w-7 xl:h-7 rounded-full bg-black/80 border border-white/40 text-white text-[10px] xl:text-sm font-bold leading-none flex items-center justify-center shrink-0">
+                    {rightScoreboard.boulder}
+                  </span>
+                )}
+              </div>
 
-              <div className="grid cols-2 w-24 h-22">
+              <div className="grid grid-cols-1 w-12 xl:w-24 h-12 xl:h-22 shrink-0">
                 {/* Show current zone */}
-                <div className="flex items-center justify-center bg-white text-black text-2xl font-bold">
+                <div className="flex items-center justify-center bg-white text-black text-sm xl:text-2xl font-bold">
                   {rightScoreboard.current_zone || "-"}
                 </div>
 
                 {/* Possible score */}
                 {rightScoreboard.possibleScore != null &&
                   rightScoreboard.possibleScore > 0 && (
-                    <div className="flex items-center justify-center bg-black text-white text-2xl font-medium">
+                    <div className="flex items-center justify-center bg-black text-white text-sm xl:text-2xl font-medium">
                       + {rightScoreboard.possibleScore}
                     </div>
                   )}
               </div>
 
-              <div className="text-center font-medium text-xl tracking-wide h-full w-60 p-2 rounded-sm ml-12 bg-black/65">
+              <div className="text-center font-medium text-sm xl:text-xl tracking-wide h-full w-24 xl:w-60 p-1 xl:p-2 rounded-sm ml-2 xl:ml-12 bg-black/65 truncate">
                 {rightScoreboard.current_player} {rightScoreboard.jersey || ""}
               </div>
             </div>
