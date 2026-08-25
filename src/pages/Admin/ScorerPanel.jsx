@@ -31,6 +31,7 @@ import {
   initMatchMultiTeam,
   setOverlayTeams,
   getPossibleScore,
+  PERIODS,
 } from "@/services";
 
 export default function ScorerPanel() {
@@ -50,10 +51,15 @@ export default function ScorerPanel() {
   const toggleLock = (teamKey) =>
     setLockedTeams((prev) => ({ ...prev, [teamKey]: !prev[teamKey] }));
 
+  // "Round" steps through the same PERIODS used for the game clock's period
+  // label, so it's what actually shows up as the period on the scoreboards.
+  const currentPeriodIndex = Math.max(0, PERIODS.indexOf(state?.period));
   const updateRound = (delta) => {
-    const current = state?.round ?? 1;
-    const next = Math.max(1, current + delta);
-    set(ref(db, `scoreboard/${matchId}/round`), next);
+    const nextIndex = Math.min(
+      PERIODS.length - 1,
+      Math.max(0, currentPeriodIndex + delta),
+    );
+    updatePeriod(matchId, PERIODS[nextIndex]);
   };
 
   useEffect(() => {
@@ -345,20 +351,22 @@ export default function ScorerPanel() {
           hidePeriod
         />
 
-        {/* Round Controls */}
+        {/* Round Controls — drives the period shown on the scoreboards */}
         <div className="flex items-center justify-center gap-4 mt-3">
           <button
             onClick={() => updateRound(-1)}
-            className="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 text-lg font-bold transition-colors flex items-center justify-center"
+            disabled={currentPeriodIndex === 0}
+            className="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-30 disabled:hover:bg-gray-200 text-gray-700 text-lg font-bold transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
           >
             −
           </button>
           <span className="text-base font-semibold text-gray-700 w-24 text-center">
-            Round {state.round ?? 1}
+            Round {currentPeriodIndex + 1}
           </span>
           <button
             onClick={() => updateRound(1)}
-            className="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 text-lg font-bold transition-colors flex items-center justify-center"
+            disabled={currentPeriodIndex === PERIODS.length - 1}
+            className="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-30 disabled:hover:bg-gray-200 text-gray-700 text-lg font-bold transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
           >
             +
           </button>

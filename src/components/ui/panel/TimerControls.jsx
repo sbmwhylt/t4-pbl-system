@@ -9,9 +9,7 @@ import {
   Check,
 } from "lucide-react";
 import { timerService } from "@/services/timer/timerService";
-import { DEFAULT_DURATION, DURATION_PRESETS } from "@/services/constant";
-
-const PERIODS = ["1ST", "2ND", "3RD", "4TH"];
+import { DEFAULT_DURATION, DURATION_PRESETS, PERIODS } from "@/services/constant";
 
 export default function TimerControls({
   matchId,

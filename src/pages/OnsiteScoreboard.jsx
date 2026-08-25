@@ -80,7 +80,6 @@ export default function OnsiteScoreboard() {
   }, [state.timer?.running]);
 
   const timer = state.timer || { remaining: DEFAULT_DURATION, running: false };
-  const round = state.round ?? 1;
 
   // Calculate current remaining time
   const remaining =

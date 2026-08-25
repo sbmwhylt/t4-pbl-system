@@ -6,6 +6,7 @@ import {
   subscribeTeams,
   timerService,
   getPossibleScore,
+  PERIODS,
 } from "@/services";
 
 function formatTime(seconds) {
@@ -133,6 +134,10 @@ export default function BroadcastScoreboard() {
   const right = teamsData[rightScoreboard.id] || rightScoreboard;
   const timer = state.timer || BLANK_TIMER;
   const period = state.period || "1ST";
+  // Rounds 1–2 (1ST/2ND) are the first half, 3–4 (3RD/4TH) are the second half
+  const periodIndex = PERIODS.indexOf(period);
+  const half =
+    periodIndex === -1 ? null : periodIndex < 2 ? "1ST HALF" : "2ND HALF";
 
   const remaining =
     timer.running && timer.endTime
@@ -208,8 +213,15 @@ export default function BroadcastScoreboard() {
             </div>
 
             {/* Period / Clock */}
-            <div className="flex flex-col items-center justify-center w-20 xl:w-28 mx-1 xl:mx-6 h-14 xl:h-22 bg-black/50 rounded shrink-0">
-              <div className="text-xs xl:text-lg font-semibold uppercase">{period}</div>
+            <div className="flex flex-col items-center justify-center w-20 xl:w-28 mx-1 xl:mx-6 h-16 xl:h-24 bg-black/50 rounded shrink-0">
+              <div className="text-xs xl:text-lg font-semibold uppercase leading-none">
+                {period}
+              </div>
+              {half && (
+                <div className="text-[6px] xl:text-[9px] font-medium uppercase tracking-wider text-white/50 leading-none mt-0.5">
+                  {half}
+                </div>
+              )}
               <div className="w-14 xl:w-22 border-t-3 border-red-600 my-1 opacity-50"></div>
               <div className="text-lg xl:text-4xl tracking-wider font-semibold mt-1">
                 {formatTime(remaining)}
