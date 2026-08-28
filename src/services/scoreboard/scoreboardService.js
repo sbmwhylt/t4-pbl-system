@@ -32,6 +32,10 @@ export async function initMatch(matchId) {
       duration: DEFAULT_DURATION,
       remaining: DEFAULT_DURATION,
       running: false,
+      startAt: null,
+      runSeconds: null,
+      endTime: null,
+      endedAt: null,
     },
     period: "1ST",
   });
@@ -61,6 +65,10 @@ export async function initMatchMultiTeam(matchId, teamIds = []) {
       duration: DEFAULT_DURATION,
       remaining: DEFAULT_DURATION,
       running: false,
+      startAt: null,
+      runSeconds: null,
+      endTime: null,
+      endedAt: null,
     },
     period: "1ST",
   });

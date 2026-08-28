@@ -4,10 +4,10 @@ import {
   subscribeScoreboard,
   DEFAULT_DURATION,
   subscribeTeams,
-  timerService,
   getPossibleScore,
   PERIODS,
 } from "@/services";
+import { useSyncedCountdown } from "@/hooks/useSyncedCountdown";
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60);
@@ -39,7 +39,6 @@ export default function BroadcastScoreboard() {
     period: "1ST",
   });
   const [teamsData, setTeamsData] = useState({});
-  const [, forceUpdate] = useState(0);
 
   useEffect(() => {
     const unsub = subscribeScoreboard(matchId, (data) => {
@@ -56,12 +55,6 @@ export default function BroadcastScoreboard() {
     });
     return () => unsub();
   }, []);
-
-  useEffect(() => {
-    if (!state.timer?.running) return;
-    const id = setInterval(() => forceUpdate((n) => n + 1), 1000);
-    return () => clearInterval(id);
-  }, [state.timer?.running, state.timer?.endTime]);
 
   // Build teams from state
   const allTeams = Object.entries(state.teams || {}).map(([key, team]) => {
@@ -132,20 +125,14 @@ export default function BroadcastScoreboard() {
 
   const left = teamsData[leftScoreboard.id] || leftScoreboard;
   const right = teamsData[rightScoreboard.id] || rightScoreboard;
-  const timer = state.timer || BLANK_TIMER;
   const period = state.period || "1ST";
   // Rounds 1–2 (1ST/2ND) are the first half, 3–4 (3RD/4TH) are the second half
   const periodIndex = PERIODS.indexOf(period);
   const half =
     periodIndex === -1 ? null : periodIndex < 2 ? "1ST HALF" : "2ND HALF";
 
-  const remaining =
-    timer.running && timer.endTime
-      ? Math.max(
-          0,
-          Math.floor((timer.endTime - timerService.serverNow()) / 1000),
-        )
-      : (timer.remaining ?? timer.duration ?? DEFAULT_DURATION);
+  // Shared, server-synced countdown — identical on every screen
+  const remaining = useSyncedCountdown(state.timer || BLANK_TIMER, matchId);
 
   const noTeamsSelected = !leftScoreboard.id || !rightScoreboard.id;
 

@@ -45,7 +45,6 @@ export default function ScorerPanel() {
   const [playerBoulderData, setPlayerBoulderData] = useState({});
   const [lockedTeams, setLockedTeams] = useState({});
   const [isAnchor, setIsAnchor] = useState(false);
-  const [, forceUpdate] = useState(0);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   const toggleLock = (teamKey) =>
@@ -78,13 +77,6 @@ export default function ScorerPanel() {
     });
     return () => unsub();
   }, [matchId]);
-
-  // Force update when timer is running
-  useEffect(() => {
-    if (!state?.timer?.running) return;
-    const id = setInterval(() => forceUpdate((n) => n + 1), 100);
-    return () => clearInterval(id);
-  }, [state?.timer?.running]);
 
   // Initialize boulders for all players
   useEffect(() => {

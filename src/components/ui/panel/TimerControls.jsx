@@ -9,7 +9,17 @@ import {
   Check,
 } from "lucide-react";
 import { timerService } from "@/services/timer/timerService";
+<<<<<<< HEAD
 import { DEFAULT_DURATION, DURATION_PRESETS, PERIODS } from "@/services/constant";
+=======
+import {
+  useSyncedCountdown,
+  useClockReady,
+} from "@/hooks/useSyncedCountdown";
+import { DEFAULT_DURATION, DURATION_PRESETS } from "@/services/constant";
+
+const PERIODS = ["1ST", "2ND", "3RD", "4TH"];
+>>>>>>> 0f389a5 (- fixing timers)
 
 export default function TimerControls({
   matchId,
@@ -29,14 +39,9 @@ export default function TimerControls({
   const [customMinutes, setCustomMinutes] = useState("");
   const [customSeconds, setCustomSeconds] = useState("");
 
-  // Calculate remaining time directly using server time (same as Live.jsx)
-  const remaining =
-    timer?.running && timer?.endTime
-      ? Math.max(
-          0,
-          Math.floor((timer.endTime - timerService.serverNow()) / 1000),
-        )
-      : (timer?.remaining ?? timer?.duration ?? DEFAULT_DURATION);
+  // Shared, server-synced countdown — identical on every screen
+  const remaining = useSyncedCountdown(timer, matchId);
+  const clockReady = useClockReady();
 
   const currentDuration = timer?.duration ?? DEFAULT_DURATION;
   const isFinished = remaining <= 0;
@@ -209,9 +214,14 @@ export default function TimerControls({
             ) : (
               <button
                 onClick={isFinished ? handleReset : handleResume}
-                disabled={isFinished && !isController}
+                disabled={(isFinished && !isController) || (!isFinished && !clockReady)}
+                title={
+                  !isFinished && !clockReady
+                    ? "Syncing with server clock…"
+                    : undefined
+                }
                 className={`w-14 h-14 flex items-center justify-center rounded-xl text-white transition-all cursor-pointer ${
-                  isFinished
+                  isFinished || !clockReady
                     ? "bg-gray-300 cursor-not-allowed"
                     : "bg-green-500 hover:bg-green-600 active:scale-95"
                 }`}

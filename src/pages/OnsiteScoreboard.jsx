@@ -4,9 +4,9 @@ import {
   subscribeScoreboard,
   DEFAULT_DURATION,
   subscribeTeams,
-  timerService,
   getPossibleScore,
 } from "@/services";
+import { useSyncedCountdown } from "@/hooks/useSyncedCountdown";
 import { getGradientById } from "@/constants/teamColors";
 import { Shirt } from "lucide-react";
 
@@ -32,8 +32,9 @@ export default function OnsiteScoreboard() {
   });
 
   const [teamsData, setTeamsData] = useState({});
-  const [, forceUpdate] = useState(0);
   const wasRunning = useRef(false);
+  const sawRunning = useRef(false);
+  const wasEnded = useRef(false);
 
   // Subscribe to scoreboard
   useEffect(() => {
@@ -53,42 +54,44 @@ export default function OnsiteScoreboard() {
     return () => unsub();
   }, []);
 
-  // Play a long beep when the timer starts
-  useEffect(() => {
-    const running = !!state.timer?.running;
-    if (running && !wasRunning.current) {
+  // Short helper: play a tone through the Web Audio API
+  const playTone = (frequency, seconds) => {
+    try {
       const ctx = new AudioContext();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";
-      osc.frequency.value = 880;
+      osc.frequency.value = frequency;
       gain.gain.value = 0.5;
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 1.2);
+      osc.stop(ctx.currentTime + seconds);
       osc.onended = () => ctx.close();
+    } catch {
+      /* autoplay blocked — ignore */
     }
+  };
+
+  // Play a long beep when the timer starts
+  useEffect(() => {
+    const running = !!state.timer?.running;
+    if (running) sawRunning.current = true;
+    if (running && !wasRunning.current) playTone(880, 1.2);
     wasRunning.current = running;
   }, [state.timer?.running]);
 
-  // Update timer every 100ms when running
+  // Play a distinct buzzer when the clock actually runs out
   useEffect(() => {
-    if (!state.timer?.running) return;
-    const id = setInterval(() => forceUpdate((n) => n + 1), 100);
-    return () => clearInterval(id);
-  }, [state.timer?.running]);
+    const ended = !!state.timer?.endedAt;
+    if (ended && !wasEnded.current && sawRunning.current) playTone(440, 2);
+    wasEnded.current = ended;
+  }, [state.timer?.endedAt]);
 
   const timer = state.timer || { remaining: DEFAULT_DURATION, running: false };
 
-  // Calculate current remaining time
-  const remaining =
-    timer.running && timer.endTime
-      ? Math.max(
-          0,
-          Math.floor((timer.endTime - timerService.serverNow()) / 1000),
-        )
-      : (timer.remaining ?? timer.duration ?? DEFAULT_DURATION);
+  // Shared, server-synced countdown — identical on every screen
+  const remaining = useSyncedCountdown(timer, matchId);
 
   const allTeams = Object.entries(state.teams || {}).map(([key, team]) => {
     const teamMeta = teamsData[team.id] || {};
