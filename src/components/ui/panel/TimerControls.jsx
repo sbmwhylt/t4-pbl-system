@@ -9,17 +9,11 @@ import {
   Check,
 } from "lucide-react";
 import { timerService } from "@/services/timer/timerService";
-<<<<<<< HEAD
-import { DEFAULT_DURATION, DURATION_PRESETS, PERIODS } from "@/services/constant";
-=======
 import {
   useSyncedCountdown,
   useClockReady,
 } from "@/hooks/useSyncedCountdown";
-import { DEFAULT_DURATION, DURATION_PRESETS } from "@/services/constant";
-
-const PERIODS = ["1ST", "2ND", "3RD", "4TH"];
->>>>>>> 0f389a5 (- fixing timers)
+import { DEFAULT_DURATION, DURATION_PRESETS, PERIODS } from "@/services/constant";
 
 export default function TimerControls({
   matchId,
