@@ -1,5 +1,6 @@
 import { db } from "@/firebase";
 import { ref, set, get, update, remove } from "firebase/database";
+import { getMaxActivePlayers } from "../settings/settingsService";
 
 function playersRef() {
   return ref(db, "t4_bouldering/players");
@@ -45,12 +46,14 @@ export async function togglePlayerStatus(playerId, newStatus) {
   if (!player) throw new Error("Player not found");
 
   if (newStatus === "active") {
+    const maxActive = await getMaxActivePlayers();
+    const playerTeam = player.team_id || player.team;
     const activeCount = Object.values(players).filter(
-      (p) => p.team === player.team && p.status === "active"
+      (p) => (p.team_id || p.team) === playerTeam && p.status === "active"
     ).length;
 
-    if (activeCount >= 5) {
-      throw new Error("Max 5 active players per team");
+    if (activeCount >= maxActive) {
+      throw new Error(`Max ${maxActive} active players per team`);
     }
   }
 

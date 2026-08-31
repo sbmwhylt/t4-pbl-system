@@ -11,3 +11,8 @@ export const DURATION_PRESETS = [
   { label: "7:30", seconds: 450 },
   { label: "8:30", seconds: 510 },
 ];
+
+// Allowed roster sizes (active players per team) — the limit itself lives in
+// Firebase at t4_bouldering/settings/max_active_players so every client agrees
+export const TEAM_SIZE_OPTIONS = [5, 6];
+export const DEFAULT_MAX_ACTIVE_PLAYERS = 5;

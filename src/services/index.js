@@ -28,5 +28,8 @@ export * from "./scoreboard/scoreboardService";
 export * from "./users/userCRUD";
 export * from "./users/authService";
 
+// Settings
+export * from "./settings/settingsService";
+
 // Constants
 export * from "./constant";

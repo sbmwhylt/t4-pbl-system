@@ -12,9 +12,12 @@ export default function PlayerButtons({
     );
   }
 
+  // Roster size is configurable (5 or 6), so lay the buttons out on one row
+  const columnsClass = players.length > 5 ? "grid-cols-6" : "grid-cols-5";
+
   return (
     <>
-      <div className="mt-10 grid grid-cols-5 gap-3">
+      <div className={`mt-10 grid ${columnsClass} gap-3`}>
         {players.map((player) => {
           const isActive = player.id === activePlayerId;
           const activeClass =

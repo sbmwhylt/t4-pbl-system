@@ -9,6 +9,10 @@ import {
   addPlayer,
   updatePlayer,
   deletePlayer,
+  subscribeMaxActivePlayers,
+  setMaxActivePlayers,
+  TEAM_SIZE_OPTIONS,
+  DEFAULT_MAX_ACTIVE_PLAYERS,
 } from "@/services";
 import { db } from "@/firebase";
 import { ref, onValue } from "firebase/database";
@@ -19,6 +23,9 @@ export default function Players() {
   const [players, setPlayers] = useState([]);
   const [teams, setTeams] = useState({});
   const [loading, setLoading] = useState(true);
+  const [maxActivePlayers, setMaxActivePlayersState] = useState(
+    DEFAULT_MAX_ACTIVE_PLAYERS
+  );
 
   const [showModal, setShowModal] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState(null);
@@ -74,6 +81,19 @@ export default function Players() {
       unsubscribePlayers();
     };
   }, []);
+
+  // Keep the roster-size limit in sync across clients
+  useEffect(() => subscribeMaxActivePlayers(setMaxActivePlayersState), []);
+
+  const handleTeamSizeChange = async (value) => {
+    try {
+      const next = await setMaxActivePlayers(value);
+      toast.success(`Teams can now have up to ${next} active players`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update team size");
+    }
+  };
 
   // Filtered & sorted players
   const filteredPlayers = players
@@ -184,6 +204,15 @@ export default function Players() {
             ]}
             className="border border-gray-300 rounded p-2 text-lg outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-48"
           />
+          <Select
+            value={maxActivePlayers}
+            onChange={(e) => handleTeamSizeChange(e.target.value)}
+            options={TEAM_SIZE_OPTIONS.map((size) => ({
+              value: size,
+              label: `${size} players per team`,
+            }))}
+            className="border border-gray-300 rounded p-2 text-lg outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-52"
+          />
           <Button onClick={openCreateModal}>Add Player</Button>
         </div>
       </div>
@@ -248,8 +277,13 @@ export default function Players() {
                               p.team_id === row.team_id && p.status === "active"
                           ).length;
 
-                          if (newStatus === "active" && activeCount >= 5) {
-                            toast.error("Max 5 active players per team");
+                          if (
+                            newStatus === "active" &&
+                            activeCount >= maxActivePlayers
+                          ) {
+                            toast.error(
+                              `Max ${maxActivePlayers} active players per team`
+                            );
                             return;
                           }
 
