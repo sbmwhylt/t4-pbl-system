@@ -28,6 +28,13 @@ export default function TimerControls({
   panelSide = "left",
   hideMeta = false,
   hidePeriod = false,
+  // Compact mode: single-row bar sized for a sticky tablet header
+  compact = false,
+  // Optional round stepper rendered inline (used by the scorer panel)
+  roundLabel,
+  onRoundChange,
+  canRoundDown = true,
+  canRoundUp = true,
 }) {
   const [showDurationPicker, setShowDurationPicker] = useState(false);
   const [customMinutes, setCustomMinutes] = useState("");
@@ -117,6 +124,176 @@ export default function TimerControls({
     : isRunning
       ? "text-green-600"
       : "text-gray-900";
+
+  // Shared duration picker body, reused by both layouts
+  const durationPicker = (
+    <>
+      {/* Preset Buttons */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {DURATION_PRESETS.map((preset) => {
+          const isActive = currentDuration === preset.seconds;
+          return (
+            <button
+              key={preset.seconds}
+              onClick={() => handleDurationChange(preset.seconds)}
+              className={`h-12 px-5 text-base font-semibold rounded-xl transition-all active:scale-95 cursor-pointer ${
+                isActive
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
+            >
+              {preset.label}
+              {isActive && (
+                <Check size={14} className="inline-block ml-1.5 -mt-0.5" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Custom Duration Input */}
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+          Custom
+        </span>
+        <div className="flex items-center bg-gray-50 rounded-xl border border-gray-200 px-2 h-12">
+          <input
+            type="number"
+            inputMode="numeric"
+            min="0"
+            max="99"
+            placeholder="min"
+            value={customMinutes}
+            onChange={(e) => setCustomMinutes(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleCustomDurationSubmit()}
+            className="w-14 bg-transparent text-center text-base font-semibold focus:outline-none placeholder:text-gray-300"
+          />
+          <span className="text-gray-400 font-bold">:</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min="0"
+            max="59"
+            placeholder="sec"
+            value={customSeconds}
+            onChange={(e) => setCustomSeconds(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleCustomDurationSubmit()}
+            className="w-14 bg-transparent text-center text-base font-semibold focus:outline-none placeholder:text-gray-300"
+          />
+        </div>
+        <button
+          onClick={handleCustomDurationSubmit}
+          disabled={!customMinutes && !customSeconds}
+          className="h-12 px-5 text-base font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed cursor-pointer transition-colors active:scale-95"
+        >
+          Set
+        </button>
+      </div>
+    </>
+  );
+
+  if (compact) {
+    return (
+      <div
+        className={`rounded-2xl border-2 bg-white ${borderColor} transition-colors`}
+      >
+        <div className="flex items-center gap-2 sm:gap-3 px-2.5 sm:px-3 py-2">
+          {/* Clock */}
+          <div
+            className={`text-4xl sm:text-5xl font-bold tabular-nums tracking-tight leading-none shrink-0 ${timerColor}`}
+          >
+            {formatTime(remaining)}
+          </div>
+
+          {/* Transport */}
+          <div className="flex items-center gap-2 shrink-0">
+            {isRunning ? (
+              <button
+                onClick={handlePause}
+                disabled={isFinished}
+                className={`w-14 h-14 flex items-center justify-center rounded-xl text-white transition-all cursor-pointer ${
+                  isFinished
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-amber-500 hover:bg-amber-600 active:scale-95"
+                }`}
+              >
+                <Pause size={26} />
+              </button>
+            ) : (
+              <button
+                onClick={isFinished ? handleReset : handleResume}
+                disabled={
+                  (isFinished && !isController) || (!isFinished && !clockReady)
+                }
+                title={
+                  !isFinished && !clockReady
+                    ? "Syncing with server clock…"
+                    : undefined
+                }
+                className={`w-14 h-14 flex items-center justify-center rounded-xl text-white transition-all cursor-pointer ${
+                  isFinished || !clockReady
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-green-500 hover:bg-green-600 active:scale-95"
+                }`}
+              >
+                <Play size={26} />
+              </button>
+            )}
+            <button
+              onClick={handleReset}
+              className="w-14 h-14 flex items-center justify-center rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 text-white transition-all cursor-pointer"
+            >
+              <TimerReset size={26} />
+            </button>
+          </div>
+
+          {/* Round stepper */}
+          {roundLabel && onRoundChange && (
+            <div className="hidden sm:flex items-center gap-1 bg-gray-100 rounded-xl p-1 shrink-0">
+              <button
+                onClick={() => onRoundChange(-1)}
+                disabled={!canRoundDown}
+                className="w-11 h-11 grid place-items-center rounded-lg hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <span className="text-sm font-bold text-gray-700 w-[72px] text-center">
+                {roundLabel}
+              </span>
+              <button
+                onClick={() => onRoundChange(1)}
+                disabled={!canRoundUp}
+                className="w-11 h-11 grid place-items-center rounded-lg hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          )}
+
+          {/* Duration */}
+          <button
+            onClick={() => canEditDuration && setShowDurationPicker((v) => !v)}
+            disabled={!canEditDuration}
+            className={`ml-auto h-14 px-3 hidden md:flex items-center gap-1.5 text-sm font-semibold rounded-xl transition-all shrink-0 ${
+              canEditDuration
+                ? showDurationPicker
+                  ? "bg-blue-600 text-white"
+                  : "bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer"
+                : "bg-gray-50 text-gray-400 cursor-not-allowed"
+            }`}
+          >
+            <Clock size={18} /> {formatTime(currentDuration)}
+          </button>
+        </div>
+
+        {showDurationPicker && canEditDuration && (
+          <div className="px-3 pb-3 pt-3 border-t border-gray-200">
+            {durationPicker}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -239,71 +416,7 @@ export default function TimerControls({
             <p className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-3">
               Game Duration
             </p>
-
-            {/* Preset Buttons */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {DURATION_PRESETS.map((preset) => {
-                const isActive = currentDuration === preset.seconds;
-                return (
-                  <button
-                    key={preset.seconds}
-                    onClick={() => handleDurationChange(preset.seconds)}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all cursor-pointer ${
-                      isActive
-                        ? "bg-blue-500 text-white shadow-sm"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-                    }`}
-                  >
-                    {preset.label}
-                    {isActive && (
-                      <Check
-                        size={12}
-                        className="inline-block ml-1.5 -mt-0.5"
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Custom Duration Input */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 font-medium">Custom</span>
-              <div className="flex items-center bg-gray-50 rounded-lg border border-gray-200 px-2 py-1">
-                <input
-                  type="number"
-                  min="0"
-                  max="99"
-                  placeholder="min"
-                  value={customMinutes}
-                  onChange={(e) => setCustomMinutes(e.target.value)}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && handleCustomDurationSubmit()
-                  }
-                  className="w-12 bg-transparent text-center text-sm font-medium focus:outline-none placeholder:text-gray-300"
-                />
-                <span className="text-gray-400 font-bold">:</span>
-                <input
-                  type="number"
-                  min="0"
-                  max="59"
-                  placeholder="sec"
-                  value={customSeconds}
-                  onChange={(e) => setCustomSeconds(e.target.value)}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && handleCustomDurationSubmit()
-                  }
-                  className="w-12 bg-transparent text-center text-sm font-medium focus:outline-none placeholder:text-gray-300"
-                />
-              </div>
-              <button
-                onClick={handleCustomDurationSubmit}
-                disabled={!customMinutes && !customSeconds}
-                className="px-3 py-1.5 text-sm font-medium bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed cursor-pointer transition-colors"
-              >
-                Set
-              </button>
-            </div>
+            {durationPicker}
           </div>
         )}
       </div>

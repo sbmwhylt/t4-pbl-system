@@ -4,14 +4,13 @@ import { onValue, ref, set, update } from "firebase/database";
 import { db } from "@/firebase";
 import { toast } from "react-hot-toast";
 
-import Header from "@/components/ui/panel/Header";
 import TeamSelector from "@/components/ui/panel/TeamSelector";
 import PlayerButtons from "@/components/ui/panel/PlayersButtons";
 import TimerControls from "@/components/ui/panel/TimerControls";
 import ZoneSelection from "@/components/ui/panel/ZoneSelection";
 import AttemptButtons from "@/components/ui/panel/AttemptButtons";
 
-import { Save, Plus, Trash2, ArrowLeftRight } from "lucide-react";
+import { Save, Plus, Trash2, ArrowLeftRight, Settings2, X } from "lucide-react";
 import { getGradientById } from "@/constants/teamColors";
 
 import {
@@ -46,6 +45,9 @@ export default function ScorerPanel() {
   const [lockedTeams, setLockedTeams] = useState({});
   const [isAnchor, setIsAnchor] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  // Match setup (team assignment, overlay, add/remove) is used before the match
+  // starts, so it's tucked away behind a toggle to keep the scoring view clean.
+  const [showSetup, setShowSetup] = useState(false);
 
   const toggleLock = (teamKey) =>
     setLockedTeams((prev) => ({ ...prev, [teamKey]: !prev[teamKey] }));
@@ -295,351 +297,441 @@ export default function ScorerPanel() {
     toast.success("Team removed");
   };
 
-  if (!state) return <div className="p-6">Loading…</div>;
+  if (!state)
+    return (
+      <div className="min-h-screen grid place-items-center text-gray-400">
+        Loading…
+      </div>
+    );
 
   const currentTeams = Object.entries(state.teams || {});
   const selectedTeam = selectedTeamKey
     ? (state.teams?.[selectedTeamKey] ?? null)
     : null;
   const selectedBoulder = selectedTeam?.current_boulder || "A";
+  const overlayActive = !!(state.overlay?.left && state.overlay?.right);
+
+  const selectedTeamMeta = selectedTeam?.id
+    ? teams.find((t) => t.id === selectedTeam.id)
+    : null;
+  const selectedGradient = selectedTeamMeta?.color
+    ? getGradientById(selectedTeamMeta.color)
+    : null;
+
+  const rosterPlayers = selectedTeam?.id
+    ? allPlayers.filter(
+        (p) => p.team_id === selectedTeam.id && p.status === "active",
+      )
+    : [];
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <h2 className="text-2xl font-bold">Scorer Panel</h2>
-        <div className="flex gap-2">
-          <button
-            onClick={handleAddTeam}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-          >
-            <Plus size={16} /> Add Team
-          </button>
-          <button
-            onClick={() => setShowSaveDialog(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            <Save size={16} /> Save Match
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-100 text-gray-900 select-none">
+      {/* ============ STICKY COMMAND BAR — timer, round & match actions ============ */}
+      <div className="sticky top-0 z-30 bg-gray-100/95 backdrop-blur-sm border-b border-gray-200">
+        <div className="max-w-[1600px] mx-auto px-3 lg:px-5 py-2.5 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <TimerControls
+              matchId={matchId}
+              timer={state.timer}
+              period={state.period}
+              onStart={handleStartTimer}
+              onPause={handlePauseTimer}
+              onResume={handleResumeTimer}
+              onReset={handleResetTimer}
+              onDurationChange={handleDurationChange}
+              onPeriodChange={(p) => updatePeriod(matchId, p)}
+              panelSide={selectedTeamKey || "panel"}
+              hideMeta
+              hidePeriod
+              compact
+              /* Round stepper lives inside the timer bar so the clock and the
+                 period the scoreboards display stay on one row. */
+              roundLabel={`Round ${currentPeriodIndex + 1}`}
+              onRoundChange={updateRound}
+              canRoundDown={currentPeriodIndex > 0}
+              canRoundUp={currentPeriodIndex < PERIODS.length - 1}
+            />
+          </div>
 
-      <Header matchId={matchId} />
-
-      {/* Timer Controls */}
-      <div className="mt-6">
-        <TimerControls
-          matchId={matchId}
-          timer={state.timer}
-          period={state.period}
-          onStart={handleStartTimer}
-          onPause={handlePauseTimer}
-          onResume={handleResumeTimer}
-          onReset={handleResetTimer}
-          onDurationChange={handleDurationChange}
-          onPeriodChange={(p) => updatePeriod(matchId, p)}
-          panelSide={selectedTeamKey || "panel"}
-          hideMeta
-          hidePeriod
-        />
-
-        {/* Round Controls — drives the period shown on the scoreboards */}
-        <div className="flex items-center justify-center gap-4 mt-3">
-          <button
-            onClick={() => updateRound(-1)}
-            disabled={currentPeriodIndex === 0}
-            className="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-30 disabled:hover:bg-gray-200 text-gray-700 text-lg font-bold transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
-          >
-            −
-          </button>
-          <span className="text-base font-semibold text-gray-700 w-24 text-center">
-            Round {currentPeriodIndex + 1}
-          </span>
-          <button
-            onClick={() => updateRound(1)}
-            disabled={currentPeriodIndex === PERIODS.length - 1}
-            className="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-30 disabled:hover:bg-gray-200 text-gray-700 text-lg font-bold transition-colors flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
-          >
-            +
-          </button>
-        </div>
-      </div>
-
-      {/* Teams Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-6">
-        {currentTeams.map(([teamKey, team]) => {
-          const isSelected = selectedTeamKey === teamKey;
-          const isLocked = !!lockedTeams[teamKey];
-          const teamMeta = teams.find((t) => t.id === team.id);
-          const teamGradient = teamMeta?.color
-            ? getGradientById(teamMeta.color)
-            : null;
-          return (
-            <div
-              key={teamKey}
-              onClick={() => {
-                setSelectedTeamKey(teamKey);
-                setSelectedPlayer(null);
-              }}
-              className={`rounded-xl overflow-hidden cursor-pointer transition-all ${
-                isSelected
-                  ? "ring-2 ring-purple-400 shadow-lg"
-                  : "ring-1 ring-gray-200 hover:ring-gray-300 hover:shadow-md"
+          {/* Match actions */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setShowSetup((v) => !v)}
+              aria-pressed={showSetup}
+              className={`h-14 w-14 grid place-items-center rounded-xl transition-colors active:scale-95 cursor-pointer ${
+                showSetup
+                  ? "bg-gray-800 text-white"
+                  : "bg-white text-gray-500 ring-1 ring-gray-300 hover:bg-gray-50"
               }`}
+              title="Match setup"
             >
-              {/* Color bar */}
-              <div
-                className={`h-2 w-full ${teamGradient ? teamGradient.gradient : "bg-gray-300"}`}
-              />
+              <Settings2 size={22} />
+            </button>
+            <button
+              onClick={() => setShowSaveDialog(true)}
+              className="h-14 px-4 flex items-center gap-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 active:scale-95 transition-all cursor-pointer"
+            >
+              <Save size={20} />
+              <span className="hidden md:inline">Save</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-              <div className="p-4 bg-white">
-                {/* Card header: badge + name + delete */}
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span
-                      className={`text-white text-xs font-bold px-2 py-1 rounded-md flex-shrink-0 ${
-                        teamGradient ? teamGradient.badge : "bg-purple-600"
-                      }`}
-                    >
-                      {teamKey}
-                    </span>
-                    <span className="font-semibold text-sm truncate text-gray-800">
-                      {team.name || teamKey}
-                    </span>
-                  </div>
+      <div className="max-w-[1600px] mx-auto px-3 lg:px-5 py-3">
+        {/* ============ MATCH SETUP (collapsible) ============ */}
+        {showSetup && (
+          <div className="mb-3 rounded-2xl bg-white ring-1 ring-gray-200 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500">
+                Match Setup
+              </h2>
+              <button
+                onClick={() => setShowSetup(false)}
+                className="h-9 w-9 grid place-items-center rounded-lg text-gray-400 hover:bg-gray-100 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4">
+              {/* Team assignment */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                    Teams
+                  </span>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (!isLocked) handleRemoveTeam(teamKey);
-                    }}
-                    disabled={isLocked}
-                    className={`flex-shrink-0 p-1.5 rounded-lg transition-colors ${
-                      isLocked
-                        ? "text-gray-300 cursor-not-allowed"
-                        : "text-red-400 hover:text-red-600 hover:bg-red-50"
-                    }`}
+                    onClick={handleAddTeam}
+                    className="h-11 px-4 flex items-center gap-1.5 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 active:scale-95 transition-all cursor-pointer"
                   >
-                    <Trash2 size={14} />
+                    <Plus size={18} /> Add Team
                   </button>
                 </div>
-
-                {/* Team dropdown + lock */}
-                <TeamSelector
-                  value={team}
-                  teams={teams}
-                  onChange={(t) => setTeam(matchId, teamKey, t)}
-                  locked={isLocked}
-                  onLockToggle={() => toggleLock(teamKey)}
-                />
-
-                {/* Score */}
-                <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                  <span className="text-xs text-gray-400 uppercase tracking-wider font-semibold">
-                    Score
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-3xl sm:text-4xl font-bold tabular-nums text-gray-800">
-                      {team.score || 0}
-                    </span>
-                    {(() => {
-                      if (
-                        !selectedPlayer?.id ||
-                        selectedTeamKey !== teamKey
-                      )
-                        return null;
-                      const bd =
-                        playerBoulderData?.[teamKey]?.[selectedPlayer.id]?.[
-                          team.current_boulder || "A"
-                        ];
-                      const ps = bd
-                        ? getPossibleScore(bd.attempts || 0, bd.points || 0)
-                        : null;
-                      if (ps == null || ps <= 0) return null;
-                      return (
-                        <span className="text-base font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
-                          +{ps}
+                <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                  {currentTeams.map(([teamKey, team]) => {
+                    const isLocked = !!lockedTeams[teamKey];
+                    return (
+                      <div
+                        key={teamKey}
+                        className="flex items-center gap-2 rounded-xl bg-gray-50 ring-1 ring-gray-200 p-2"
+                      >
+                        <span className="text-xs font-bold text-gray-500 w-7 shrink-0 text-center">
+                          {teamKey}
                         </span>
-                      );
-                    })()}
-                  </div>
+                        <div className="flex-1 min-w-0">
+                          <TeamSelector
+                            value={team}
+                            teams={teams}
+                            onChange={(t) => setTeam(matchId, teamKey, t)}
+                            locked={isLocked}
+                            onLockToggle={() => toggleLock(teamKey)}
+                          />
+                        </div>
+                        <button
+                          onClick={() => !isLocked && handleRemoveTeam(teamKey)}
+                          disabled={isLocked}
+                          className={`h-11 w-11 shrink-0 grid place-items-center rounded-lg transition-colors ${
+                            isLocked
+                              ? "text-gray-300 cursor-not-allowed"
+                              : "text-red-500 hover:bg-red-50 cursor-pointer"
+                          }`}
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Overlay display */}
+              <div className="pt-3 border-t border-gray-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                    Overlay Display
+                  </span>
+                  <span
+                    className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${
+                      overlayActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-400"
+                    }`}
+                  >
+                    {overlayActive ? "Active" : "Not set"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={state.overlay?.left ?? ""}
+                    onChange={(e) =>
+                      setOverlayTeams(
+                        matchId,
+                        e.target.value || null,
+                        state.overlay?.right ?? null,
+                      )
+                    }
+                    className="flex-1 min-w-0 h-12 rounded-xl border border-gray-300 bg-white px-3 text-sm font-medium cursor-pointer"
+                  >
+                    <option value="">Left team</option>
+                    {currentTeams.map(([key, t]) => (
+                      <option key={key} value={key}>
+                        {key}: {t.name || key}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() =>
+                      setOverlayTeams(
+                        matchId,
+                        state.overlay?.right ?? null,
+                        state.overlay?.left ?? null,
+                      )
+                    }
+                    disabled={!overlayActive}
+                    title="Swap overlay teams"
+                    className="h-12 w-12 shrink-0 grid place-items-center rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  >
+                    <ArrowLeftRight size={20} />
+                  </button>
+                  <select
+                    value={state.overlay?.right ?? ""}
+                    onChange={(e) =>
+                      setOverlayTeams(
+                        matchId,
+                        state.overlay?.left ?? null,
+                        e.target.value || null,
+                      )
+                    }
+                    className="flex-1 min-w-0 h-12 rounded-xl border border-gray-300 bg-white px-3 text-sm font-medium cursor-pointer"
+                  >
+                    <option value="">Right team</option>
+                    {currentTeams.map(([key, t]) => (
+                      <option key={key} value={key}>
+                        {key}: {t.name || key}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
-          );
-        })}
-      </div>
+          </div>
+        )}
 
-      {/* Overlay Control */}
-      <div className="mt-4 p-4 rounded-lg border border-gray-200 bg-white">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold text-gray-700">
-            Overlay Display
-          </span>
-          <span
-            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-              !!(state.overlay?.left && state.overlay?.right)
-                ? "bg-green-100 text-green-700"
-                : "bg-gray-100 text-gray-400"
-            }`}
-          >
-            {!!(state.overlay?.left && state.overlay?.right)
-              ? "Active"
-              : "Not set"}
-          </span>
-        </div>
-        <div className="flex items-center gap-10">
-          <select
-            value={state.overlay?.left ?? ""}
-            onChange={(e) =>
-              setOverlayTeams(
-                matchId,
-                e.target.value || null,
-                state.overlay?.right ?? null,
-              )
-            }
-            className="flex-1 border border-gray-300 rounded px-2 py-2 text-md"
-          >
-            <option value="">Left team</option>
-            {currentTeams.map(([key, t]) => (
-              <option key={key} value={key}>
-                {key}: {t.name || key}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={() =>
-              setOverlayTeams(
-                matchId,
-                state.overlay?.right ?? null,
-                state.overlay?.left ?? null,
-              )
-            }
-            disabled={!(state.overlay?.left && state.overlay?.right)}
-            title="Swap"
-            className=" text-gray-400 hover:text-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-full cursor-pointer"
-          >
-            <ArrowLeftRight size={24} />
-          </button>
-          <select
-            value={state.overlay?.right ?? ""}
-            onChange={(e) =>
-              setOverlayTeams(
-                matchId,
-                state.overlay?.left ?? null,
-                e.target.value || null,
-              )
-            }
-            className="flex-1 border border-gray-300 rounded px-2 py-2 text-md"
-          >
-            <option value="">Right team</option>
-            {currentTeams.map(([key, t]) => (
-              <option key={key} value={key}>
-                {key}: {t.name || key}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+        {/* ============ MAIN WORKSPACE ============ */}
+        {/* Teams rail beside the scoring surface so switching teams never
+            scrolls the scoring controls out of reach on a tablet. */}
+        <div className="grid gap-3 lg:grid-cols-[minmax(230px,280px)_1fr]">
+          {/* ---- Teams rail ---- */}
+          <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-1 lg:pb-0 -mx-3 px-3 lg:mx-0 lg:px-0">
+            {currentTeams.map(([teamKey, team]) => {
+              const isSelected = selectedTeamKey === teamKey;
+              const teamMeta = teams.find((t) => t.id === team.id);
+              const teamGradient = teamMeta?.color
+                ? getGradientById(teamMeta.color)
+                : null;
 
-      {/* Selected Team Control Panel */}
-      {selectedTeamKey && selectedTeam && (
-        <div className="mt-6 border-2 border-gray-200 rounded-xl p-4 sm:p-6 bg-white">
-          <h3 className="text-lg font-bold mb-4 text-gray-800">
-            Controlling:{" "}
-            <span className="text-gray-500">
-              {selectedTeam.name || selectedTeamKey}
-            </span>
-          </h3>
+              // Live "+N" preview of what the in-progress boulder can still earn
+              let possible = null;
+              if (isSelected && selectedPlayer?.id) {
+                const bd =
+                  playerBoulderData?.[teamKey]?.[selectedPlayer.id]?.[
+                    team.current_boulder || "A"
+                  ];
+                const ps = bd
+                  ? getPossibleScore(bd.attempts || 0, bd.points || 0)
+                  : null;
+                if (ps != null && ps > 0) possible = ps;
+              }
 
-          {/* Boulder Selection + Anchor Toggle */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-semibold text-gray-600 mr-1">
-                Boulder:
-              </p>
-              {boulders.map((b) => (
+              return (
                 <button
-                  key={b}
-                  onClick={() => handleBoulderChange(b)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                    selectedBoulder === b
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  key={teamKey}
+                  onClick={() => {
+                    setSelectedTeamKey(teamKey);
+                    setSelectedPlayer(null);
+                  }}
+                  className={`relative shrink-0 lg:shrink text-left rounded-2xl overflow-hidden transition-all active:scale-[0.98] cursor-pointer w-[190px] lg:w-auto ${
+                    isSelected
+                      ? "ring-2 ring-blue-500 bg-white shadow-md"
+                      : "ring-1 ring-gray-200 bg-white hover:ring-gray-300"
                   }`}
                 >
-                  {b}
+                  <div
+                    className={`h-1.5 w-full ${
+                      teamGradient ? teamGradient.gradient : "bg-gray-300"
+                    }`}
+                  />
+                  <div className="p-3">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span
+                        className={`text-white text-[11px] font-bold px-1.5 py-0.5 rounded shrink-0 ${
+                          teamGradient ? teamGradient.badge : "bg-gray-500"
+                        }`}
+                      >
+                        {teamKey}
+                      </span>
+                      <span
+                        className={`text-sm font-semibold truncate ${
+                          isSelected ? "text-gray-900" : "text-gray-600"
+                        }`}
+                      >
+                        {team.name || teamKey}
+                      </span>
+                    </div>
+                    <div className="flex items-end gap-2">
+                      <span className="text-4xl font-bold tabular-nums leading-none text-gray-900">
+                        {team.score || 0}
+                      </span>
+                      {possible != null && (
+                        <span className="mb-0.5 text-sm font-bold text-green-700 bg-green-100 px-1.5 py-0.5 rounded-md">
+                          +{possible}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </button>
-              ))}
-            </div>
-            <button
-              onClick={() => setIsAnchor((v) => !v)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors ${
-                isAnchor
-                  ? "bg-amber-500 text-white"
-                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-              }`}
-            >
-              Anchor {isAnchor ? "ON" : "OFF"}
-            </button>
+              );
+            })}
           </div>
 
-          {/* Players */}
-          <PlayerButtons
-            players={
-              selectedTeam?.id
-                ? allPlayers.filter(
-                    (p) =>
-                      p.team_id === selectedTeam.id && p.status === "active",
+          {/* ---- Scoring surface ---- */}
+          {selectedTeamKey && selectedTeam ? (
+            <div className="rounded-2xl bg-white ring-1 ring-gray-200 overflow-hidden">
+              {/* Context strip: who you're scoring + boulder + anchor */}
+              <div
+                className={`px-3 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-gray-100 ${
+                  selectedGradient ? "bg-gray-50" : "bg-gray-50"
+                }`}
+              >
+                <div className="flex items-center gap-2 min-w-0 mr-auto">
+                  <span
+                    className={`text-white text-[11px] font-bold px-1.5 py-0.5 rounded shrink-0 ${
+                      selectedGradient ? selectedGradient.badge : "bg-gray-500"
+                    }`}
+                  >
+                    {selectedTeamKey}
+                  </span>
+                  <span className="font-bold truncate">
+                    {selectedTeam.name || selectedTeamKey}
+                  </span>
+                  {selectedPlayer && (
+                    <span className="text-sm text-gray-500 truncate hidden sm:inline">
+                      ·{" "}
+                      {selectedPlayer.first_name
+                        ? `${selectedPlayer.first_name} ${selectedPlayer.last_name || ""}`.trim()
+                        : selectedPlayer.last_name || selectedPlayer.name}
+                    </span>
+                  )}
+                </div>
+
+                {/* Boulder segmented control */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 hidden sm:inline">
+                    Boulder
+                  </span>
+                  <div className="flex gap-1 bg-gray-200/70 rounded-xl p-1">
+                    {boulders.map((b) => (
+                      <button
+                        key={b}
+                        onClick={() => handleBoulderChange(b)}
+                        className={`h-11 w-11 rounded-lg text-base font-bold transition-all active:scale-95 cursor-pointer ${
+                          selectedBoulder === b
+                            ? "bg-white text-gray-900 shadow-sm ring-1 ring-gray-300"
+                            : "text-gray-500 hover:bg-white/60"
+                        }`}
+                      >
+                        {b}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Anchor toggle */}
+                <button
+                  onClick={() => setIsAnchor((v) => !v)}
+                  aria-pressed={isAnchor}
+                  className={`h-11 px-4 rounded-xl text-sm font-bold transition-all active:scale-95 cursor-pointer ${
+                    isAnchor
+                      ? "bg-amber-500 text-white shadow-sm"
+                      : "bg-gray-200/70 text-gray-500 hover:bg-gray-200"
+                  }`}
+                >
+                  ⚓ Anchor{isAnchor ? " ON" : ""}
+                </button>
+              </div>
+
+              <div className="p-3 space-y-3">
+                {/* Players */}
+                <PlayerButtons
+                  players={rosterPlayers}
+                  activePlayerId={selectedPlayer?.id}
+                  onSelect={handlePlayerSelect}
+                />
+
+                {selectedTeam?.id && selectedPlayer?.id ? (
+                  <>
+                    {/* Attempts — comes first: an attempt must exist before zones unlock */}
+                    <AttemptButtons
+                      matchId={matchId}
+                      side={selectedTeamKey}
+                      playerId={selectedPlayer.id}
+                      selectedBoulder={selectedBoulder}
+                      playerBoulderData={playerBoulderData}
+                      maxAttempts={30}
+                    />
+
+                    {/* Zones */}
+                    <ZoneSelection
+                      playerId={selectedPlayer.id}
+                      teamSide={selectedTeamKey}
+                      selectedBoulder={selectedBoulder}
+                      playerBoulderData={playerBoulderData}
+                      onZoneClick={handleZoneClick}
+                      onZoneReset={handleZoneReset}
+                      isAnchor={isAnchor}
+                    />
+                  </>
+                ) : (
+                  selectedTeam?.id && (
+                    <p className="py-10 text-center text-gray-400 font-medium">
+                      Select a player to start scoring
+                    </p>
                   )
-                : []
-            }
-            activePlayerId={selectedPlayer?.id}
-            onSelect={handlePlayerSelect}
-            teamColor="blue"
-          />
-
-          {/* Zone Selection */}
-          {selectedTeam?.id && selectedPlayer?.id && (
-            <div className="mt-4">
-              <ZoneSelection
-                playerId={selectedPlayer.id}
-                teamSide={selectedTeamKey}
-                selectedBoulder={selectedBoulder}
-                playerBoulderData={playerBoulderData}
-                onZoneClick={handleZoneClick}
-                onZoneReset={handleZoneReset}
-                isAnchor={isAnchor}
-              />
+                )}
+              </div>
             </div>
-          )}
-
-          {/* Attempts */}
-          {selectedTeam?.id && selectedPlayer?.id && (
-            <div className="mt-4">
-              <AttemptButtons
-                matchId={matchId}
-                side={selectedTeamKey}
-                playerId={selectedPlayer.id}
-                selectedBoulder={selectedBoulder}
-                playerBoulderData={playerBoulderData}
-                maxAttempts={30}
-              />
+          ) : (
+            <div className="rounded-2xl bg-white ring-1 ring-gray-200 grid place-items-center py-20 px-4 text-center">
+              <div>
+                <p className="text-lg font-bold text-gray-700">
+                  Select a team to score
+                </p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Tap a team {" "}
+                  <span className="lg:hidden">above</span>
+                  <span className="hidden lg:inline">on the left</span> to open
+                  its scoring controls.
+                </p>
+              </div>
             </div>
           )}
         </div>
-      )}
-      {/* Save Match Confirmation Dialog */}
+      </div>
+
+      {/* ============ SAVE CONFIRMATION ============ */}
       {showSaveDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Save Match?</h3>
-            <p className="text-sm text-gray-500 mb-6">
-              This will finalize the match and save all scores. This action cannot be undone.
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Save Match?</h3>
+            <p className="text-gray-500 mb-6">
+              This will finalize the match and save all scores. This action
+              cannot be undone.
             </p>
-            <div className="flex justify-end gap-3">
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowSaveDialog(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="flex-1 h-14 rounded-xl font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 active:scale-95 transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -653,7 +745,7 @@ export default function ScorerPanel() {
                     toast.error(`Error: ${err.message}`);
                   }
                 }}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors"
+                className="flex-1 h-14 rounded-xl font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all cursor-pointer"
               >
                 Save Match
               </button>

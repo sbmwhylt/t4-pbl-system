@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowRight, ArrowLeft } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import { updatePlayerAttempt } from "@/services";
 
 export default function AttemptButtons({
@@ -32,68 +32,70 @@ export default function AttemptButtons({
           side,
           playerId,
           selectedBoulder,
-          newAttempt
+          newAttempt,
         );
       }
     }
   };
 
-  return (
-    <div className="mt-6 flex flex-col items-center justify-center">
-      <div className="flex gap-10 items-center">
-        {/* Attempt Calendar */}
-        <div className="grid grid-cols-15 gap-1">
-          {[...Array(maxAttempts)].map((_, i) => {
-            const num = i + 1; // display starts at 1
-            const isActive = attempt === num;
-            const isPast = num < attempt;
+  const atMin = attempt <= 0;
+  const atMax = attempt >= maxAttempts;
 
-            return (
-              <div
-                key={num}
-                className={`w-8 h-8 flex items-center justify-center rounded-full font-medium text-sm
-                  ${
-                    isActive
-                      ? "bg-green-400 text-white"
-                      : isPast
-                      ? "opacity-40"
-                      : ""
-                  }`}
-              >
-                {num}
-              </div>
-            );
-          })}
+  return (
+    <div
+      className={`rounded-xl p-2.5 transition-colors ${
+        atMin ? "bg-amber-50 ring-1 ring-amber-200" : "bg-gray-50 ring-1 ring-gray-200"
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+            Attempt
+          </p>
+          <div className="flex items-baseline gap-2">
+            <span
+              className={`text-4xl font-bold tabular-nums leading-none ${
+                atMin ? "text-amber-500" : "text-gray-900"
+              }`}
+            >
+              {atMin ? "–" : attempt}
+            </span>
+            {/* The attempt number caps what the boulder can still be worth */}
+            {!atMin && (
+              <span className="text-xs font-semibold text-gray-400">
+                max {attempt <= 1 ? 6 : attempt === 2 ? 5 : 4} pts
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Navigation buttons */}
-        <div className="flex gap-3">
+        {/* Big, thumb-sized steppers */}
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => handleChange(-1)}
-            disabled={attempt <= 0}
-            className={`flex items-center justify-center w-12 h-12 rounded-full text-lg font-semibold transition-colors cursor-pointer
-      ${
-        attempt <= 0
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
-      }
-    `}
+            disabled={atMin}
+            aria-label="Previous attempt"
+            className={`w-14 h-14 grid place-items-center rounded-xl transition-all cursor-pointer ${
+              atMin
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-white text-gray-700 ring-1 ring-gray-300 hover:bg-gray-100 active:scale-95"
+            }`}
           >
-            <ArrowLeft size={24} />
+            <Minus size={24} />
           </button>
-
           <button
             onClick={() => handleChange(1)}
-            disabled={attempt >= maxAttempts}
-            className={`flex items-center justify-center w-12 h-12 rounded-full text-lg font-semibold transition-colors cursor-pointer
-      ${
-        attempt >= maxAttempts
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : "bg-blue-500 text-white hover:bg-blue-600"
-      }
-    `}
+            disabled={atMax}
+            aria-label="Next attempt"
+            className={`h-14 px-6 grid place-items-center rounded-xl font-bold transition-all cursor-pointer ${
+              atMax
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : atMin
+                  ? "bg-amber-500 text-white hover:bg-amber-600 active:scale-95 shadow-sm"
+                  : "bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-sm"
+            }`}
           >
-            <ArrowRight size={24} />
+            <Plus size={26} />
           </button>
         </div>
       </div>

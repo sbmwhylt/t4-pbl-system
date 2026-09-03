@@ -6,8 +6,8 @@ import { ref, get, set, update, onDisconnect, onValue } from "firebase/database"
 const UserContext = createContext(null);
 
 // Set to 15 seconds for testing
-// const SESSION_DURATION = 15 * 1000;
-const SESSION_DURATION = 4 * 60 * 60 * 1000; // 4 hours in ms
+// const SESSION_DURATION = 5 * 1000;
+const SESSION_DURATION = 30 * 24 * 60 * 60 * 1000; 
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -31,12 +31,22 @@ export function UserProvider({ children }) {
         const loginTime = Date.now();
         localStorage.setItem("loginTime", loginTime);
 
-        // Schedule automatic logout after session duration
-        sessionTimeout = setTimeout(async () => {
-          await auth.signOut();
-          setUser(null);
-          localStorage.removeItem("loginTime");
-        }, SESSION_DURATION);
+        // Schedule automatic logout after session duration.
+        // setTimeout delays are capped at a 32-bit signed int (~24.8 days);
+        // anything larger is clamped to 1ms by the browser and fires immediately.
+        const MAX_TIMEOUT = 2 ** 31 - 1;
+        const scheduleLogout = (delay) => {
+          if (delay > MAX_TIMEOUT) {
+            sessionTimeout = setTimeout(() => scheduleLogout(delay - MAX_TIMEOUT), MAX_TIMEOUT);
+            return;
+          }
+          sessionTimeout = setTimeout(async () => {
+            await auth.signOut();
+            setUser(null);
+            localStorage.removeItem("loginTime");
+          }, Math.max(delay, 0));
+        };
+        scheduleLogout(SESSION_DURATION);
 
         // Set up presence tracking
         const userOnlineRef = ref(db, `t4_bouldering/users/${currentUser.uid}/online`);

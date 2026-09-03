@@ -31,10 +31,18 @@ export default function TeamSelector({
           {label}
         </label>
       )}
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
+      <div className="flex items-center gap-1.5">
+        {selectedTeam?.logo_url && (
+          <img
+            src={selectedTeam.logo_url}
+            alt={selectedTeam.name}
+            className="w-11 h-11 shrink-0 rounded-lg object-cover"
+          />
+        )}
+
+        <div className="relative flex-1 min-w-0">
           <select
-            className={`w-full appearance-none rounded-lg border pl-3 pr-8 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 ${
+            className={`w-full h-11 appearance-none rounded-lg border pl-3 pr-8 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 ${
               locked
                 ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
                 : "bg-white border-gray-300 text-gray-800 hover:border-gray-400 cursor-pointer"
@@ -51,7 +59,7 @@ export default function TeamSelector({
             ))}
           </select>
           <ChevronDown
-            size={14}
+            size={16}
             className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
           />
         </div>
@@ -62,23 +70,15 @@ export default function TeamSelector({
               e.stopPropagation();
               onLockToggle?.();
             }}
-            className={`p-2 rounded-lg transition-colors ${
+            className={`h-11 w-11 shrink-0 grid place-items-center rounded-lg transition-colors cursor-pointer ${
               locked
                 ? "bg-orange-50 text-orange-500 hover:bg-orange-100"
                 : "bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
             }`}
             title={locked ? "Unlock team" : "Lock team"}
           >
-            {locked ? <Lock size={16} /> : <Unlock size={16} />}
+            {locked ? <Lock size={18} /> : <Unlock size={18} />}
           </button>
-        )}
-
-        {selectedTeam?.logo_url && (
-          <img
-            src={selectedTeam.logo_url}
-            alt={selectedTeam.name}
-            className="w-12 h-12 rounded-lg object-cover "
-          />
         )}
       </div>
     </div>
